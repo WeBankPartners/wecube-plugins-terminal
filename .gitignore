@@ -1,0 +1,14 @@
+/.coverage
+/.project
+/.pydevproject
+/.settings/*
+*.pyc
+api/terminal/assets/*
+api/terminal/htmlcov/*
+api/terminal/unit_test_report.html
+api/terminal/.vscode/*
+api/terminal/terminal.egg-info
+api/terminal/server.log
+api/terminal/simple_server.py
+api/terminal/ws_server.py
+api/terminal/build/*
