@@ -67,3 +67,4 @@ application = base.initialize_server('terminal',
                                      os.environ.get('TERMINAL_CONF', '/etc/terminal/terminal.conf'),
                                      conf_dir=os.environ.get('TERMINAL_CONF_DIR', '/etc/terminal/terminal.conf.d'),
                                      middlewares=[auth.JWTAuth()])
+application.req_options.auto_parse_qs_csv = True

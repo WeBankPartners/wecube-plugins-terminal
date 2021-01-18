@@ -26,7 +26,7 @@ CONF = config.CONF
 settings = {}
 
 app = tornado.web.Application([
-    (r"/ssh", SSHHandler),
+    (r"/terminal/v1/ssh", SSHHandler),
 ], **settings)
 
 

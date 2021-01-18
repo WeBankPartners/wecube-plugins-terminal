@@ -39,28 +39,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
         return True
 
     def open(self):
-        self.request.get_query_argument('asset_id')
-        asset_id = self.get_query_argument('asset_id')
-        if not asset_id:
-            self.set_status(400)
-            self.write({'code': 400, 'status': 'ERROR', 'data': None, 'message': _('missing query param: asset_id')})
-            self.close()
-            return
-        try:
-            asset = asset_api.Asset().get_connection_info(asset_id)
-        except exceptions.NotFoundError:
-            self.set_status(400)
-            self.write({
-                'code': 400,
-                'status': 'ERROR',
-                'data': None,
-                'message': _('the resource(%(resource)s) you request not found') % {
-                    'resource': 'Asset#' + asset_id
-                }
-            })
-            self.close()
-            return
-        self._ssh_client.connect(asset['ip_address'], asset['username'], asset['password'])
+        pass
 
     def _encode(self, data):
         # if isinstance(data, bytes):
@@ -116,6 +95,33 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             self._ssh_meta = msg['data']
             user_cols = self._ssh_meta.get('cols', None)
             user_rows = self._ssh_meta.get('rows', None)
+            asset_id = self._ssh_meta.get('asset_id', None)
+            token = self._ssh_meta.get('token', None)
+            if not asset_id:
+                self.write_message(json.dumps({
+                    'type': 'error',
+                    'data': _('missing query param: asset_id')
+                }),
+                                   binary=False)
+                self.close()
+                return
+            try:
+                asset = asset_api.Asset(token=token).get_connection_info(asset_id)
+            except exceptions.core_ex.AuthError:
+                self.write_message(json.dumps({'type': 'error', 'data': _('invalid token')}), binary=False)
+                self.close()
+                return
+            except exceptions.NotFoundError:
+                self.write_message(json.dumps({
+                    'type': 'error',
+                    'data': _('the resource(%(resource)s) you request not found') % {
+                        'resource': 'Asset#' + asset_id
+                    }
+                }),
+                                   binary=False)
+                self.close()
+                return
+            self._ssh_client.connect(asset['ip_address'], asset['username'], asset['password'])
             self._ssh_client.create_shell(self, cols=user_cols, rows=user_rows)
             self._audit.resize(user_cols, user_rows)
             self._ssh_client.create_sftp()

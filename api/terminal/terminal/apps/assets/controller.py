@@ -9,7 +9,7 @@ from terminal.apps.assets import api as files_api
 class CollectionAssets(Collection):
     name = 'terminal.assets'
     resource = files_api.Asset
-    allow_methods = ('POST', )
+    allow_methods = ('GET', )
 
     def on_get(self, req, resp, **kwargs):
         self._validate_method(req)
@@ -24,31 +24,26 @@ class CollectionAssets(Collection):
         resp.json = {'code': 200, 'status': 'OK', 'data': {'count': count, 'data': refs}, 'message': 'success'}
 
 
-class ItemAssetFile(Item):
-    name = 'terminal.assets.file'
-    resource = files_api.AssetFile
+# class ItemAssetFile(Item):
+#     name = 'terminal.assets.file'
+#     resource = files_api.AssetFile
 
+# class CollectionRecords(Collection):
+#     name = 'terminal.records'
+#     resource = files_api.Record
 
-class CollectionRecords(Collection):
-    name = 'terminal.records'
-    resource = files_api.Record
+# class ItemRecordFile(Item):
+#     name = 'terminal.records.file'
+#     resource = files_api.RecordFile
 
+# class CollectionRecordCommands(Collection):
+#     name = 'terminal.records.commands'
+#     resource = files_api.RecordCommand
 
-class ItemRecordFile(Item):
-    name = 'terminal.records.file'
-    resource = files_api.RecordFile
+# class CollectionPermissions(Collection):
+#     name = 'terminal.permissions'
+#     resource = files_api.Permission
 
-
-class CollectionRecordCommands(Collection):
-    name = 'terminal.records.commands'
-    resource = files_api.RecordCommand
-
-
-class CollectionPermissions(Collection):
-    name = 'terminal.permissions'
-    resource = files_api.Permission
-
-
-class ItemPermission(Item):
-    name = 'terminal.permissions'
-    resource = files_api.Permission
+# class ItemPermission(Item):
+#     name = 'terminal.permissions'
+#     resource = files_api.Permission
