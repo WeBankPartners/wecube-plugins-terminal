@@ -50,6 +50,10 @@ job_defaults = {'coalesce': False, 'max_instances': 1}
 def rotate_log():
     try:
         logs = [CONF.log.gunicorn_access, CONF.log.gunicorn_error, CONF.log.path]
+        extend_logs = getattr(CONF.log, 'loggers', [])
+        for l in extend_logs:
+            if l.get('path'):
+                logs.append(l['path'])
         max_file_keep = 30
         for log_file in logs:
             results = []

@@ -15,7 +15,8 @@ RUN apt update && apt-get -y install gcc python3-dev && \
 # Use app:app to run gunicorn
 RUN mkdir -p /etc/terminal/
 RUN mkdir -p /var/log/terminal/
-ADD etc/* /etc/terminal/
+RUN mkdir -p /data/terminal/records
+ADD api/terminal/etc/* /etc/terminal/
 # RUN adduser --disabled-password app
 # RUN chown -R app:app /etc/terminal/
 # RUN chown -R app:app /var/log/terminal/
