@@ -29,7 +29,7 @@
     <!-- 6.运行资源 - 描述部署运行本插件包需要的基础资源(如主机、虚拟机、容器、数据库等) -->
     <resourceDependencies>
         <docker imageName="{{IMAGENAME}}" containerName="{{CONTAINERNAME}}" 
-        portBindings="{{ALLOCATE_PORT}}:9001"
+        portBindings="{{ALLOCATE_PORT}}:9001,19002:9002"
         volumeBindings="/etc/localtime:/etc/localtime,{{BASE_MOUNT_PATH}}/terminal/logs:/var/log/terminal,{{BASE_MOUNT_PATH}}/certs:/certs,{{BASE_MOUNT_PATH}}/terminal/records:/data/terminal/records" 
         envVariables="TERMINAL_DB_USERNAME={{DB_USER}},TERMINAL_DB_PASSWORD={{DB_PWD}},
         TERMINAL_DB_HOSTIP={{DB_HOST}},TERMINAL_DB_HOSTPORT={{DB_PORT}},TERMINAL_DB_SCHEMA={{DB_SCHEMA}},
