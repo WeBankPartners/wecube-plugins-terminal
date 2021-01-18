@@ -9,8 +9,8 @@ import multiprocessing
 
 from talos.core import config as __config
 
-__config.setup(os.environ.get('TERMINAL_CONF', './etc/terminal.conf'),
-               dir_path=os.environ.get('TERMINAL_CONF_DIR', './etc/terminal.conf.d'))
+__config.setup(os.environ.get('TERMINAL_CONF', '/etc/terminal/terminal.conf'),
+               dir_path=os.environ.get('TERMINAL_CONF_DIR', '/etc/terminal/terminal.conf.d'))
 CONF = __config.CONF
 
 name = CONF.locale_app
