@@ -5,6 +5,7 @@ import logging
 import time
 import json
 import os.path
+import random
 
 import tornado.websocket
 import tornado.web
@@ -32,7 +33,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
         self._timer_client_close_check = None
         self._timer_client_idle_check = None
         self._last_transfer = time.time()
-        self._ssh_recorder = ssh.SSHRecorder(os.path.join(CONF.session.record_path, "%s.cast" % int(time.time())))
+        self._ssh_recorder = None
         self._audit = ssh.CommandParser()
 
     def check_origin(self, origin):
@@ -77,7 +78,9 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         self._ssh_client.close()
-        self._ssh_recorder.close()
+        if self._ssh_recorder:
+            self._ssh_recorder.close()
+            self._ssh_recorder = None
         # if any exception happened, we should cancel all timers
         if self._timer_client_close_check:
             IOLoop.current().remove_timeout(self._timer_client_close_check)
@@ -90,6 +93,13 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
         :param message: message format: {"type": "init/resize/console/listdir", "data": ""}
         :type message: dict
         '''
+        def _generate_random(length=8):
+            chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+            nonce = ''
+            for idx in range(length):
+                nonce += random.choice(chars)
+            return nonce
+
         msg = json.loads(message)
         if msg['type'] == 'init':
             self._ssh_meta = msg['data']
@@ -126,6 +136,9 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             self._audit.resize(user_cols, user_rows)
             self._ssh_client.create_sftp()
             # generate record after meta information
+            self._ssh_recorder = ssh.SSHRecorder(
+                os.path.join(CONF.session.record_path,
+                             "%s_%s_%s.cast" % (asset_id, int(time.time()), _generate_random())))
             self._ssh_recorder.start(cols=user_cols, rows=user_rows)
             self._timer_client_close_check = IOLoop.current().call_later(INTERVAL_CLOSE_CHECK, self._client_close_check)
             self._timer_client_idle_check = IOLoop.current().call_later(INTERVAL_IDLE_CHECK, self._client_idle_check)
