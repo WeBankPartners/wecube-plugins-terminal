@@ -160,6 +160,6 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                 root_attr = ssh.SSHClient.format_sftp_attr(None, None)
                 root_attr['name'] = '..'
                 root_attr['fullpath'] = os.path.dirname(dirpath)
-                root_attr['isdir'] = True
+                root_attr['type'] = ssh.FileType.T_DIR
                 results.insert(0, root_attr)
             self.write_message(json.dumps({'type': 'listdir', 'data': results}), binary=False)

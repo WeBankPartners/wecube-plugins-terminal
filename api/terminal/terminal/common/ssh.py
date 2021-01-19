@@ -29,6 +29,19 @@ DEFAULT_COLUMNS = 80
 DEFAULT_ROWS = 24
 
 
+class FileType:
+    T_DIR = 'dir'
+    T_FILE = 'file'
+    T_LINK = 'link'
+    T_SOCKET = 'socket'
+    T_PIPE = 'pipe'
+    T_CDEVICE = 'character-device'
+    T_BDEVICE = 'block-device'
+    T_DOOR = 'door'
+    T_PORT = 'port'
+    T_WHITEOUT = 'whiteout'
+
+
 class SSHClient:
     def __init__(self):
         self._shell = None
@@ -132,6 +145,7 @@ class SSHClient:
             # only one sftp active in a client
             self._sftp.close()
         self._sftp = self._client.open_sftp()
+        return self._sftp
 
     def close_sftp(self):
         if self._sftp:
@@ -181,7 +195,7 @@ class SSHClient:
             'name': '',
             'fullpath': '',
             'mode': '',
-            'isdir': False,
+            'type': None,
             'size': 0,
             'gid': 0,
             'uid': 0,
@@ -193,30 +207,31 @@ class SSHClient:
             result['fullpath'] = os.path.join(cwd, result['name'])
             ks = "?---------"
             if attr.st_mode is not None:
-                kind = stat.S_IFMT(attr.st_mode)
-                if kind == stat.S_IFIFO:
-                    ks = "p"
-                elif kind == stat.S_IFCHR:
-                    ks = "c"
-                elif kind == stat.S_IFDIR:
-                    ks = "d"
-                elif kind == stat.S_IFBLK:
-                    ks = "b"
-                elif kind == stat.S_IFREG:
-                    ks = "-"
-                elif kind == stat.S_IFLNK:
-                    ks = "l"
-                elif kind == stat.S_IFSOCK:
-                    ks = "s"
-                else:
-                    ks = "?"
-                ks += attr._rwx((attr.st_mode & o700) >> 6, attr.st_mode & stat.S_ISUID)
-                ks += attr._rwx((attr.st_mode & o70) >> 3, attr.st_mode & stat.S_ISGID)
-                ks += attr._rwx(attr.st_mode & 7, attr.st_mode & stat.S_ISVTX, True)
+                ks = stat.filemode(attr.st_mode)
             else:
                 ks = "?---------"
             result['mode'] = ks
-            result['isdir'] = ks.startswith('d')
+            if attr.st_mode is not None:
+                if stat.S_ISDIR(attr.st_mode):
+                    result['type'] = FileType.T_DIR
+                elif stat.S_ISREG(attr.st_mode):
+                    result['type'] = FileType.T_FILE
+                elif stat.S_ISLNK(attr.st_mode):
+                    result['type'] = FileType.T_LINK
+                elif stat.S_ISSOCK(attr.st_mode):
+                    result['type'] = FileType.T_SOCKET
+                elif stat.S_ISFIFO(attr.st_mode):
+                    result['type'] = FileType.T_PIPE
+                elif stat.S_ISCHR(attr.st_mode):
+                    result['type'] = FileType.T_CDEVICE
+                elif stat.S_ISBLK(attr.st_mode):
+                    result['type'] = FileType.T_BDEVICE
+                elif stat.S_ISDOOR(attr.st_mode):
+                    result['type'] = FileType.T_DOOR
+                elif stat.S_ISPORT(attr.st_mode):
+                    result['type'] = FileType.T_PORT
+                elif stat.S_ISWHT(attr.st_mode):
+                    result['type'] = FileType.T_WHITEOUT
 
             # not all servers support uid/gid
             uid = attr.st_uid
@@ -337,7 +352,8 @@ class CommandParser:
                 # feed data from output
                 self._state = TerminalChar.CH_TAB
             elif data[0] == TerminalChar.CH_ENT:
-                # TODO: multiline support
+                # TODO: input with multiline data support
+                # TODO: parse with multine data optimize
                 # TODO: vim mode optimize
                 command = "".join(self.screen.display).strip()
                 self.screen.reset()

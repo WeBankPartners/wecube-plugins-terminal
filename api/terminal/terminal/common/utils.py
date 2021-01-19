@@ -221,7 +221,7 @@ def transform_filter_to_cmdb_query(filters, orders=None, offset=None, limit=None
     def _transform_filter_field(filters, mappings):
         '''transform talos filters to wecmdb filters
         '''
-        new_filters = []
+        new_filters = {}
         for filter_key, filter_value in filters.items():
             if filter_key in mappings:
                 new_filters[mappings[filter_key]] = filter_value
