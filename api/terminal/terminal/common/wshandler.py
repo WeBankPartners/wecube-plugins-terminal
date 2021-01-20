@@ -108,20 +108,14 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             asset_id = self._ssh_meta.get('asset_id', None)
             token = self._ssh_meta.get('token', None)
             if not asset_id:
-                self.write_message(json.dumps({
-                    'type': 'error',
-                    'data': _('missing query param: asset_id')
-                }),
-                                   binary=False)
-                self.close()
-                return
+                self.write_message(json.dumps({'type': 'error', 'data': _('missing param: asset_id')}), binary=False)
+                raise exceptions.FieldRequired(attribute='asset_id')
             try:
                 asset = asset_api.Asset(token=token).get_connection_info(asset_id)
-            except exceptions.core_ex.AuthError:
+            except exceptions.core_ex.AuthError as e:
                 self.write_message(json.dumps({'type': 'error', 'data': _('invalid token')}), binary=False)
-                self.close()
-                return
-            except exceptions.NotFoundError:
+                raise e
+            except exceptions.NotFoundError as e:
                 self.write_message(json.dumps({
                     'type': 'error',
                     'data': _('the resource(%(resource)s) you request not found') % {
@@ -129,9 +123,12 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                     }
                 }),
                                    binary=False)
-                self.close()
-                return
-            self._ssh_client.connect(asset['ip_address'], asset['username'], asset['password'])
+                raise e
+            try:
+                self._ssh_client.connect(asset['ip_address'], asset['username'], asset['password'])
+            except exceptions.PluginError as e:
+                self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
+                raise e
             self._ssh_client.create_shell(self, cols=user_cols, rows=user_rows)
             self._audit.resize(user_cols, user_rows)
             self._ssh_client.create_sftp()

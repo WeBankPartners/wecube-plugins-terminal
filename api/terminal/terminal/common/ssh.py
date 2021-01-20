@@ -19,9 +19,11 @@ import os.path
 
 import pyte
 import paramiko
+import paramiko.ssh_exception
 from paramiko.common import x80000000, o700, o70, xffffffff
 from tornado.ioloop import IOLoop
 from talos.core.i18n import _
+from terminal.common import exceptions
 
 LOG = logging.getLogger(__name__)
 RECV_BUFF_SIZE = 64 * 1024
@@ -59,26 +61,31 @@ class SSHClient:
             self._client.connect(hostname=host, port=int(port), username=username, password=password, timeout=10.0)
         except paramiko.AuthenticationException as e:
             LOG.exception(e)
-            raise Exception(
-                _("failed to authenticate %(username)s@%(host)s[%(port)s] with password: %(password)s, detail: %(detail)s"
-                  ) % {
-                      'username': username,
-                      'host': host,
-                      'port': port,
-                      'password': len(password) * '*',
-                      'detail': e
-                  })
+            raise exceptions.PluginError(message=_(
+                "failed to authenticate %(username)s@%(host)s:%(port)s with password: %(password)s, detail: %(detail)s")
+                                         % {
+                                             'username': username,
+                                             'host': host,
+                                             'port': port,
+                                             'password': len(password) * '*',
+                                             'detail': e
+                                         })
         except paramiko.SSHException as e:
             LOG.exception(e)
-            raise Exception(
-                _("failed to connect %(username)s@%(host)s[%(port)s] with password: %(password)s, detail: %(detail)s") %
-                {
+            raise exceptions.PluginError(message=_(
+                "failed to connect %(username)s@%(host)s:%(port)s with password: %(password)s, detail: %(detail)s") % {
                     'username': username,
                     'host': host,
                     'port': port,
                     'password': len(password) * '*',
                     'detail': e
                 })
+        except paramiko.ssh_exception.NoValidConnectionsError as e:
+            LOG.exception(e)
+            raise exceptions.PluginError(message=_("failed to establish connection on %(host)s:%(port)s") % {
+                'host': host,
+                'port': port
+            })
 
     def _load_private_key(self, key_content, key_password):
         return paramiko.RSAKey.from_private_key(io.StringIO(key_content), key_password)
@@ -93,8 +100,8 @@ class SSHClient:
                                  timeout=10.0)
         except paramiko.AuthenticationException as e:
             LOG.exception(e)
-            raise Exception(
-                _("failed to authenticate %(username)s@%(host)s[%(port)s] with private key, detail: %(detail)s") % {
+            raise exceptions.PluginError(message=_(
+                "failed to authenticate %(username)s@%(host)s:%(port)s with private key, detail: %(detail)s") % {
                     'username': username,
                     'host': host,
                     'port': port,
@@ -102,13 +109,19 @@ class SSHClient:
                 })
         except paramiko.SSHException as e:
             LOG.exception(e)
-            raise Exception(
-                _("failed to connect %(username)s@%(host)s[%(port)s] with private key, detail: %(detail)s") % {
+            raise exceptions.PluginError(
+                message=_("failed to connect %(username)s@%(host)s:%(port)s with private key, detail: %(detail)s") % {
                     'username': username,
                     'host': host,
                     'port': port,
                     'detail': e
                 })
+        except paramiko.ssh_exception.NoValidConnectionsError as e:
+            LOG.exception(e)
+            raise exceptions.PluginError(message=_("failed to establish connection on %(host)s:%(port)s") % {
+                'host': host,
+                'port': port
+            })
 
     def create_shell(self, forward_stream, term="xterm", cols=None, rows=None):
         '''get shell from ssh client
