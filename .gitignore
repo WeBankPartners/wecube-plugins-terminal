@@ -12,3 +12,9 @@ api/terminal/server.log
 api/terminal/simple_server.py
 api/terminal/ws_server.py
 api/terminal/build/*
+
+# ui
+ui/node_modules
+ui/dist
+ui/src/pages/terminal/ws.js
+ui/package-lock.json
