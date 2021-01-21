@@ -3,74 +3,73 @@
 from __future__ import absolute_import
 
 from talos.db.dictbase import DictBase
-#
-#
-# Base = declarative_base()
-# metadata = Base.metadata
-#
-#
-# def get_names():
-#     """
-#     获取所有Model类名
-#     """
-#     return Base._decl_class_registry.keys()
-#
-#
-# def get_class_by_name(name):
-#     """
-#     根据Model类名获取类
-#
-#     :param name: Model类名
-#     :type name: str
-#     :returns: Model类
-#     :rtype: class
-#     """
-#     return Base._decl_class_registry.get(name, None)
-#
-#
-# def get_class_by_tablename(tablename):
-#     """
-#     根据表名获取类
-#
-#     :param tablename: 表名
-#     :type tablename: str
-#     :returns: Model类
-#     :rtype: class
-#     """
-#     for c in Base._decl_class_registry.values():
-#         if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
-#             return c
-#
-#
-# def get_tablename_by_name(name):
-#     """
-#     根据Model类名获取表名
-#
-#     :param name: Model类名
-#     :type name: str
-#     :returns: 表名
-#     :rtype: str
-#     """
-#     return Base._decl_class_registry.get(name, None).__tablename__
-#
-#
-# def get_name_by_class(modelclass):
-#     """
-#     根据Model类获取类名
-#
-#     :param modelclass: Model类
-#     :type modelclass: class
-#     :returns: 类名
-#     :rtype: str
-#     """
-#     for n, c in Base._decl_class_registry.items():
-#         if c == modelclass:
-#             return n
-#
-#
-# class User(Base, DictBase):
-#     __tablename__ = 'user'
-#
-#     id = Column(String(32), primary_key=True)
-#     name = Column(String(64))
-#     email = Column(String(64))
+from sqlalchemy import Column, DateTime, ForeignKey, String, text
+from sqlalchemy.dialects.mysql import BIGINT, TINYINT
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+metadata = Base.metadata
+
+
+class Permission(Base, DictBase):
+    __tablename__ = 'permission'
+
+    id = Column(BIGINT(20), primary_key=True)
+    name = Column(String(36), nullable=False)
+    description = Column(String(63), server_default=text("''"))
+    enabled = Column(TINYINT(4), nullable=False)
+    auth_upload = Column(TINYINT(4), nullable=False)
+    auth_download = Column(TINYINT(4), nullable=False)
+    auth_execute = Column(TINYINT(4), nullable=False)
+    created_by = Column(String(36))
+    created_time = Column(DateTime)
+    updated_by = Column(String(36))
+    updated_time = Column(DateTime)
+
+    assets = relationship("PermissionAsset", back_populates="permission")
+    roles = relationship("PermissionRole", back_populates="permission")
+
+
+class PermissionAsset(Base, DictBase):
+    __tablename__ = 'permission_asset'
+
+    id = Column(BIGINT(20), primary_key=True)
+    permission_id = Column(ForeignKey('permission.id'), nullable=False, index=True)
+    asset_id = Column(String(36), nullable=False)
+
+    permission = relationship('Permission', back_populates="assets")
+
+
+class PermissionRole(Base, DictBase):
+    __tablename__ = 'permission_role'
+
+    id = Column(BIGINT(20), primary_key=True)
+    permission_id = Column(ForeignKey('permission.id'), nullable=False, index=True)
+    role = Column(String(255), nullable=False)
+
+    permission = relationship('Permission', back_populates="roles")
+
+
+class SessionRecord(Base, DictBase):
+    __tablename__ = 'session_record'
+
+    id = Column(BIGINT(20), primary_key=True)
+    asset_id = Column(String(36), nullable=False)
+    filepath = Column(String(255), nullable=False)
+    user = Column(String(36), nullable=False)
+    started_time = Column(DateTime, nullable=False)
+    ended_time = Column(DateTime)
+
+
+class TransferRecord(Base, DictBase):
+    __tablename__ = 'transfer_record'
+
+    id = Column(BIGINT(20), primary_key=True)
+    asset_id = Column(String(36), nullable=False)
+    filepath = Column(String(255), nullable=False)
+    filesize = Column(BIGINT(20), nullable=False)
+    user = Column(String(36), nullable=False)
+    operation_type = Column(String(36), nullable=False)
+    started_time = Column(DateTime, nullable=False)
+    ended_time = Column(DateTime)

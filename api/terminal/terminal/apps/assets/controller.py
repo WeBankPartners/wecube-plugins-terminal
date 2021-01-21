@@ -58,29 +58,45 @@ class ItemAssetFile(Item):
         stream, stream_len = self.download(req, path, **kwargs)
         resp.set_stream(stream, stream_len)
         resp.set_header('Content-Disposition',
-                        ("attachment;filename=" + os.path.basename(path)).encode('utf8').decode('latin-1'))
+                        ('attachment;filename=' + os.path.basename(path)).encode('utf8').decode('latin-1'))
         resp.set_header('Content-Type', 'application/octet-stream')
 
     def download(self, req, filepath, **kwargs):
         return self.resource().download(filepath, **kwargs)
 
 
-# class CollectionRecords(Collection):
-#     name = 'terminal.records'
-#     resource = files_api.Record
+class CollectionTransferRecords(Collection):
+    name = 'terminal.transfer-records'
+    resource = files_api.TransferRecord
+    allow_methods = ('GET', )
 
-# class ItemRecordFile(Item):
-#     name = 'terminal.records.file'
-#     resource = files_api.RecordFile
 
-# class CollectionRecordCommands(Collection):
-#     name = 'terminal.records.commands'
-#     resource = files_api.RecordCommand
+class CollectionSessionRecords(Collection):
+    name = 'terminal.session-records'
+    resource = files_api.SessionRecord
+    allow_methods = ('GET', )
 
-# class CollectionPermissions(Collection):
-#     name = 'terminal.permissions'
-#     resource = files_api.Permission
 
-# class ItemPermission(Item):
-#     name = 'terminal.permissions'
-#     resource = files_api.Permission
+class ItemSessionRecordFile(Item):
+    name = 'terminal.session-records.file'
+    resource = files_api.SessionRecord
+    allow_methods = ('GET', )
+
+    def on_get(self, req, resp, **kwargs):
+        stream, stream_len = self.download(req, **kwargs)
+        resp.set_stream(stream, stream_len)
+        resp.set_header('Content-Disposition', 'attachment')
+        resp.set_header('Content-Type', 'application/octet-stream')
+
+    def download(self, req, **kwargs):
+        return self.resource().download(**kwargs)
+
+
+class CollectionPermissions(Collection):
+    name = 'terminal.permissions'
+    resource = files_api.Permission
+
+
+class ItemPermission(Item):
+    name = 'terminal.permissions'
+    resource = files_api.Permission

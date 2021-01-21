@@ -7,7 +7,7 @@ import os.path
 
 from talos.core import config
 from talos.core.i18n import _
-from talos.db.crud import ResourceBase
+from terminal.db import resource
 from terminal.common import wecmdb
 from terminal.common import ssh
 from terminal.common import utils
@@ -31,8 +31,8 @@ class Asset(object):
         return results
 
     def get_connection_info(self, rid):
-        counter, datas = self.list({'id': rid})
-        if not counter:
+        datas = self.list({'id': rid})
+        if not datas:
             raise exceptions.NotFoundError(resource='Asset(#%s)' % rid)
         return datas[0]
 
@@ -43,7 +43,8 @@ class Asset(object):
             'displayName': 'display_name',
             'ip_address': 'ip_address',
             'user_name': 'username',
-            'user_password': 'password'
+            'user_password': 'password',
+            'description': 'description'
         }
         client = wecmdb.EntityClient(CONF.wecube.base_url, self._token or utils.get_token())
         query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
@@ -85,3 +86,21 @@ class AssetFile(object):
         filesize = stat_result['size']
         fileobj = sftp.open(filepath, "rb")
         return fileobj, filesize
+
+
+TransferRecord = resource.TransferRecord
+
+
+class SessionRecord(resource.SessionRecord):
+    def download(self, rid):
+        ref = self.get(rid)
+        if ref:
+            fullpath = os.path.join(CONF.session.record_path, ref['filepath'])
+            if not os.path.exists(fullpath):
+                raise exceptions.NotFoundError(resource='File of SessionRecord[%s]' % rid)
+            return open(fullpath, 'rb'), os.path.getsize(fullpath)
+        else:
+            raise exceptions.NotFoundError(resource='SessionRecord[%s]' % rid)
+
+
+Permission = resource.Permission

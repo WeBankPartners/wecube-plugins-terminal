@@ -161,15 +161,21 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             # update idle time
             self._last_transfer = time.time()
             dirpath = msg.get('data', None) or '~'
-            self._ssh_client.sftp.chdir(dirpath)
-            dirpath = self._ssh_client.sftp.getcwd()
-            results = []
-            for attr in self._ssh_client.sftp.listdir_attr(dirpath):
-                results.append(ssh.SSHClient.format_sftp_attr(dirpath, attr))
+            results = {'pwd': dirpath, 'filelist': []}
+            try:
+                self._ssh_client.sftp.chdir(dirpath)
+                dirpath = self._ssh_client.sftp.getcwd()
+                results['pwd'] = dirpath
+                for attr in self._ssh_client.sftp.listdir_attr(dirpath):
+                    results['filelist'].append(ssh.SSHClient.format_sftp_attr(dirpath, attr))
+            except FileNotFoundError as e:
+                pass
+            except PermissionError as e:
+                pass
             if dirpath != '/':
                 root_attr = ssh.SSHClient.format_sftp_attr(None, None)
                 root_attr['name'] = '..'
                 root_attr['fullpath'] = os.path.dirname(dirpath)
                 root_attr['type'] = ssh.FileType.T_DIR
-                results.insert(0, root_attr)
+                results['filelist'].insert(0, root_attr)
             self.write_message(json.dumps({'type': 'listdir', 'data': results}), binary=False)
