@@ -26,7 +26,7 @@ class Asset(object):
         for item in datas:
             new_item = {}
             for origin_name, name in fields.items():
-                new_item[name] = item['data'].get(origin_name, None)
+                new_item[name] = item.get(origin_name, None)
             results.append(new_item)
         return results
 
@@ -38,24 +38,20 @@ class Asset(object):
 
     def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
         fields = {
-            'guid': 'id',
+            'id': 'id',
             'name': 'name',
-            'key_name': 'display_name',
+            'displayName': 'display_name',
             'ip_address': 'ip_address',
             'user_name': 'username',
             'user_password': 'password'
         }
-        client = wecmdb.WeCMDBClient(CONF.wecube.base_url, self._token or utils.get_token())
-        query = utils.transform_filter_to_cmdb_query(filters,
-                                                     orders=orders,
-                                                     offset=offset,
-                                                     limit=limit,
-                                                     fields_mapping=fields)
-        resp_json = client.retrieve(CONF.wecmdb.asset_type, query)
-        counter = resp_json.get('data', {}).get('pageInfo', {}).get('totalRows') or 0
-        datas = resp_json.get('data', {}).get('contents', [])
+        client = wecmdb.EntityClient(CONF.wecube.base_url, self._token or utils.get_token())
+        query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
+        package, entity = CONF.wecmdb.asset_type.split(':')
+        resp_json = client.retrieve(package, entity, query)
+        datas = resp_json.get('data', [])
         datas = self._transform_field(datas, fields)
-        return counter, datas
+        return datas
 
 
 class AssetFile(object):

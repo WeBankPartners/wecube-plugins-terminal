@@ -22,10 +22,11 @@ class CollectionAssets(Collection):
         count = 0
         criteria = self._build_criteria(req)
         if criteria:
-            count, refs = self.list(req, criteria, **kwargs)
+            refs = self.list(req, criteria, **kwargs)
             for r in refs:
                 # remove password info
                 r.pop('password', None)
+            count = len(refs)
         resp.json = {'code': 200, 'status': 'OK', 'data': {'count': count, 'data': refs}, 'message': 'success'}
 
 

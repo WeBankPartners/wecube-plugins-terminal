@@ -17,7 +17,50 @@ LOG = logging.getLogger(__name__)
 CONF = config.CONF
 
 
-class WeCMDBClient(object):
+class ClientMixin:
+    def build_headers(self):
+        return {'Authorization': 'Bearer ' + self.token}
+
+    def check_response(self, resp_json):
+        if resp_json['status'] != 'OK':
+            # 当创建/更新条目错误，且仅有一个错误时，返回内部错误信息
+            if isinstance(resp_json.get('data', None), list) and len(resp_json['data']) == 1:
+                if 'message' in resp_json['data'][0]:
+                    raise exceptions.PluginError(message=resp_json['data'][0]['message'])
+            raise exceptions.PluginError(message=resp_json['message'])
+
+    def get(self, url, param=None):
+        LOG.info('GET %s', url)
+        LOG.debug('Request: query - %s, data - None', str(param))
+        resp_json = utils.RestfulJson.get(url, headers=self.build_headers(), params=param)
+        LOG.debug('Response: %s', str(resp_json))
+        self.check_response(resp_json)
+        return resp_json
+
+    def post(self, url, data, param=None):
+        LOG.info('POST %s', url)
+        LOG.debug('Request: query - %s, data - %s', str(param), str(data))
+        resp_json = utils.RestfulJson.post(url, headers=self.build_headers(), params=param, json=data)
+        LOG.debug('Response: %s', str(resp_json))
+        self.check_response(resp_json)
+        return resp_json
+
+
+class EntityClient(ClientMixin):
+    def __init__(self, server, token):
+        self.server = server.rstrip('/')
+        self.token = token
+
+    @staticmethod
+    def build_query_url(package, entity):
+        return '/%s/entities/%s/query' % (package, entity)
+
+    def retrieve(self, package, entity, query):
+        url = self.server + self.build_query_url(package, entity)
+        return self.post(url, query)
+
+
+class WeCMDBClient(ClientMixin):
     """WeCMDB Client"""
     def __init__(self, server, token):
         self.server = server.rstrip('/')
@@ -63,9 +106,6 @@ class WeCMDBClient(object):
     def build_enumcode_url():
         return '/wecmdb/api/v2/enum/codes/retrieve'
 
-    def build_headers(self):
-        return {'Authorization': 'Bearer ' + self.token}
-
     def check_response(self, resp_json):
         if resp_json['statusCode'] != 'OK':
             # 当创建/更新条目错误，且仅有一个错误时，返回内部错误信息
@@ -73,22 +113,6 @@ class WeCMDBClient(object):
                 if 'errorMessage' in resp_json['data'][0]:
                     raise exceptions.PluginError(message=resp_json['data'][0]['errorMessage'])
             raise exceptions.PluginError(message=resp_json['statusMessage'])
-
-    def get(self, url, param=None):
-        LOG.info('GET %s', url)
-        LOG.debug('Request: query - %s, data - None', str(param))
-        resp_json = utils.RestfulJson.get(url, headers=self.build_headers(), params=param)
-        LOG.debug('Response: %s', str(resp_json))
-        self.check_response(resp_json)
-        return resp_json
-
-    def post(self, url, data, param=None):
-        LOG.info('POST %s', url)
-        LOG.debug('Request: query - %s, data - %s', str(param), str(data))
-        resp_json = utils.RestfulJson.post(url, headers=self.build_headers(), params=param, json=data)
-        LOG.debug('Response: %s', str(resp_json))
-        self.check_response(resp_json)
-        return resp_json
 
     def special_connector(self):
         url = self.server + self.build_connector_url()

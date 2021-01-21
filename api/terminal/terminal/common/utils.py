@@ -201,8 +201,92 @@ def get_token():
     return utils.get_attr(scoped_globals.GLOBALS, 'request.auth_token') or CONF.wecube.token
 
 
-def transform_filter_to_cmdb_query(filters, orders=None, offset=None, limit=None, fields_mapping=None):
-    '''transform filter from talos filters to wecmdb filters
+# def transform_filter_to_cmdb_query(filters, orders=None, offset=None, limit=None, fields_mapping=None):
+#     '''transform filter from talos filters to wecmdb filters
+#     '''
+#     def _reverse_mapping(mappings):
+#         '''reverse origin_field=>field mapping to field=>origin_field
+#         '''
+#         new_mappings = {}
+#         for map_key, map_value in mappings.items():
+#             new_mappings[map_value] = map_key
+#         return new_mappings
+
+#     def _transform_operator(operator):
+#         '''transform talos operator to wecmdb operator
+#         '''
+#         mappings = {'ilike': 'contains', 'like': 'contains'}
+#         return mappings.get(operator) or operator
+
+#     def _transform_filter_field(filters, mappings):
+#         '''transform talos filters to wecmdb filters
+#         '''
+#         new_filters = {}
+#         for filter_key, filter_value in filters.items():
+#             if filter_key in mappings:
+#                 new_filters[mappings[filter_key]] = filter_value
+#             else:
+#                 new_filters[filter_key] = filter_value
+#         return new_filters
+
+#     def _transform_order_field(orders, mappings):
+#         new_orders = []
+#         for order in orders:
+#             if order.startswith('+'):
+#                 if order[1:] in mappings:
+#                     new_orders.append('+' + mappings[order[1:]])
+#                 else:
+#                     new_orders.append(order)
+#             elif order.startswith('-'):
+#                 if order[1:] in mappings:
+#                     new_orders.append('-' + mappings[order[1:]])
+#                 else:
+#                     new_orders.append(order)
+#             else:
+#                 if order in mappings:
+#                     new_orders.append(mappings[order])
+#                 else:
+#                     new_orders.append(order)
+#         return new_orders
+
+#     if fields_mapping:
+#         fields_mapping = _reverse_mapping(fields_mapping)
+#     if filters and fields_mapping:
+#         filters = _transform_filter_field(filters, fields_mapping)
+#     if orders and fields_mapping:
+#         orders = _transform_order_field(orders, fields_mapping)
+#     query = {"dialect": {"showCiHistory": False}, "filters": [], "paging": False}
+#     if offset and limit:
+#         query['paging'] = True
+#         query['pageable'] = {"pageSize": limit, "startIndex": offset}
+#     if orders:
+#         sortings = []
+#         for order in orders:
+#             if order.startswith('+'):
+#                 sortings.append({"asc": True, "field": order[1:]})
+#             elif order.startswith('-'):
+#                 sortings.append({"asc": False, "field": order[1:]})
+#             else:
+#                 sortings.append({"asc": True, "field": order})
+#         query['sortings'] = sortings
+#     if filters:
+#         new_filters = []
+#         for filter_key, filter_value in filters.items():
+#             if isinstance(filter_value, dict):
+#                 for value_key, value_value in filter_value.items():
+#                     new_filters.append({
+#                         "name": filter_key,
+#                         "operator": _transform_operator(value_key),
+#                         "value": value_value
+#                     })
+#             else:
+#                 new_filters.append({"name": filter_key, "operator": "eq", "value": filter_value})
+#         query['filters'] = new_filters
+#     return query
+
+
+def transform_filter_to_entity_query(filters, fields_mapping=None):
+    '''transform filter from talos filters to entity filters
     '''
     def _reverse_mapping(mappings):
         '''reverse origin_field=>field mapping to field=>origin_field
@@ -229,57 +313,22 @@ def transform_filter_to_cmdb_query(filters, orders=None, offset=None, limit=None
                 new_filters[filter_key] = filter_value
         return new_filters
 
-    def _transform_order_field(orders, mappings):
-        new_orders = []
-        for order in orders:
-            if order.startswith('+'):
-                if order[1:] in mappings:
-                    new_orders.append('+' + mappings[order[1:]])
-                else:
-                    new_orders.append(order)
-            elif order.startswith('-'):
-                if order[1:] in mappings:
-                    new_orders.append('-' + mappings[order[1:]])
-                else:
-                    new_orders.append(order)
-            else:
-                if order in mappings:
-                    new_orders.append(mappings[order])
-                else:
-                    new_orders.append(order)
-        return new_orders
-
     if fields_mapping:
         fields_mapping = _reverse_mapping(fields_mapping)
     if filters and fields_mapping:
         filters = _transform_filter_field(filters, fields_mapping)
-    if orders and fields_mapping:
-        orders = _transform_order_field(orders, fields_mapping)
-    query = {"dialect": {"showCiHistory": False}, "filters": [], "paging": False}
-    if offset and limit:
-        query['paging'] = True
-        query['pageable'] = {"pageSize": limit, "startIndex": offset}
-    if orders:
-        sortings = []
-        for order in orders:
-            if order.startswith('+'):
-                sortings.append({"asc": True, "field": order[1:]})
-            elif order.startswith('-'):
-                sortings.append({"asc": False, "field": order[1:]})
-            else:
-                sortings.append({"asc": True, "field": order})
-        query['sortings'] = sortings
+    query = {"additionalFilters": []}
     if filters:
         new_filters = []
         for filter_key, filter_value in filters.items():
             if isinstance(filter_value, dict):
                 for value_key, value_value in filter_value.items():
                     new_filters.append({
-                        "name": filter_key,
-                        "operator": _transform_operator(value_key),
-                        "value": value_value
+                        "attrName": filter_key,
+                        "op": _transform_operator(value_key),
+                        "condition": value_value
                     })
             else:
-                new_filters.append({"name": filter_key, "operator": "eq", "value": filter_value})
-        query['filters'] = new_filters
+                new_filters.append({"attrName": filter_key, "op": "eq", "condition": filter_value})
+        query['additionalFilters'] = new_filters
     return query

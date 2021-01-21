@@ -16,7 +16,7 @@
 
     <!-- 4.系统参数 - 描述运行本插件包需要的系统参数 -->
     <systemParameters>
-        <systemParameter name="ASSET_TYPE" scopeType="plugins" defaultValue="32"/>
+        <systemParameter name="ASSET_TYPE" scopeType="plugins" defaultValue="wecmdb:host_resource_instance"/>
     </systemParameters>
 
     <!-- 5.权限设定 -->
