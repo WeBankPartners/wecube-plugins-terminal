@@ -2,11 +2,13 @@
 
 from __future__ import absolute_import
 
+import datetime
 import logging
 import os.path
 
 from talos.core import config
 from talos.core.i18n import _
+from talos.utils.scoped_globals import GLOBALS
 from terminal.db import resource
 from terminal.common import wecmdb
 from terminal.common import ssh
@@ -58,33 +60,68 @@ class Asset(object):
 class AssetFile(object):
     def upload(self, filename, fileobj, destpath, rid):
         asset = Asset().get_connection_info(rid)
+        # TODO: check permission
         fullpath = os.path.join(destpath, filename)
         client = ssh.SSHClient()
         client.connect(asset['ip_address'], asset['username'], asset['password'])
         sftp = client.create_sftp()
+        record = TransferRecord().create({
+            'asset_id': rid,
+            'filepath': fullpath,
+            'filesize': int(GLOBALS.request.get_header('content-length', None) or 0),
+            'user': GLOBALS.request.auth_user,
+            'operation_type': 'upload',
+            'started_time': datetime.datetime.now()
+        })
         try:
             sftp.putfo(fileobj, fullpath)
+            TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'OK'})
         except FileNotFoundError:
+            TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'ERROR'})
             raise exceptions.ValidationError(message=_('%(filepath)s not exist') % {'filepath': destpath})
         except PermissionError:
+            TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'ERROR'})
             raise exceptions.ValidationError(message=_('upload to %(filepath)s error: permission denied') %
                                              {'filepath': destpath})
         return fullpath
 
     def download(self, filepath, rid):
+        # closeable wrapper
+        def _close_proxy(func, record):
+            def ___close_proxy(*args, **kwargs):
+                print('end download', datetime.datetime.now())
+                TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'OK'})
+                return func(*args, **kwargs)
+
+            return ___close_proxy
+
         asset = Asset().get_connection_info(rid)
+        # TODO: check permission
         client = ssh.SSHClient()
         client.connect(asset['ip_address'], asset['username'], asset['password'])
         sftp = client.create_sftp()
+        record = TransferRecord().create({
+            'asset_id': rid,
+            'filepath': filepath,
+            'filesize': 0,
+            'user': GLOBALS.request.auth_user,
+            'operation_type': 'download',
+            'started_time': datetime.datetime.now()
+        })
+        print('start download', datetime.datetime.now())
         try:
             stat_result = sftp.stat(filepath)
         except FileNotFoundError as e:
+            TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'ERROR'})
             raise exceptions.ValidationError(message=_('%(filepath)s not exist') % {'filepath': filepath})
         stat_result = ssh.SSHClient.format_sftp_attr('./', stat_result)
         if stat_result['type'] != ssh.FileType.T_FILE:
+            TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'ERROR'})
             raise exceptions.ValidationError(message=_('%(filepath)s is not a regular file') % {'filepath': filepath})
         filesize = stat_result['size']
+        TransferRecord().update(record['id'], {'filesize': filesize})
         fileobj = sftp.open(filepath, "rb")
+        fileobj.close = _close_proxy(fileobj.close, record)
         return fileobj, filesize
 
 

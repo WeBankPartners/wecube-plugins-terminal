@@ -3,10 +3,12 @@
 from __future__ import absolute_import
 import logging
 import time
+import datetime
 import json
 import os.path
 import random
 
+import jwt
 import tornado.websocket
 import tornado.web
 import tornado.httpserver
@@ -34,6 +36,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
         self._timer_client_idle_check = None
         self._last_transfer = time.time()
         self._ssh_recorder = None
+        self._ssh_recorder_db = None
         self._audit = ssh.CommandParser()
 
     def check_origin(self, origin):
@@ -81,6 +84,9 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
         if self._ssh_recorder:
             self._ssh_recorder.close()
             self._ssh_recorder = None
+        if self._ssh_recorder_db:
+            asset_api.SessionRecord().update(self._ssh_recorder_db['id'], {'ended_time': datetime.datetime.now()})
+            self._ssh_recorder_db = None
         # if any exception happened, we should cancel all timers
         if self._timer_client_close_check:
             IOLoop.current().remove_timeout(self._timer_client_close_check)
@@ -129,13 +135,20 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             except exceptions.PluginError as e:
                 self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
                 raise e
+            token_info = jwt.decode(token, verify=False)
             self._ssh_client.create_shell(self, cols=user_cols, rows=user_rows)
             self._audit.resize(user_cols, user_rows)
             self._ssh_client.create_sftp()
             # generate record after meta information
-            self._ssh_recorder = ssh.SSHRecorder(
-                os.path.join(CONF.session.record_path,
-                             "%s_%s_%s.cast" % (asset_id, int(time.time()), _generate_random())))
+            session_filename = "%s_%s_%s.cast" % (asset_id, int(time.time()), _generate_random())
+            self._ssh_recorder = ssh.SSHRecorder(os.path.join(CONF.session.record_path, session_filename))
+            self._ssh_recorder_db = asset_api.SessionRecord().create({
+                'asset_id': asset_id,
+                'filepath': session_filename,
+                'user': token_info['sub'],
+                'started_time': datetime.datetime.now(),
+                'ended_time': None
+            })
             self._ssh_recorder.start(cols=user_cols, rows=user_rows)
             self._timer_client_close_check = IOLoop.current().call_later(INTERVAL_CLOSE_CHECK, self._client_close_check)
             self._timer_client_idle_check = IOLoop.current().call_later(INTERVAL_IDLE_CHECK, self._client_idle_check)

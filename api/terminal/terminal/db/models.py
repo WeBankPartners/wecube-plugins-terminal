@@ -73,3 +73,4 @@ class TransferRecord(Base, DictBase):
     operation_type = Column(String(36), nullable=False)
     started_time = Column(DateTime, nullable=False)
     ended_time = Column(DateTime)
+    status = Column(String(36))
