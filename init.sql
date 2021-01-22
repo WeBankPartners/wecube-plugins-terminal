@@ -73,6 +73,7 @@ CREATE TABLE `transfer_record` (
   `started_time` datetime NOT NULL,
   `ended_time` datetime DEFAULT NULL,
   `status` varchar(36) DEFAULT NULL,
+  `message` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

@@ -80,3 +80,4 @@ class TransferRecord(Base, DictBase):
     started_time = Column(DateTime, nullable=False)
     ended_time = Column(DateTime)
     status = Column(String(36))
+    message = Column(String(255))
