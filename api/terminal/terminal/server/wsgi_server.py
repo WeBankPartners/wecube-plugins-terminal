@@ -34,7 +34,8 @@ def decrypt_rsa(secret_key, encrypt_text):
 
 
 @config.intercept('db_username', 'db_password', 'db_hostip', 'db_hostport', 'db_schema', 'gateway_url', 'asset_type',
-                  'jwt_signing_key')
+                  'asset_field_name', 'asset_field_ip', 'asset_field_user', 'asset_field_password', 'asset_field_port',
+                  'asset_field_desc', 'jwt_signing_key')
 def get_env_value(value, origin_value):
     prefix = 'ENV@'
     encrypt_prefix = 'RSA@'

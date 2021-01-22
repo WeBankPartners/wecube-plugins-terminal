@@ -16,7 +16,13 @@
 
     <!-- 4.系统参数 - 描述运行本插件包需要的系统参数 -->
     <systemParameters>
-        <systemParameter name="ASSET_TYPE" scopeType="plugins" defaultValue="wecmdb:host_resource_instance"/>
+        <systemParameter name="TERMINAL_ASSET_TYPE" scopeType="plugins" defaultValue="wecmdb:host_resource_instance"/>
+        <systemParameter name="TERMINAL_FIELD_NAME" scopeType="plugins" defaultValue="name"/>
+        <systemParameter name="TERMINAL_FIELD_IP" scopeType="plugins" defaultValue="ip_address"/>
+        <systemParameter name="TERMINAL_FIELD_PORT" scopeType="plugins" defaultValue="login_port"/>
+        <systemParameter name="TERMINAL_FIELD_USER" scopeType="plugins" defaultValue="user_name"/>
+        <systemParameter name="TERMINAL_FIELD_PASSWORD" scopeType="plugins" defaultValue="user_password"/>
+        <systemParameter name="TERMINAL_FIELD_DESC" scopeType="plugins" defaultValue="description"/>
     </systemParameters>
 
     <!-- 5.权限设定 -->
@@ -31,7 +37,7 @@
         <docker imageName="{{IMAGENAME}}" containerName="{{CONTAINERNAME}}" 
         portBindings="{{ALLOCATE_PORT}}:9001,19002:9002"
         volumeBindings="/etc/localtime:/etc/localtime,{{BASE_MOUNT_PATH}}/terminal/logs:/var/log/terminal,{{BASE_MOUNT_PATH}}/certs:/certs,{{BASE_MOUNT_PATH}}/terminal/records:/data/terminal/records" 
-        envVariables="TERMINAL_DB_USERNAME={{DB_USER}},TERMINAL_DB_PASSWORD={{DB_PWD}},TERMINAL_DB_HOSTIP={{DB_HOST}},TERMINAL_DB_HOSTPORT={{DB_PORT}},TERMINAL_DB_SCHEMA={{DB_SCHEMA}},TERMINAL_ASSET_TYPE={{ASSET_TYPE}},GATEWAY_URL={{GATEWAY_URL}},JWT_SIGNING_KEY={{JWT_SIGNING_KEY}}" />
+        envVariables="TERMINAL_DB_USERNAME={{DB_USER}},TERMINAL_DB_PASSWORD={{DB_PWD}},TERMINAL_DB_HOSTIP={{DB_HOST}},TERMINAL_DB_HOSTPORT={{DB_PORT}},TERMINAL_DB_SCHEMA={{DB_SCHEMA}},TERMINAL_ASSET_TYPE={{TERMINAL_ASSET_TYPE}},TERMINAL_FIELD_NAME={{TERMINAL_FIELD_NAME}},TERMINAL_FIELD_IP={{TERMINAL_FIELD_IP}},TERMINAL_FIELD_PORT={{TERMINAL_FIELD_PORT}},TERMINAL_FIELD_USER={{TERMINAL_FIELD_USER}},TERMINAL_FIELD_PASSWORD={{TERMINAL_FIELD_PASSWORD}},TERMINAL_FIELD_DESC={{TERMINAL_FIELD_DESC}},GATEWAY_URL={{GATEWAY_URL}},JWT_SIGNING_KEY={{JWT_SIGNING_KEY}}" />
         <mysql schema="terminal" initFileName="init.sql" upgradeFileName="upgrade.sql" />
     </resourceDependencies>
 

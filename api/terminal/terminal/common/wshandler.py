@@ -135,7 +135,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                                    binary=False)
                 raise e
             try:
-                self._ssh_client.connect(asset['ip_address'], asset['username'], asset['password'])
+                self._ssh_client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
             except exceptions.PluginError as e:
                 self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
                 raise e

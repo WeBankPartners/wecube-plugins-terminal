@@ -36,20 +36,24 @@ class Asset(object):
         datas = self.list({'id': rid}, auth_roles=auth_roles)
         if not datas:
             raise exceptions.NotFoundError(resource='Asset(#%s)' % rid)
-        return datas[0]
+        asset = datas[0]
+        if asset['port'].isnumeric():
+            asset['port'] = int(asset['port']) or 22
+        return asset
 
     def list_query(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
         fields = {
             'id': 'id',
-            'name': 'name',
+            CONF.asset.asset_field_name: 'name',
             'displayName': 'display_name',
-            'ip_address': 'ip_address',
-            'user_name': 'username',
-            'description': 'description'
+            CONF.asset.asset_field_ip: 'ip_address',
+            CONF.asset.asset_field_port: 'port',
+            CONF.asset.asset_field_user: 'username',
+            CONF.asset.asset_field_desc: 'description'
         }
         client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
         query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-        package, entity = CONF.wecmdb.asset_type.split(':')
+        package, entity = CONF.asset.asset_type.split(':')
         resp_json = client.retrieve(package, entity, query)
         datas = resp_json.get('data', [])
         datas = self._transform_field(datas, fields)
@@ -58,16 +62,17 @@ class Asset(object):
     def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None, auth_roles=None):
         fields = {
             'id': 'id',
-            'name': 'name',
+            CONF.asset.asset_field_name: 'name',
             'displayName': 'display_name',
-            'ip_address': 'ip_address',
-            'user_name': 'username',
-            'user_password': 'password',
-            'description': 'description'
+            CONF.asset.asset_field_ip: 'ip_address',
+            CONF.asset.asset_field_port: 'port',
+            CONF.asset.asset_field_user: 'username',
+            CONF.asset.asset_field_password: 'password',
+            CONF.asset.asset_field_desc: 'description'
         }
         client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
         query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-        package, entity = CONF.wecmdb.asset_type.split(':')
+        package, entity = CONF.asset.asset_type.split(':')
         resp_json = client.retrieve(package, entity, query)
         datas = resp_json.get('data', [])
         datas = self._transform_field(datas, fields)
@@ -91,7 +96,7 @@ class AssetFile(object):
         asset = Asset().get_connection_info(rid)
         fullpath = os.path.join(destpath, filename)
         client = ssh.SSHClient()
-        client.connect(asset['ip_address'], asset['username'], asset['password'])
+        client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
         sftp = client.create_sftp()
         record = TransferRecord().create({
             'asset_id': rid,
@@ -125,7 +130,7 @@ class AssetFile(object):
 
         asset = Asset().get_connection_info(rid)
         client = ssh.SSHClient()
-        client.connect(asset['ip_address'], asset['username'], asset['password'])
+        client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
         sftp = client.create_sftp()
         record = TransferRecord().create({
             'asset_id': rid,
