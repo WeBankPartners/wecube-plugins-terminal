@@ -39,6 +39,8 @@ class Asset(object):
         asset = datas[0]
         if asset['port'].isnumeric():
             asset['port'] = int(asset['port']) or 22
+        else:
+            asset['port'] = 22
         return asset
 
     def list_query(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
