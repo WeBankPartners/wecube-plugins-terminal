@@ -197,8 +197,40 @@ def b64decode_key(key):
 
 
 def get_token():
-    # TODO: create new token if CONF.wecube.use_token is False
     return utils.get_attr(scoped_globals.GLOBALS, 'request.auth_token') or CONF.wecube.token
+
+def create_subsys_token():
+    # TODO: create token
+    pass
+
+
+class ClientMixin:
+    def build_headers(self):
+        return {'Authorization': 'Bearer ' + self.token}
+
+    def check_response(self, resp_json):
+        if resp_json['status'] != 'OK':
+            # 当创建/更新条目错误，且仅有一个错误时，返回内部错误信息
+            if isinstance(resp_json.get('data', None), list) and len(resp_json['data']) == 1:
+                if 'message' in resp_json['data'][0]:
+                    raise exceptions.PluginError(message=resp_json['data'][0]['message'])
+            raise exceptions.PluginError(message=resp_json['message'])
+
+    def get(self, url, param=None):
+        LOG.info('GET %s', url)
+        LOG.debug('Request: query - %s, data - None', str(param))
+        resp_json = RestfulJson.get(url, headers=self.build_headers(), params=param)
+        LOG.debug('Response: %s', str(resp_json))
+        self.check_response(resp_json)
+        return resp_json
+
+    def post(self, url, data, param=None):
+        LOG.info('POST %s', url)
+        LOG.debug('Request: query - %s, data - %s', str(param), str(data))
+        resp_json = RestfulJson.post(url, headers=self.build_headers(), params=param, json=data)
+        LOG.debug('Response: %s', str(resp_json))
+        self.check_response(resp_json)
+        return resp_json
 
 
 # def transform_filter_to_cmdb_query(filters, orders=None, offset=None, limit=None, fields_mapping=None):

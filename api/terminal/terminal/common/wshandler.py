@@ -113,11 +113,15 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             user_rows = self._ssh_meta.get('rows', None)
             asset_id = self._ssh_meta.get('asset_id', None)
             token = self._ssh_meta.get('token', None)
+            token_info = jwt.decode(token, verify=False)
+            token_user = token_info['sub']
+            _authority = token_info.get('authority', None) or '[]'
+            token_permissions = set(_authority.strip('[]').split(','))
             if not asset_id:
                 self.write_message(json.dumps({'type': 'error', 'data': _('missing param: asset_id')}), binary=False)
                 raise exceptions.FieldRequired(attribute='asset_id')
             try:
-                asset = asset_api.Asset(token=token).get_connection_info(asset_id)
+                asset = asset_api.Asset(token=token).get_connection_info(asset_id, auth_roles=token_permissions)
             except exceptions.core_ex.AuthError as e:
                 self.write_message(json.dumps({'type': 'error', 'data': _('invalid token')}), binary=False)
                 raise e
@@ -135,7 +139,6 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             except exceptions.PluginError as e:
                 self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
                 raise e
-            token_info = jwt.decode(token, verify=False)
             self._ssh_client.create_shell(self, cols=user_cols, rows=user_rows)
             self._audit.resize(user_cols, user_rows)
             self._ssh_client.create_sftp()
@@ -145,7 +148,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             self._ssh_recorder_db = asset_api.SessionRecord().create({
                 'asset_id': asset_id,
                 'filepath': session_filename,
-                'user': token_info['sub'],
+                'user': token_user,
                 'started_time': datetime.datetime.now(),
                 'ended_time': None
             })

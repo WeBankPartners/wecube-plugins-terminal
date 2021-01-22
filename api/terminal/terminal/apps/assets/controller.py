@@ -30,6 +30,30 @@ class CollectionAssets(Collection):
         resp.json = {'code': 200, 'status': 'OK', 'data': {'count': count, 'data': refs}, 'message': 'success'}
 
 
+class CollectionViewAssets(Collection):
+    name = 'terminal.view-assets'
+    resource = files_api.Asset
+    allow_methods = ('GET', )
+
+    def on_get(self, req, resp, **kwargs):
+        self._validate_method(req)
+        refs = []
+        count = 0
+        criteria = self._build_criteria(req)
+        if criteria:
+            refs = self.list_query(req, criteria, **kwargs)
+            for r in refs:
+                # remove password info
+                r.pop('password', None)
+            count = len(refs)
+        resp.json = {'code': 200, 'status': 'OK', 'data': {'count': count, 'data': refs}, 'message': 'success'}
+
+    def list_query(self, req, criteria, **kwargs):
+        criteria.pop('fields', None)
+        refs = self.make_resource(req).list_query(**criteria)
+        return refs
+
+
 class ItemAssetFile(Item):
     name = 'terminal.assets.file'
     resource = files_api.AssetFile

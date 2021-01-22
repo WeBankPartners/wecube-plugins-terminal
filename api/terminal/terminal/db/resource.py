@@ -57,49 +57,6 @@ class Permission(MetaCRUD):
                              orm_required=False)
     ]
 
-    def _addtional_create(self, session, resource, created):
-        ref_groups = [('assets', 'asset_id', PermissionAsset), ('roles', 'role', PermissionRole)]
-        for field, ref_field, resource_type in ref_groups:
-            if field in resource:
-                refs = resource[field]
-                reduce_refs = list(set(refs))
-                reduce_refs.sort(key=refs.index)
-                for ref in reduce_refs:
-                    new_ref = {}
-                    new_ref['permission_id'] = created['id']
-                    new_ref[ref_field] = ref
-                    resource_type(transaction=session).create(new_ref)
-
-    def _addtional_update(self, session, rid, resource, before_updated, after_updated):
-        ref_groups = [('assets', 'asset_id', PermissionAsset), ('roles', 'role', PermissionRole)]
-        for field, ref_field, resource_type in ref_groups:
-            if field in resource:
-                refs = resource[field]
-                old_refs = [
-                    result[ref_field]
-                    for result in resource_type(session=session).list(filters={'permission_id': before_updated['id']})
-                ]
-                create_refs = list(set(refs) - set(old_refs))
-                create_refs.sort(key=refs.index)
-                delete_refs = set(old_refs) - set(refs)
-                if delete_refs:
-                    resource_type(transaction=session).delete_all(filters={
-                        'permission_id': before_updated['id'],
-                        ref_field: {
-                            'in': list(delete_refs)
-                        }
-                    })
-                for ref in create_refs:
-                    new_ref = {}
-                    new_ref['permission_id'] = before_updated['id']
-                    new_ref[ref_field] = ref
-                    resource_type(transaction=session).create(new_ref)
-
-    def delete(self, rid, filters=None, detail=True):
-        with self.transaction() as session:
-            PermissionAsset(transaction=session).delete_all({'permission_id': rid})
-            PermissionRole(transaction=session).delete_all({'permission_id': rid})
-
 
 class SessionRecord(crud.ResourceBase):
     orm_meta = models.SessionRecord

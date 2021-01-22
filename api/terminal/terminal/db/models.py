@@ -14,6 +14,10 @@ metadata = Base.metadata
 
 class Permission(Base, DictBase):
     __tablename__ = 'permission'
+    attributes = [
+        'id', 'name', 'description', 'enabled', 'auth_upload', 'auth_download', 'auth_execute', 'created_by',
+        'created_time', 'updated_by', 'updated_time', 'assets', 'roles'
+    ]
 
     id = Column(BIGINT(20), primary_key=True)
     name = Column(String(36), nullable=False)
@@ -27,12 +31,13 @@ class Permission(Base, DictBase):
     updated_by = Column(String(36))
     updated_time = Column(DateTime)
 
-    assets = relationship("PermissionAsset", back_populates="permission")
-    roles = relationship("PermissionRole", back_populates="permission")
+    assets = relationship("PermissionAsset", back_populates="permission", uselist=True)
+    roles = relationship("PermissionRole", back_populates="permission", uselist=True)
 
 
 class PermissionAsset(Base, DictBase):
     __tablename__ = 'permission_asset'
+    summary_attributes = ['asset_id']
 
     id = Column(BIGINT(20), primary_key=True)
     permission_id = Column(ForeignKey('permission.id'), nullable=False, index=True)
@@ -43,6 +48,7 @@ class PermissionAsset(Base, DictBase):
 
 class PermissionRole(Base, DictBase):
     __tablename__ = 'permission_role'
+    summary_attributes = ['role']
 
     id = Column(BIGINT(20), primary_key=True)
     permission_id = Column(ForeignKey('permission.id'), nullable=False, index=True)
