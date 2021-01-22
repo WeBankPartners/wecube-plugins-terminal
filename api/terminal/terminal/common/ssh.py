@@ -356,17 +356,16 @@ class CommandParser:
         if not data:
             return None
         if data_type == 'input':
-            if data[0] == TerminalChar.CH_SOH:
+            if data == TerminalChar.CH_SOH:
                 self.screen.reset()
-            elif data[0] == TerminalChar.CH_SRH:
+            elif data == TerminalChar.CH_SRH:
                 # feed data from output
                 self._state = TerminalChar.CH_SRH
-            elif data[0] == TerminalChar.CH_TAB:
+            elif data == TerminalChar.CH_TAB:
                 # feed data from output
                 self._state = TerminalChar.CH_TAB
-            elif data[0] == TerminalChar.CH_ENT:
+            elif data == TerminalChar.CH_ENT:
                 # TODO: input with multiline data support
-                # TODO: parse with multine data optimize
                 # TODO: vim mode optimize
                 command = "".join(self.screen.display).strip()
                 self.screen.reset()
@@ -374,6 +373,13 @@ class CommandParser:
                     parts = command.split(':')
                     if len(parts) == 2:
                         command = parts[1]
+                self._state = None
+                return command
+            elif TerminalChar.CH_ENT in data:
+                # parse with multine data optimize
+                command = "".join(self.screen.display).strip()
+                command = command + data.replace(TerminalChar.CH_ENT, '\r\n')
+                self.screen.reset()
                 self._state = None
                 return command
             elif data == TerminalChar.ESC_MVUP:
