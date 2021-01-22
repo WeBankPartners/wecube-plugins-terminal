@@ -112,10 +112,18 @@ class AssetFile(object):
             sftp.putfo(fileobj, fullpath)
             TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'OK'})
         except FileNotFoundError:
-            TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'ERROR', 'message': 'File not found'})
+            TransferRecord().update(record['id'], {
+                'ended_time': datetime.datetime.now(),
+                'status': 'ERROR',
+                'message': 'File not found'
+            })
             raise exceptions.ValidationError(message=_('%(filepath)s not exist') % {'filepath': destpath})
         except PermissionError:
-            TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'ERROR', 'message': 'Permission denied'})
+            TransferRecord().update(record['id'], {
+                'ended_time': datetime.datetime.now(),
+                'status': 'ERROR',
+                'message': 'Permission denied'
+            })
             raise exceptions.ValidationError(message=_('upload to %(filepath)s error: permission denied') %
                                              {'filepath': destpath})
         return fullpath
@@ -124,7 +132,6 @@ class AssetFile(object):
         # closeable wrapper
         def _close_proxy(func, record):
             def ___close_proxy(*args, **kwargs):
-                print('end download', datetime.datetime.now())
                 TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'OK'})
                 return func(*args, **kwargs)
 
@@ -142,15 +149,22 @@ class AssetFile(object):
             'operation_type': 'download',
             'started_time': datetime.datetime.now()
         })
-        print('start download', datetime.datetime.now())
         try:
             stat_result = sftp.stat(filepath)
         except FileNotFoundError as e:
-            TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'ERROR', 'message': 'File not found'})
+            TransferRecord().update(record['id'], {
+                'ended_time': datetime.datetime.now(),
+                'status': 'ERROR',
+                'message': 'File not found'
+            })
             raise exceptions.ValidationError(message=_('%(filepath)s not exist') % {'filepath': filepath})
         stat_result = ssh.SSHClient.format_sftp_attr('./', stat_result)
         if stat_result['type'] != ssh.FileType.T_FILE:
-            TransferRecord().update(record['id'], {'ended_time': datetime.datetime.now(), 'status': 'ERROR', 'message': 'Not regular file'})
+            TransferRecord().update(record['id'], {
+                'ended_time': datetime.datetime.now(),
+                'status': 'ERROR',
+                'message': 'Not regular file'
+            })
             raise exceptions.ValidationError(message=_('%(filepath)s is not a regular file') % {'filepath': filepath})
         filesize = stat_result['size']
         TransferRecord().update(record['id'], {'filesize': filesize})
