@@ -32,10 +32,10 @@ class Asset(object):
             results.append(new_item)
         return results
 
-    def get_connection_info(self, rid, auth_roles=None):
-        datas = self.list({'id': rid}, auth_roles=auth_roles)
+    def get_connection_info(self, rid, auth_roles=None, auth_type='execute'):
+        datas = self.list({'id': rid}, auth_roles=auth_roles, auth_type=auth_type)
         if not datas:
-            raise exceptions.NotFoundError(resource='Asset(#%s)' % rid)
+            raise exceptions.NotFoundError(resource='Asset(#%s for %s)' % (rid, auth_type))
         asset = datas[0]
         if asset['port'].isnumeric():
             asset['port'] = int(asset['port']) or 22
@@ -61,7 +61,14 @@ class Asset(object):
         datas = self._transform_field(datas, fields)
         return datas
 
-    def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None, auth_roles=None):
+    def list(self,
+             filters=None,
+             orders=None,
+             offset=None,
+             limit=None,
+             hooks=None,
+             auth_roles=None,
+             auth_type='execute'):
         fields = {
             'id': 'id',
             CONF.asset.asset_field_name: 'name',
@@ -78,13 +85,9 @@ class Asset(object):
         resp_json = client.retrieve(package, entity, query)
         datas = resp_json.get('data', [])
         datas = self._transform_field(datas, fields)
-        permissions = resource.Permission().list({
-            "roles.role": {
-                'in': auth_roles or list(GLOBALS.request.auth_permissions)
-            },
-            'auth_execute': 1,
-            'enabled': 1
-        })
+        permission_filters = {"roles.role": {'in': auth_roles or list(GLOBALS.request.auth_permissions)}, 'enabled': 1}
+        permission_filters['auth_' + auth_type] = 1
+        permissions = resource.Permission().list(permission_filters)
         auth_asset_ids = []
         for permission in permissions:
             auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
@@ -95,7 +98,7 @@ class Asset(object):
 
 class AssetFile(object):
     def upload(self, filename, fileobj, destpath, rid):
-        asset = Asset().get_connection_info(rid)
+        asset = Asset().get_connection_info(rid, auth_type='upload')
         fullpath = os.path.join(destpath, filename)
         client = ssh.SSHClient()
         client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
@@ -137,7 +140,7 @@ class AssetFile(object):
 
             return ___close_proxy
 
-        asset = Asset().get_connection_info(rid)
+        asset = Asset().get_connection_info(rid, auth_type='download')
         client = ssh.SSHClient()
         client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
         sftp = client.create_sftp()
