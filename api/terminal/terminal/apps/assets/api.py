@@ -35,7 +35,10 @@ class Asset(object):
     def get_connection_info(self, rid, auth_roles=None, auth_type='execute'):
         datas = self.list({'id': rid}, auth_roles=auth_roles, auth_type=auth_type)
         if not datas:
-            raise exceptions.NotFoundError(resource='Asset(#%s for %s)' % (rid, auth_type))
+            raise exceptions.PluginError(message=_('Not allowed to perform %(action)s on Asset(#%(id)s)') % {
+                'id': rid,
+                'action': auth_type
+            })
         asset = datas[0]
         if asset['port'].isnumeric():
             asset['port'] = int(asset['port']) or 22
