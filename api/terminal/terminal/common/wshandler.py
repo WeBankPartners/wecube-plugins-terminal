@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 import logging
 import time
+import re
 import datetime
 import json
 import os.path
@@ -14,22 +15,29 @@ import tornado.web
 import tornado.httpserver
 import tornado.options
 from tornado.ioloop import IOLoop
+from talos.core import exceptions as base_ex
 from talos.core import config
+from talos.common import cache
 from talos.core.i18n import _
 
 from terminal.common import ssh
 from terminal.common import exceptions
+from terminal.common import wecube
+from terminal.common import utils
 from terminal.apps.assets import api as asset_api
 
 LOG = logging.getLogger(__name__)
 CONF = config.CONF
 INTERVAL_CLOSE_CHECK = 0.5
 INTERVAL_IDLE_CHECK = 1.0
+TOKEN_KEY = 'terminal_subsystem_token'
 
 
 class SSHHandler(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, **kwargs):
         super().__init__(application, request, **kwargs)
+        self._auth_user = None
+        self._asset_info = None
         self._ssh_client = ssh.SSHClient()
         self._ssh_meta = None
         self._timer_client_close_check = None
@@ -92,6 +100,8 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             IOLoop.current().remove_timeout(self._timer_client_close_check)
         if self._timer_client_idle_check:
             IOLoop.current().remove_timeout(self._timer_client_idle_check)
+        self._asset_info = None
+        self._auth_user = None
 
     def on_message(self, message):
         '''call when received a message from client
@@ -136,6 +146,8 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                 raise e
             try:
                 self._ssh_client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
+                self._asset_info = asset
+                self._auth_user = token_user
             except exceptions.PluginError as e:
                 self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
                 raise e
@@ -165,8 +177,47 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             # self._ssh_recorder.write_command(msg['data'], None)
             command = self._audit.feed('input', msg['data'])
             if command:
-                # TODO: check command if is dangerous?
-                self.write_message(json.dumps({'type': 'warn', 'data': command}), binary=False)
+                client = wecube.WeCubeClient(CONF.wecube.base_url, None)
+                subsys_token = cache.get_or_create(TOKEN_KEY, client.login_subsystem, expires=600)
+                client.token = subsys_token
+                check_data = {
+                    "operator": self._auth_user,
+                    "serviceName": "N/A",
+                    "servicePath": "",
+                    "entityType": CONF.asset.asset_type,
+                    "entityInstances": [{
+                        "id": self._asset_info['id'],
+                        'displayName': self._asset_info['display_name']
+                    }],
+                    "inputParams": {},
+                    "scripts": [{
+                        "type": None,
+                        "content": command,
+                        "name": "console input"
+                    }]
+                }
+                try:
+                    box_ids = re.split(r',|\||;', CONF.boxes_check)
+                    if len(box_ids) == 1 and not box_ids[0].isnumeric():
+                        box_ids = None
+                    resp_json = client.post(client.server + '/itsdangerous/v1/detection',
+                                            check_data,
+                                            param={'boxes': box_ids})
+                    if resp_json['data']['text']:
+                        self.write_message(json.dumps({
+                            'type': 'warn',
+                            'data': resp_json['data']['text']
+                        }),
+                                           binary=False)
+                except base_ex.Error as e:
+                    # error if package itsdangerout not running, or timeout
+                    self.write_message(json.dumps({
+                        'type': 'error',
+                        'data': _('error calling itsdangerous: %(reason)s') % {
+                            'reason': str(e)
+                        }
+                    }),
+                                       binary=False)
 
             if not self._ssh_client.is_shell_closed:
                 self._last_transfer = time.time()

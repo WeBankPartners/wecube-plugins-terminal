@@ -200,11 +200,6 @@ def get_token():
     return utils.get_attr(scoped_globals.GLOBALS, 'request.auth_token') or CONF.wecube.token
 
 
-def create_subsys_token():
-    # TODO: create token
-    pass
-
-
 class ClientMixin:
     def build_headers(self):
         headers = None

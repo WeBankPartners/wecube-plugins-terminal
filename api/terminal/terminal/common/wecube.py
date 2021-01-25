@@ -36,7 +36,7 @@ class WeCubeClient(utils.ClientMixin):
         self.server = server.rstrip('/')
         self.token = token
 
-    def login_subsystem(self):
+    def login_subsystem(self, set_self=True):
         '''client = WeCubeClient('http://ip:port', None)
            token = client.login_subsystem()
            # use your access token
@@ -54,6 +54,8 @@ class WeCubeClient(utils.ClientMixin):
         resp_json = self.post(url, data)
         for token in resp_json['data']:
             if token['tokenType'] == 'accessToken':
+                if set_self:
+                    self.token = token['token']
                 return token['token']
 
     def update(self, url_path, data):
