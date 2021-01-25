@@ -11,6 +11,8 @@ requests
 pymysql
 pyjwt<2.0.0
 pycrypto
+# for platform login encryption, apt install swig
+M2Crypto
 gevent
 pytz
 apscheduler

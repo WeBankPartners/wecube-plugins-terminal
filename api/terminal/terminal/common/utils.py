@@ -199,6 +199,7 @@ def b64decode_key(key):
 def get_token():
     return utils.get_attr(scoped_globals.GLOBALS, 'request.auth_token') or CONF.wecube.token
 
+
 def create_subsys_token():
     # TODO: create token
     pass
@@ -206,7 +207,10 @@ def create_subsys_token():
 
 class ClientMixin:
     def build_headers(self):
-        return {'Authorization': 'Bearer ' + self.token}
+        headers = None
+        if self.token:
+            headers = {'Authorization': 'Bearer ' + self.token}
+        return headers
 
     def check_response(self, resp_json):
         if resp_json['status'] != 'OK':

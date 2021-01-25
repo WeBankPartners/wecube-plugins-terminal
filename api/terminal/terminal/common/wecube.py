@@ -6,25 +6,55 @@ terminal.common.wecube
 本模块提供项目WeCube Client（Proxy）
 
 """
+import base64
 import logging
+import random
 
-from talos.common import cache
 from talos.core import config
 from talos.core.i18n import _
-from talos.core import utils as talos_utils
-from talos.utils import scoped_globals
-from terminal.common import exceptions
 from terminal.common import utils
 
 LOG = logging.getLogger(__name__)
 CONF = config.CONF
 
 
+def encrypt(message, rsa_key):
+    import M2Crypto.RSA
+    template = '''-----BEGIN PRIVATE KEY-----
+%s
+-----END PRIVATE KEY-----'''
+    key_pem = template % rsa_key
+    privat_key = M2Crypto.RSA.load_key_string(key_pem.encode())
+    ciphertext = privat_key.private_encrypt(message.encode(), M2Crypto.RSA.pkcs1_padding)
+    encrypted_message = base64.b64encode(ciphertext).decode()
+    return encrypted_message
+
+
 class WeCubeClient(utils.ClientMixin):
     """WeCube Client"""
-    def __init__(self, server, token=None):
+    def __init__(self, server, token):
         self.server = server.rstrip('/')
-        self.token = token or utils.get_token()
+        self.token = token
+
+    def login_subsystem(self):
+        '''client = WeCubeClient('http://ip:port', None)
+           token = client.login_subsystem()
+           # use your access token
+        '''
+        sequence = 'abcdefghijklmnopqrstuvwxyz1234567890'
+        nonce = ''.join(random.choices(sequence, k=4))
+        url = self.server + '/auth/v1/api/login'
+        password = encrypt('%s:%s' % (CONF.wecube.sub_system_code, nonce), CONF.wecube.sub_system_key)
+        data = {
+            "password": password,
+            "username": CONF.wecube.sub_system_code,
+            "nonce": nonce,
+            "clientType": "SUB_SYSTEM"
+        }
+        resp_json = self.post(url, data)
+        for token in resp_json['data']:
+            if token['tokenType'] == 'accessToken':
+                return token['token']
 
     def update(self, url_path, data):
         url = self.server + url_path
