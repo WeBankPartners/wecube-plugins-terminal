@@ -277,6 +277,7 @@ class Permission(resource.Permission):
         with self.transaction() as session:
             PermissionAsset(transaction=session).delete_all({'permission_id': rid})
             PermissionRole(transaction=session).delete_all({'permission_id': rid})
+            return super().delete(rid, filters, detail)
 
 
 PermissionAsset = resource.PermissionAsset
