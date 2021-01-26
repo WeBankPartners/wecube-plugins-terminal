@@ -1,0 +1,104 @@
+@gray-f: #f5f7f9;
+@gray-d: #dadbdc;
+@gray-hover: #f3f3f3;
+@blue-2: #2d8cf0;
+@blue-lingt: #97c5f5;
+
+@color-blue: #0080FF;
+@color-red: red;
+@color-gray-E: #E9E9E9;
+@color-gray-F: #F7F7F7;
+@color-orange-F: #fa7821;
+
+
+  /* 取消radio-group-button focus部分样式 */
+  .ivu-radio-group-button .ivu-radio-wrapper-checked.ivu-radio-focus {
+    box-shadow: -1px 0 0 0 @blue-2;
+  }
+
+
+// button样式--开始
+button{
+  outline:none;
+  margin: 0 3px;
+  background-color: white;
+  cursor: pointer;
+}
+.btn-small {
+  height: 24px !important;
+  padding: 0 10px;
+}
+
+.btn-confirm-f {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 14px;
+  color: white;
+  border-radius: 4px;
+  background-color: @color-blue;
+  border: 1px solid @color-blue;
+}
+.btn-confirm-f:focus {
+  box-shadow: -1px 0 0 0 @color-blue;
+}
+
+.btn-cancel-f {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 14px;
+  color: #3f4a56;
+  border-radius: 4px;
+  border:1px solid @color-gray-E;
+}
+.btn-cancel-f:focus {
+  outline: none;
+}
+.btn-cancel-f:hover {
+  color: @color-blue;
+  border:1px solid @color-blue;
+}
+
+.btn-delete-f {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 14px;
+  color: red;
+  border-radius: 4px;
+  border:1px solid @color-gray-E;
+}
+.btn-delete-f:focus {
+  outline: none;
+}
+.btn-delete-f:hover {
+  color: red;
+  border:1px solid red;
+}
+
+.model-footer-f {
+  text-align: right;
+  padding: 16px 0;
+  padding-right: 24px;
+  border-top: 1px solid @color-gray-E;
+}
+
+// * 必填样式
+.required-tip {
+  vertical-align: middle;
+  margin-bottom: 0px;
+  padding-left: 0px;
+  line-height: 33px;
+  color: @color-red;
+}
+
+.fa {
+  cursor: pointer;
+}
+.fa-14 {
+  font-size: 14px;
+}
+.fa-16 {
+  font-size: 16px;
+}
+.fa-18 {
+  font-size: 18px;
+}

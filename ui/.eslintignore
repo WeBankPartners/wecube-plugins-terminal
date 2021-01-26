@@ -1,0 +1,7 @@
+/build/
+/config/
+/dist/
+/ui/public
+/*.js
+*.json
+*.css
