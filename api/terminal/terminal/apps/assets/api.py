@@ -80,8 +80,7 @@ class Asset(object):
             CONF.asset.asset_field_port: 'port',
             CONF.asset.asset_field_user: 'username',
             CONF.asset.asset_field_password: 'password',
-            CONF.asset.asset_field_desc: 'description',
-            'connnection_url': CONF.websocket_url
+            CONF.asset.asset_field_desc: 'description'
         }
         client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
         query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
@@ -97,6 +96,8 @@ class Asset(object):
             auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
         auth_asset_ids = set(auth_asset_ids)
         datas = [item for item in datas if item['id'] in auth_asset_ids]
+        for item in datas:
+            item['connnection_url'] = CONF.websocket_url
         return datas
 
 
