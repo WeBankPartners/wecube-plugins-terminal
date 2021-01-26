@@ -3,7 +3,7 @@
     <Button @click="openDrawer" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
     <div
       class="file-content"
-      :style="{ height: this.terminalH, display: isOpenDrawer ? 'inherit' : 'none', overflow: 'auto' }"
+      :style="{ height: this.consoleConfig.terminalH, display: isOpenDrawer ? 'inherit' : 'none', overflow: 'auto' }"
       type="primary"
     >
       <span>{{ $t('t_current_directory') }}：</span> {{ currentDir }}
@@ -56,14 +56,11 @@ export default {
       shellWs: '',
       term: '', // 保存terminal实例
       ssh_session: '',
-      rows: 0,
-      cols: 0,
 
       isOpenDrawer: false,
       fileLists: '',
       currentDir: '',
-      headers: {},
-      terminalH: ''
+      headers: {}
     }
   },
   computed: {
@@ -71,20 +68,19 @@ export default {
       return `/terminal/v1/assets/${this.host.key}/file?path=${this.currentDir}`
     }
   },
-  props: ['host'],
+  props: ['host', 'consoleConfig'],
   created () {},
   async mounted () {
-    const height = document.body.scrollHeight
-    this.terminalH = height * 0.75 - 68 + 'px'
-    let terminalH = (height * 0.75 - 48) / 17
-    terminalH = Math.floor(terminalH)
-    this.rows = terminalH
+    // const height = document.body.scrollHeight
+    // this.consoleConfig.terminalH = height * 0.75 - 68 + 'px'
+    // let terminalH = (height * 0.75 - 48) / 17
+    // terminalH = Math.floor(terminalH)
+    // this.consoleConfig.rows = terminalH
 
-    const width = document.body.scrollWidth
-    let terminalW = ((width - 60) * 19) / 24 / 8.2
-    terminalW = Math.floor(terminalW)
-    this.cols = terminalW
-
+    // const width = document.body.scrollWidth
+    // let terminalW = ((width - 60) * 19) / 24 / 8.2
+    // terminalW = Math.floor(terminalW)
+    // this.consoleConfig.cols = terminalW
     await this.initTerminal()
     await this.terminalConnect()
     this.operate()
@@ -94,8 +90,8 @@ export default {
     async initTerminal () {
       this.term = new Terminal({
         rendererType: 'canvas', // 渲染类型
-        rows: this.rows, // 行数
-        cols: this.cols, // 不指定行数，自动回车后光标从下一行开始
+        rows: this.consoleConfig.rows, // 行数
+        cols: this.consoleConfig.cols, // 不指定行数，自动回车后光标从下一行开始
         convertEol: true, // 启用时，光标将设置为下一行的开头
         scrollback: 50, // 终端中的回滚量
         disableStdin: false, // 是否应禁用输入。
@@ -124,8 +120,8 @@ export default {
             data: {
               asset_id: this.host.key,
               token: getCookie('accessToken'),
-              cols: this.cols,
-              rows: this.rows
+              cols: this.consoleConfig.cols,
+              rows: this.consoleConfig.rows
             }
           })
         )
