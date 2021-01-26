@@ -80,7 +80,8 @@ class Asset(object):
             CONF.asset.asset_field_port: 'port',
             CONF.asset.asset_field_user: 'username',
             CONF.asset.asset_field_password: 'password',
-            CONF.asset.asset_field_desc: 'description'
+            CONF.asset.asset_field_desc: 'description',
+            'connnection_url': CONF.websocket_url
         }
         client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
         query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
