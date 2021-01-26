@@ -254,6 +254,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             if dirpath != '/':
                 root_attr = ssh.SSHClient.format_sftp_attr(None, None)
                 root_attr['name'] = '..'
+                root_attr['mode'] = '----------'
                 root_attr['fullpath'] = os.path.dirname(dirpath)
                 root_attr['type'] = ssh.FileType.T_DIR
                 results['filelist'].insert(0, root_attr)
