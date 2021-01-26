@@ -104,7 +104,7 @@
   "delete_confirm": "确认删除：",
 
   "t_operation_replay": "回放",
-  "t_session_records": "访问记录",
+  "t_session_records": "会话记录",
   "t_transfer_records": "文件传输记录",
   "t_permissions": "权限",
   "t_asset_id": "服务器",

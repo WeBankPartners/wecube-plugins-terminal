@@ -1,12 +1,12 @@
 <template>
   <div class="">
-    <Button @click="openDrawer" class="file-operate" type="primary">{{$t('t_file_management')}}</Button>
+    <Button @click="openDrawer" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
     <div
       class="file-content"
-      :style="{ height: this.terminalH, display: isOpenDrawer ? 'inherit' : 'none', overflow: 'auto' }"
+      :style="{ height: this.consoleConfig.terminalH, display: isOpenDrawer ? 'inherit' : 'none', overflow: 'auto' }"
       type="primary"
     >
-      <span>{{t_current_directory}}：</span> {{ currentDir }}
+      <span>{{ $t('t_current_directory') }}：</span> {{ currentDir }}
       <template v-for="(file, index) in fileLists">
         <div :key="index" style="">
           <label style="width:80px">{{ file.mode }} </label>
@@ -31,13 +31,13 @@
         :headers="headers"
         style="position: absolute;bottom: 0;"
       >
-        <Button icon="ios-cloud-upload-outline">{{t_file_upload}}</Button>
+        <Button icon="ios-cloud-upload-outline">{{ $t('t_file_upload') }}</Button>
       </Upload>
       <Button
         @click="isOpenDrawer = !isOpenDrawer"
         style="margin-right: 10px;position: absolute;right: 0;bottom: 10px;"
         type="primary"
-        >{{t_close}}</Button
+        >{{ $t('t_close') }}</Button
       >
     </div>
     <div id="terminal" ref="terminal"></div>
@@ -56,37 +56,31 @@ export default {
       shellWs: '',
       term: '', // 保存terminal实例
       ssh_session: '',
-      rows: 0,
-      cols: 0,
 
       isOpenDrawer: false,
       fileLists: '',
       currentDir: '',
-      headers: {},
-      terminalH: ''
+      headers: {}
     }
   },
   computed: {
     uploadUrl () {
-      return (
-        `/terminal/v1/assets/${this.host.key}/file?path=${this.currentDir}`
-      )
+      return `/terminal/v1/assets/${this.host.key}/file?path=${this.currentDir}`
     }
   },
-  props: ['host'],
+  props: ['host', 'consoleConfig'],
   created () {},
   async mounted () {
-    const height = document.body.scrollHeight
-    this.terminalH = height * 0.75 - 68 + 'px'
-    let terminalH = (height * 0.75 - 48) / 17
-    terminalH = Math.floor(terminalH)
-    this.rows = terminalH
+    // const height = document.body.scrollHeight
+    // this.consoleConfig.terminalH = height * 0.75 - 68 + 'px'
+    // let terminalH = (height * 0.75 - 48) / 17
+    // terminalH = Math.floor(terminalH)
+    // this.consoleConfig.rows = terminalH
 
-    const width = document.body.scrollWidth
-    let terminalW = ((width - 60) * 19) / 24 / 8.2
-    terminalW = Math.floor(terminalW)
-    this.cols = terminalW
-
+    // const width = document.body.scrollWidth
+    // let terminalW = ((width - 60) * 19) / 24 / 8.2
+    // terminalW = Math.floor(terminalW)
+    // this.consoleConfig.cols = terminalW
     await this.initTerminal()
     await this.terminalConnect()
     this.operate()
@@ -96,8 +90,8 @@ export default {
     async initTerminal () {
       this.term = new Terminal({
         rendererType: 'canvas', // 渲染类型
-        rows: this.rows, // 行数
-        cols: this.cols, // 不指定行数，自动回车后光标从下一行开始
+        rows: this.consoleConfig.rows, // 行数
+        cols: this.consoleConfig.cols, // 不指定行数，自动回车后光标从下一行开始
         convertEol: true, // 启用时，光标将设置为下一行的开头
         scrollback: 50, // 终端中的回滚量
         disableStdin: false, // 是否应禁用输入。
@@ -118,7 +112,6 @@ export default {
         // 如果已经连接了，就关闭，重新连接
         this.ssh_session.close()
       }
-      console.log(this.host)
       var s = new WebSocket(this.host.connnection_url + '/terminal/v1/ssh')
       s.onopen = () => {
         s.send(
@@ -127,8 +120,8 @@ export default {
             data: {
               asset_id: this.host.key,
               token: getCookie('accessToken'),
-              cols: this.cols,
-              rows: this.rows
+              cols: this.consoleConfig.cols,
+              rows: this.consoleConfig.rows
             }
           })
         )
