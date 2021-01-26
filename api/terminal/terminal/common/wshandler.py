@@ -236,9 +236,21 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                 for attr in self._ssh_client.sftp.listdir_attr(dirpath):
                     results['filelist'].append(ssh.SSHClient.format_sftp_attr(dirpath, attr))
             except FileNotFoundError as e:
-                pass
+                self.write_message(json.dumps({
+                    'type': 'error',
+                    'data': _('cannot open directory "%(name)s": File not found') % {
+                        'name': dirpath
+                    }
+                }),
+                                   binary=False)
             except PermissionError as e:
-                pass
+                self.write_message(json.dumps({
+                    'type': 'error',
+                    'data': _('cannot open directory "%(name)s": Permission denied') % {
+                        'name': dirpath
+                    }
+                }),
+                                   binary=False)
             if dirpath != '/':
                 root_attr = ssh.SSHClient.format_sftp_attr(None, None)
                 root_attr['name'] = '..'
