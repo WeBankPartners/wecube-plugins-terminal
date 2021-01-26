@@ -54,6 +54,7 @@
           <label class="col-md-2 label-name">{{ $t('t_auth_execute') }}:</label>
           <Checkbox v-model="modelConfig.addRow.auth_execute" :true-value="tValue" :false-value="fValue"></Checkbox>
         </div>
+        <hr />
         <div class="marginbottom params-each">
           <label class="col-md-2 label-name">{{ $t('t_enabled') }}:</label>
           <Checkbox v-model="modelConfig.addRow.enabled" :true-value="tValue" :false-value="fValue"></Checkbox>
@@ -67,6 +68,12 @@
 import { getTableData, getAssets, getAllRoles, savePermission, editPermissions, deleteTableRow } from '@/api/server'
 let tableEle = [
   {
+    title: 't_name',
+    value: 'name',
+    style: { width: '100px' },
+    display: true
+  },
+  {
     title: 't_asset_id',
     value: 'asset_id',
     style: { width: '400px' },
@@ -77,12 +84,6 @@ let tableEle = [
       })
       return res.join('/')
     }
-  },
-  {
-    title: 't_name',
-    value: 'name',
-    style: { width: '100px' },
-    display: true
   },
   {
     title: 't_roles',

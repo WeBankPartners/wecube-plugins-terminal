@@ -103,6 +103,11 @@
   },
   "delete_confirm": "确认删除：",
 
+  "confirm_to_exect": "确认执行？",
+  "dangerous_confirm_tip": "我已知悉以上扫描出的高危操作并评估过所有的风险，确认继续执行并承担所带来的后果。",
+  "bc_confirm": "确定",
+  "bc_cancel": "取消",
+
   "t_operation_replay": "回放",
   "t_session_records": "会话记录",
   "t_transfer_records": "文件传输",
