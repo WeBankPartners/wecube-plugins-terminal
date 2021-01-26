@@ -6,7 +6,7 @@ RUN sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 ADD api/terminal/requirements.txt /tmp/requirements.txt
 ADD api/terminal/dist/* /tmp/
 # Install && Clean up
-RUN apt update && apt-get -y install gcc python3-dev swig && \
+RUN apt update && apt-get -y install gcc python3-dev swig libssl-dev && \
     pip3 install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r /tmp/requirements.txt && \
     pip3 install /tmp/*.whl && \
     rm -rf /root/.cache && apt autoclean && \
