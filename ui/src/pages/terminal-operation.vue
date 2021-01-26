@@ -5,7 +5,7 @@
         <div>
           <Card>
             <h4 slot="title">
-              {{$t('t_asset_id')}}
+              {{ $t('t_asset_id') }}
             </h4>
             <div class="container-host">
               <Input
@@ -20,7 +20,7 @@
                     <span>{{ host.ip_address }}</span>
                     <span style="color:#2d8cf0">[{{ host.username }}]</span>
                     <template>
-                      <Tooltip content="Console" style="float:right">
+                      <Tooltip content="Console" :delay="500" style="float:right">
                         <i
                           disabled
                           class="fa fa-terminal operation-icon-terminal"

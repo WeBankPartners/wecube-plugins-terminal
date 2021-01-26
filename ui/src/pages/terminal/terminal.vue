@@ -1,12 +1,12 @@
 <template>
   <div class="">
-    <Button @click="openDrawer" class="file-operate" type="primary">{{$t('t_file_management')}}</Button>
+    <Button @click="openDrawer" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
     <div
       class="file-content"
       :style="{ height: this.terminalH, display: isOpenDrawer ? 'inherit' : 'none', overflow: 'auto' }"
       type="primary"
     >
-      <span>{{t_current_directory}}：</span> {{ currentDir }}
+      <span>{{ $t('t_current_directory') }}：</span> {{ currentDir }}
       <template v-for="(file, index) in fileLists">
         <div :key="index" style="">
           <label style="width:80px">{{ file.mode }} </label>
@@ -31,13 +31,13 @@
         :headers="headers"
         style="position: absolute;bottom: 0;"
       >
-        <Button icon="ios-cloud-upload-outline">{{t_file_upload}}</Button>
+        <Button icon="ios-cloud-upload-outline">{{ $t('t_file_upload') }}</Button>
       </Upload>
       <Button
         @click="isOpenDrawer = !isOpenDrawer"
         style="margin-right: 10px;position: absolute;right: 0;bottom: 10px;"
         type="primary"
-        >{{t_close}}</Button
+        >{{ $t('t_close') }}</Button
       >
     </div>
     <div id="terminal" ref="terminal"></div>
@@ -68,9 +68,7 @@ export default {
   },
   computed: {
     uploadUrl () {
-      return (
-        `/terminal/v1/assets/${this.host.key}/file?path=${this.currentDir}`
-      )
+      return `/terminal/v1/assets/${this.host.key}/file?path=${this.currentDir}`
     }
   },
   props: ['host'],
@@ -118,7 +116,6 @@ export default {
         // 如果已经连接了，就关闭，重新连接
         this.ssh_session.close()
       }
-      console.log(this.host)
       var s = new WebSocket(this.host.connnection_url + '/terminal/v1/ssh')
       s.onopen = () => {
         s.send(
