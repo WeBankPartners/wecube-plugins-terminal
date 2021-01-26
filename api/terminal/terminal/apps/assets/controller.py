@@ -89,6 +89,17 @@ class ItemAssetFile(Item):
         return self.resource().download(filepath, **kwargs)
 
 
+class ItemAssetPermission(Item):
+    name = 'terminal.assets.permission'
+    resource = files_api.AssetPermission
+
+    def on_get(self, req, resp, **kwargs):
+        resp.json = {'code': 200, 'status': 'OK', 'data': self.permission(req, **kwargs), 'message': 'success'}
+
+    def permission(self, req, **kwargs):
+        return self.resource().permission(req.auth_permissions, **kwargs)
+
+
 class CollectionTransferRecords(Collection):
     name = 'terminal.transfer-records'
     resource = files_api.TransferRecord

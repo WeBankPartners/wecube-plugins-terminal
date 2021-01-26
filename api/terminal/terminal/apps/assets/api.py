@@ -181,6 +181,25 @@ class AssetFile(object):
         return fileobj, filesize
 
 
+class AssetPermission(object):
+    def permission(self, auth_roles, rid):
+        permission_filters = {
+            "roles.role": {
+                'in': auth_roles or list(GLOBALS.request.auth_permissions)
+            },
+            "assets.asset_id": rid,
+            'enabled': 1
+        }
+        auth_permissions = Permission().list(permission_filters)
+        results = set()
+        permissions = ['upload', 'download', 'execute']
+        for auth_permission in auth_permissions:
+            for permission in permissions:
+                if auth_permission.get('auth_' + permission, False):
+                    results.add(permission)
+        return list(results)
+
+
 class TransferRecord(resource.TransferRecord):
     def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
         assets = Asset().list_query()
