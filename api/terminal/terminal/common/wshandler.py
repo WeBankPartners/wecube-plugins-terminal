@@ -69,7 +69,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             self._timer_client_close_check = IOLoop.current().call_later(INTERVAL_CLOSE_CHECK, self._client_close_check)
 
     def _client_idle_check(self):
-        if time.time() - self._last_transfer >= CONF.session.idle_timeout:
+        if time.time() - self._last_transfer >= float(CONF.session.idle_timeout):
             self.write_message(json.dumps({
                 'type':
                 'console',

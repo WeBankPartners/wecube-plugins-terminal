@@ -20,7 +20,7 @@ backlog = CONF.server.backlog
 # 超时
 timeout = 30
 # 进程数
-workers = max(multiprocessing.cpu_count() * 2, 8)
+workers = 10
 # 指定每个进程开启的线程数
 threads = 1
 debug = False
