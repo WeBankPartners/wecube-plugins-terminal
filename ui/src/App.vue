@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div>
     <div class="app-content-container">
       <BackTop :height="100" :bottom="100" />
       <router-view :key="$route.path" />
