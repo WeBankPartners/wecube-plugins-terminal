@@ -31,8 +31,11 @@
         :headers="headers"
         style="position: absolute;bottom: 0;"
       >
-        <Button icon="ios-cloud-upload-outline">{{ $t('t_file_upload') }}</Button>
+        <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('download')">{{
+          $t('t_file_upload')
+        }}</Button>
       </Upload>
+
       <Button
         @click="isOpenDrawer = !isOpenDrawer"
         style="margin-right: 10px;position: absolute;right: 0;bottom: 10px;"
@@ -45,6 +48,7 @@
 </template>
 
 <script>
+import { getFileManagementPermission } from '@/api/server'
 import { setCookie, getCookie } from '../util/cookie'
 import axios from 'axios'
 import { Terminal } from 'xterm'
@@ -58,6 +62,7 @@ export default {
       ssh_session: '',
 
       isOpenDrawer: false,
+      filePermisson: [],
       fileLists: '',
       currentDir: '',
       headers: {}
@@ -161,7 +166,9 @@ export default {
       this.ssh_session.send(JSON.stringify({ type: 'console', data: cmd }))
     },
 
-    openDrawer () {
+    async openDrawer () {
+      const res = await getFileManagementPermission(this.host.key)
+      this.filePermisson = res.data
       this.isOpenDrawer = true
       this.ssh_session.send(JSON.stringify({ type: 'listdir', data: '.' }))
     },
@@ -275,7 +282,7 @@ export default {
 .file-operate {
   position: absolute;
   z-index: 10;
-  right: 0;
+  right: 20px;
 }
 .file-content {
   position: absolute;

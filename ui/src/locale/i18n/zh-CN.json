@@ -105,8 +105,8 @@
 
   "t_operation_replay": "回放",
   "t_session_records": "会话记录",
-  "t_transfer_records": "文件传输记录",
-  "t_permissions": "权限",
+  "t_transfer_records": "文件传输",
+  "t_permissions": "权限管理",
   "t_asset_id": "服务器",
   "t_started_time": "开始时间",
   "t_ended_time": "结束时间",
