@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="header">
+    <!-- <div class="header">
       <Header />
-    </div>
-    <section class="content-container">
+    </div> -->
+    <section>
       <Tabs :value="activeTab" @on-click="changeTab">
         <template v-for="(tabItem, tabIndex) in tabs">
           <TabPane :label="$t(tabItem.label)" :name="tabItem.path" :key="tabIndex"> </TabPane>
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import Header from './components/header'
+// import Header from './components/header'
 export default {
   name: '',
   data () {
@@ -39,7 +39,7 @@ export default {
     }
   },
   components: {
-    Header
+    // Header
   }
 }
 </script>

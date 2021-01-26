@@ -1,7 +1,7 @@
 <template>
   <div>
     <Row>
-      <Col span="5">
+      <Col span="6">
         <div>
           <Card>
             <h4 slot="title">
@@ -14,7 +14,7 @@
                 @on-change="filterHost"
                 style="width: 100%;margin-bottom:16px"
               />
-              <Collapse v-model="value1">
+              <Collapse>
                 <template v-for="host in hostInfo">
                   <Panel :name="host.ip_address" :key="host.ip_address">
                     <span>{{ host.ip_address }}</span>
@@ -51,20 +51,20 @@
           </Card>
         </div>
       </Col>
-      <Col span="19">
+      <Col span="18">
         <div class="container-height">
           <Split v-model="split2" mode="vertical">
             <div slot="top">
               <Tabs type="card" closable :animated="false" @on-tab-remove="handleTabRemove" :value="activeTab">
                 <template v-for="tab in terminalTabs">
                   <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
-                    <Terminal :ref="tab.uniqueCode" :host="tab"></Terminal>
+                    <Terminal :ref="tab.uniqueCode" :host="tab" :consoleConfig="consoleConfig"></Terminal>
                   </TabPane>
                 </template>
               </Tabs>
             </div>
             <div slot="bottom">
-              <div style="margin:8px">
+              <!-- <div style="margin:8px">
                 <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600;">
                   ALL
                 </Checkbox>
@@ -82,7 +82,7 @@
                 :autosize="{ minRows: 7, maxRows: 16 }"
                 @on-enter="sendCmdValidate"
                 placeholder="Enter something..."
-              />
+              /> -->
             </div>
           </Split>
         </div>
@@ -98,8 +98,7 @@ export default {
   name: '',
   data () {
     return {
-      value1: '1',
-      split2: 0.75,
+      split2: 1,
       showHostList: true,
       // sendForAll: true,
       sendHostSet: [],
@@ -111,14 +110,33 @@ export default {
       terminalTabs: [],
       sendForAll: false,
 
-      uniteCmd: ''
+      uniteCmd: '',
+
+      consoleConfig: {
+        terminalH: '',
+        rows: 0,
+        cols: 0
+      }
     }
   },
   computed: {},
   mounted () {
+    this.initConsole()
     this.getHostList()
   },
   methods: {
+    initConsole () {
+      const height = document.body.scrollHeight
+      this.consoleConfig.terminalH = height - 70 + 'px'
+      let terminalH = (height - 70) / 17
+      terminalH = Math.floor(terminalH)
+      this.consoleConfig.rows = terminalH
+
+      const width = document.body.scrollWidth
+      let terminalW = ((width - 60) * 18) / 24 / 8.2
+      terminalW = Math.floor(terminalW)
+      this.consoleConfig.cols = terminalW
+    },
     sendCmdValidate () {
       if (!this.sendHostSet.length) {
         this.$Notice.warning({
