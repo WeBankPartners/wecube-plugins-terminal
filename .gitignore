@@ -16,5 +16,4 @@ api/terminal/build/*
 # ui
 ui/node_modules
 ui/dist
-ui/src/pages/terminal/ws.js
 ui/package-lock.json
