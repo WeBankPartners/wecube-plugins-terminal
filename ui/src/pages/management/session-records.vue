@@ -145,7 +145,7 @@ export default {
     replay (data) {
       localStorage.setItem('fileId', data.id)
       localStorage.setItem('replayToken', getCookie('accessToken'))
-      window.open('/replay-page.html', '_blank')
+      window.open('../replay-page.html', '_blank')
     }
   },
   components: {}

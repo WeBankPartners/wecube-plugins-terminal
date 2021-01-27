@@ -310,7 +310,7 @@ export default {
     },
     async confirmToExecution () {
       this.confirmModal.isShowConfirmModal = false
-      this.ssh_session.send(JSON.stringify({ type: 'console', data: this.cmd }))
+      this.ssh_session.send(JSON.stringify({ type: 'console', confirm: true, data: this.cmd }))
     }
   },
   components: {}
