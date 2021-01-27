@@ -132,5 +132,7 @@
   "t_file_management": "文件管理",
   "t_current_directory": "当前目录",
   "t_file_upload": "上传文件",
-  "t_close": "关闭"
+  "t_close": "关闭",
+  "t_terminal_interaction": "多终端交互",
+  "t_cancel_terminal_interaction": "取消多终端交互"
 }

@@ -63,7 +63,7 @@
                       :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }"
                     >
                       <Terminal :ref="tab.uniqueCode" :host="tab" :consoleConfig="consoleConfig"></Terminal>
-                      <Button v-if="!showCmd" @click="sendForMulti">多终端交互</Button>
+                      <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
                     </div>
                   </TabPane>
                 </template>
@@ -72,7 +72,9 @@
           </div>
           <div v-if="showCmd">
             <div style="margin:8px">
-              <Button @click="initConsole" type="warning" icon="md-exit">退出多终端交互</Button>
+              <Button @click="initConsole" type="warning" icon="md-exit">{{
+                $t('t_cancel_terminal_interaction')
+              }}</Button>
               <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600;">
                 ALL
               </Checkbox>

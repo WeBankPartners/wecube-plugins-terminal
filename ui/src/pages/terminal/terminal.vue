@@ -20,7 +20,7 @@
           :headers="headers"
           style="display:inline-block"
         >
-          <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('download')">{{
+          <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('upload')">{{
             $t('t_file_upload')
           }}</Button>
         </Upload>
@@ -303,6 +303,7 @@ export default {
     },
     confirm (data) {
       this.confirmModal.message = data.data
+      this.confirmModal.check = false
       this.confirmModal.isShowConfirmModal = true
     },
     async confirmToExecution () {
@@ -325,7 +326,7 @@ export default {
   z-index: 10;
   right: 0;
   background: #fefefef5;
-  width: 710px;
+  width: 730px;
   font-weight: 600;
   padding-left: 8px;
   color: #7e9192;

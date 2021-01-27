@@ -112,7 +112,7 @@
   "t_session_records": "Session Records",
   "t_transfer_records": "Transfer Records",
   "t_permissions": "Permissions",
-  "t_asset_id": "Service",
+  "t_asset_id": "Server",
   "t_started_time": "Started Time",
   "t_ended_time": "Ended Time",
   "t_filepath": "File Path",
@@ -130,5 +130,7 @@
   "t_file_management": "File Management",
   "t_current_directory": "Current Directory",
   "t_file_upload": "Upload",
-  "t_close": "Close"
+  "t_close": "Close",
+  "t_terminal_interaction": "Multi-terminal Interaction",
+  "t_cancel_terminal_interaction": "Cancel Multi-terminal Interaction"
 }
