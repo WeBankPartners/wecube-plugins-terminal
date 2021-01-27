@@ -3,9 +3,32 @@
     <Button @click="openDrawer" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
     <div
       class="file-content"
-      :style="{ height: this.consoleConfig.terminalH, display: isOpenDrawer ? 'inherit' : 'none', overflow: 'auto' }"
+      :style="{
+        height: consoleConfig.terminalH - 40 + 'px',
+        display: isOpenDrawer ? 'inherit' : 'none',
+        overflow: 'auto'
+      }"
       type="primary"
     >
+      <div style="margin-top: 8px">
+        <Upload
+          ref="uploadButton"
+          show-upload-list
+          :on-success="uploadSucess"
+          :on-error="uploadFailed"
+          :action="uploadUrl"
+          :headers="headers"
+          style="display:inline-block"
+        >
+          <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('download')">{{
+            $t('t_file_upload')
+          }}</Button>
+        </Upload>
+
+        <Button @click="isOpenDrawer = !isOpenDrawer" type="primary" style="position: absolute;right: 40px;">{{
+          $t('t_close')
+        }}</Button>
+      </div>
       <span>{{ $t('t_current_directory') }}：</span> {{ currentDir }}
       <template v-for="(file, index) in fileLists">
         <div :key="index" style="">
@@ -22,26 +45,6 @@
           </label>
         </div>
       </template>
-      <Upload
-        ref="uploadButton"
-        show-upload-list
-        :on-success="uploadSucess"
-        :on-error="uploadFailed"
-        :action="uploadUrl"
-        :headers="headers"
-        style="position: absolute;bottom: 0;"
-      >
-        <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('download')">{{
-          $t('t_file_upload')
-        }}</Button>
-      </Upload>
-
-      <Button
-        @click="isOpenDrawer = !isOpenDrawer"
-        style="margin-right: 10px;position: absolute;right: 0;bottom: 10px;"
-        type="primary"
-        >{{ $t('t_close') }}</Button
-      >
     </div>
     <div id="terminal" ref="terminal"></div>
     <Modal v-model="confirmModal.isShowConfirmModal" width="900">
@@ -101,16 +104,6 @@ export default {
   props: ['host', 'consoleConfig'],
   created () {},
   async mounted () {
-    // const height = document.body.scrollHeight
-    // this.consoleConfig.terminalH = height * 0.75 - 68 + 'px'
-    // let terminalH = (height * 0.75 - 48) / 17
-    // terminalH = Math.floor(terminalH)
-    // this.consoleConfig.rows = terminalH
-
-    // const width = document.body.scrollWidth
-    // let terminalW = ((width - 60) * 19) / 24 / 8.2
-    // terminalW = Math.floor(terminalW)
-    // this.consoleConfig.cols = terminalW
     await this.initTerminal()
     await this.terminalConnect()
     this.operate()
@@ -161,14 +154,13 @@ export default {
         if (data.type === 'console') {
           this.term.write(data.data) // (window.atob(data.data))
         } else if (data.type === 'listdir') {
-          console.log('receive file list:', data)
           this.showDir(data)
         } else if (data.type === 'warn') {
           this.confirm(data)
         } else if (data.type === 'error') {
           this.$Notice.error({
             title: 'Error',
-            message: data.data
+            desc: data.data
           })
         }
       }
@@ -182,7 +174,6 @@ export default {
       this.term.onData(data => {
         if (this.ssh_session.readyState === 1) {
           this.cmd = data
-          // console.log('sending console:', JSON.stringify({ type: 'console', data: data }))
           this.ssh_session.send(JSON.stringify({ type: 'console', data: data }))
           // if (data == 'l'){
           //   this.ssh_session.send(JSON.stringify({type: "listdir", data: '.'}))
@@ -209,9 +200,9 @@ export default {
       this.getHeaders()
     },
     getFileList (file) {
-      if (file.type !== 'dir') {
+      if (['link', 'file'].includes(file.type)) {
         this.downFile(file)
-      } else {
+      } else if (file.type === 'dir') {
         this.ssh_session.send(JSON.stringify({ type: 'listdir', data: file.fullpath }))
       }
     },
@@ -223,30 +214,36 @@ export default {
         headers: this.headers,
         responseType: 'blob'
       })
-        .then(response => {
+        .then(async response => {
+          if (response.data.type === 'application/json') {
+            const errorMsg = JSON.parse(await response.data.text())
+            this.$Notice.error({
+              title: 'Error',
+              desc: errorMsg.message
+            })
+            return
+          }
           // eslint-disable-next-line no-unused-vars
           let fileStream = response.data
-          if (response.status < 400) {
-            let fileName = file.name
-            let blob = new Blob([fileStream])
-            if ('msSaveOrOpenBlob' in navigator) {
-              // Microsoft Edge and Microsoft Internet Explorer 10-11
-              window.navigator.msSaveOrOpenBlob(blob, fileName)
+          let fileName = file.name
+          let blob = new Blob([fileStream])
+          if ('msSaveOrOpenBlob' in navigator) {
+            // Microsoft Edge and Microsoft Internet Explorer 10-11
+            window.navigator.msSaveOrOpenBlob(blob, fileName)
+          } else {
+            if ('download' in document.createElement('a')) {
+              // 非IE下载
+              let elink = document.createElement('a')
+              elink.download = fileName
+              elink.style.display = 'none'
+              elink.href = URL.createObjectURL(blob)
+              document.body.appendChild(elink)
+              elink.click()
+              URL.revokeObjectURL(elink.href) // 释放URL 对象
+              document.body.removeChild(elink)
             } else {
-              if ('download' in document.createElement('a')) {
-                // 非IE下载
-                let elink = document.createElement('a')
-                elink.download = fileName
-                elink.style.display = 'none'
-                elink.href = URL.createObjectURL(blob)
-                document.body.appendChild(elink)
-                elink.click()
-                URL.revokeObjectURL(elink.href) // 释放URL 对象
-                document.body.removeChild(elink)
-              } else {
-                // IE10+下载
-                navigator.msSaveOrOpenBlob(blob, fileName)
-              }
+              // IE10+下载
+              navigator.msSaveOrOpenBlob(blob, fileName)
             }
           }
         })
@@ -321,14 +318,14 @@ export default {
 .file-operate {
   position: absolute;
   z-index: 10;
-  right: 20px;
+  right: 40px;
 }
 .file-content {
   position: absolute;
   z-index: 10;
   right: 0;
   background: #fefefef5;
-  width: 800px;
+  width: 710px;
   font-weight: 600;
   padding-left: 8px;
   color: #7e9192;

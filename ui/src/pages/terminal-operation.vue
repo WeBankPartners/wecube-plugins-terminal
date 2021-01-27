@@ -53,38 +53,45 @@
       </Col>
       <Col span="18">
         <div class="container-height">
-          <Split v-model="split2" mode="vertical">
+          <!-- <Split v-model="split2" mode="vertical"> -->
+          <div>
             <div slot="top">
               <Tabs type="card" closable :animated="false" @on-tab-remove="handleTabRemove" :value="activeTab">
                 <template v-for="tab in terminalTabs">
                   <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
-                    <Terminal :ref="tab.uniqueCode" :host="tab" :consoleConfig="consoleConfig"></Terminal>
+                    <div
+                      :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }"
+                    >
+                      <Terminal :ref="tab.uniqueCode" :host="tab" :consoleConfig="consoleConfig"></Terminal>
+                      <Button v-if="!showCmd" @click="sendForMulti">多终端交互</Button>
+                    </div>
                   </TabPane>
                 </template>
               </Tabs>
             </div>
-            <div slot="bottom">
-              <!-- <div style="margin:8px">
-                <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600;">
-                  ALL
-                </Checkbox>
-                <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display:inline-block">
-                  <template v-for="tab in terminalTabs">
-                    <Checkbox :label="tab.uniqueCode" :name="tab.uniqueCode" :key="tab.uniqueCode">
-                      <span>{{ tab.showName }}</span>
-                    </Checkbox>
-                  </template>
-                </CheckboxGroup>
-              </div>
-              <Input
-                v-model="uniteCmd"
-                type="textarea"
-                :autosize="{ minRows: 7, maxRows: 16 }"
-                @on-enter="sendCmdValidate"
-                placeholder="Enter something..."
-              /> -->
+          </div>
+          <div v-if="showCmd">
+            <div style="margin:8px">
+              <Button @click="initConsole" type="warning" icon="md-exit">退出多终端交互</Button>
+              <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600;">
+                ALL
+              </Checkbox>
+              <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display:inline-block">
+                <template v-for="tab in terminalTabs">
+                  <Checkbox :label="tab.uniqueCode" :name="tab.uniqueCode" :key="tab.uniqueCode">
+                    <span>{{ tab.showName }}</span>
+                  </Checkbox>
+                </template>
+              </CheckboxGroup>
             </div>
-          </Split>
+            <Input
+              v-model="uniteCmd"
+              type="textarea"
+              :autosize="{ minRows: 5, maxRows: 16 }"
+              @on-enter="sendCmdValidate"
+              placeholder="Enter something..."
+            />
+          </div>
         </div>
       </Col>
     </Row>
@@ -116,7 +123,8 @@ export default {
         terminalH: '',
         rows: 0,
         cols: 0
-      }
+      },
+      showCmd: false
     }
   },
   computed: {},
@@ -125,17 +133,26 @@ export default {
     this.getHostList()
   },
   methods: {
+    sendForMulti () {
+      const height = document.body.scrollHeight
+      this.consoleConfig.terminalH = height - 350
+      let terminalH = (height - 256) / 17
+      terminalH = Math.floor(terminalH)
+      this.consoleConfig.rows = terminalH
+      this.showCmd = true
+    },
     initConsole () {
       const height = document.body.scrollHeight
-      this.consoleConfig.terminalH = height - 70 + 'px'
-      let terminalH = (height - 70) / 17
+      this.consoleConfig.terminalH = height - 150
+      let terminalH = (height - 210) / 17
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
 
       const width = document.body.scrollWidth
-      let terminalW = ((width - 200) * 18) / 24 / 8.2
+      let terminalW = ((width - 260) * 18) / 24 / 8.2
       terminalW = Math.floor(terminalW)
       this.consoleConfig.cols = terminalW
+      this.showCmd = false
     },
     sendCmdValidate () {
       if (!this.sendHostSet.length) {
@@ -216,7 +233,6 @@ export default {
         })
         showName = `${host.showName}(${index})`
       }
-      console.log(showName)
       this.activeTab = ''
       this.activeTab = showName
       this.$forceUpdate()
@@ -235,11 +251,11 @@ export default {
 <style scoped lang="less">
 .container-host {
   overflow-y: auto;
-  height: ~'calc(100vh - 100px)';
+  height: ~'calc(100vh - 220px)';
 }
 .container-height {
   border: 1px solid #c4d3f1;
-  height: ~'calc(100vh - 10px)';
+  height: ~'calc(100vh - 130px)';
 }
 
 .normal-icon {
