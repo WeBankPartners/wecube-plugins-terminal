@@ -17,13 +17,14 @@ import tornado.options
 from tornado.ioloop import IOLoop
 from talos.core import exceptions as base_ex
 from talos.core import config
+from talos.core import utils
 from talos.common import cache
 from talos.core.i18n import _
 
 from terminal.common import ssh
 from terminal.common import exceptions
 from terminal.common import wecube
-from terminal.common import utils
+
 from terminal.apps.assets import api as asset_api
 
 LOG = logging.getLogger(__name__)
@@ -178,7 +179,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             command = self._audit.feed('input', msg['data'])
             user_confirm = msg.get('confirm', False)
             is_dangerous = False
-            if command and not user_confirm:
+            if command and not user_confirm and utils.bool_from_string(CONF.check_itsdangerous, default=True):
                 client = wecube.WeCubeClient(CONF.wecube.base_url, None)
                 subsys_token = cache.get_or_create(TOKEN_KEY, client.login_subsystem, expires=600)
                 client.token = subsys_token
@@ -214,6 +215,8 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                                            binary=False)
                 except base_ex.Error as e:
                     # error if package itsdangerout not running, or timeout
+                    # all command consider dangerous
+                    is_dangerous = True
                     self.write_message(json.dumps({
                         'type': 'error',
                         'data': _('error calling itsdangerous: %(reason)s') % {
