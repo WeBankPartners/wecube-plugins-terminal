@@ -176,7 +176,9 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             # NOTE: send will write back all command, but how can we seperate user inputs from outputs?
             # self._ssh_recorder.write_command(msg['data'], None)
             command = self._audit.feed('input', msg['data'])
-            if command:
+            user_confirm = msg.get('confirm', False)
+            is_dangerous = False
+            if command and not user_confirm:
                 client = wecube.WeCubeClient(CONF.wecube.base_url, None)
                 subsys_token = cache.get_or_create(TOKEN_KEY, client.login_subsystem, expires=600)
                 client.token = subsys_token
@@ -204,6 +206,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                                             check_data,
                                             param={'boxes': box_ids})
                     if resp_json['data']['text']:
+                        is_dangerous = True
                         self.write_message(json.dumps({
                             'type': 'warn',
                             'data': resp_json['data']['text']
@@ -221,7 +224,8 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
 
             if not self._ssh_client.is_shell_closed:
                 self._last_transfer = time.time()
-                self._ssh_client.send_shell(msg['data'])
+                if not is_dangerous:
+                    self._ssh_client.send_shell(msg['data'])
             else:
                 self.close()
         elif msg['type'] == 'listdir':
