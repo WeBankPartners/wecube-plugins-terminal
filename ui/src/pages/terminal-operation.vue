@@ -133,7 +133,7 @@ export default {
   methods: {
     sendForMulti () {
       const height = document.body.scrollHeight
-      this.consoleConfig.terminalH = height - 350 + 'px'
+      this.consoleConfig.terminalH = height - 350
       console.log(this.consoleConfig.terminalH)
       let terminalH = (height - 186) / 17
       terminalH = Math.floor(terminalH)
@@ -142,7 +142,7 @@ export default {
     },
     initConsole () {
       const height = document.body.scrollHeight
-      this.consoleConfig.terminalH = height - 150 + 'px'
+      this.consoleConfig.terminalH = height - 200
       console.log(this.consoleConfig.terminalH)
       let terminalH = (height - 186) / 17
       terminalH = Math.floor(terminalH)

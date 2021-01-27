@@ -3,9 +3,28 @@
     <Button @click="openDrawer" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
     <div
       class="file-content"
-      :style="{ height: this.consoleConfig.terminalH, display: isOpenDrawer ? 'inherit' : 'none', overflow: 'auto' }"
+      :style="{ height: consoleConfig.terminalH + 'px', display: isOpenDrawer ? 'inherit' : 'none', overflow: 'auto' }"
       type="primary"
     >
+      <div style="margin-top: 8px">
+        <Upload
+          ref="uploadButton"
+          show-upload-list
+          :on-success="uploadSucess"
+          :on-error="uploadFailed"
+          :action="uploadUrl"
+          :headers="headers"
+          style="display:inline-block"
+        >
+          <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('download')">{{
+            $t('t_file_upload')
+          }}</Button>
+        </Upload>
+
+        <Button @click="isOpenDrawer = !isOpenDrawer" type="primary" style="position: absolute;right: 40px;">{{
+          $t('t_close')
+        }}</Button>
+      </div>
       <span>{{ $t('t_current_directory') }}：</span> {{ currentDir }}
       <template v-for="(file, index) in fileLists">
         <div :key="index" style="">
@@ -22,26 +41,6 @@
           </label>
         </div>
       </template>
-      <Upload
-        ref="uploadButton"
-        show-upload-list
-        :on-success="uploadSucess"
-        :on-error="uploadFailed"
-        :action="uploadUrl"
-        :headers="headers"
-        style="position: absolute;bottom: 0;"
-      >
-        <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('download')">{{
-          $t('t_file_upload')
-        }}</Button>
-      </Upload>
-
-      <Button
-        @click="isOpenDrawer = !isOpenDrawer"
-        style="margin-right: 10px;position: absolute;right: 0;bottom: 10px;"
-        type="primary"
-        >{{ $t('t_close') }}</Button
-      >
     </div>
     <div id="terminal" ref="terminal"></div>
     <Modal v-model="confirmModal.isShowConfirmModal" width="900">
