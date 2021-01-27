@@ -101,16 +101,6 @@ export default {
   props: ['host', 'consoleConfig'],
   created () {},
   async mounted () {
-    // const height = document.body.scrollHeight
-    // this.consoleConfig.terminalH = height * 0.75 - 68 + 'px'
-    // let terminalH = (height * 0.75 - 48) / 17
-    // terminalH = Math.floor(terminalH)
-    // this.consoleConfig.rows = terminalH
-
-    // const width = document.body.scrollWidth
-    // let terminalW = ((width - 60) * 19) / 24 / 8.2
-    // terminalW = Math.floor(terminalW)
-    // this.consoleConfig.cols = terminalW
     await this.initTerminal()
     await this.terminalConnect()
     this.operate()
@@ -161,7 +151,6 @@ export default {
         if (data.type === 'console') {
           this.term.write(data.data) // (window.atob(data.data))
         } else if (data.type === 'listdir') {
-          console.log('receive file list:', data)
           this.showDir(data)
         } else if (data.type === 'warn') {
           this.confirm(data)
@@ -182,7 +171,6 @@ export default {
       this.term.onData(data => {
         if (this.ssh_session.readyState === 1) {
           this.cmd = data
-          // console.log('sending console:', JSON.stringify({ type: 'console', data: data }))
           this.ssh_session.send(JSON.stringify({ type: 'console', data: data }))
           // if (data == 'l'){
           //   this.ssh_session.send(JSON.stringify({type: "listdir", data: '.'}))
@@ -223,30 +211,36 @@ export default {
         headers: this.headers,
         responseType: 'blob'
       })
-        .then(response => {
+        .then(async response => {
+          if (response.data.type === 'application/json') {
+            const errorMsg = JSON.parse(await response.data.text())
+            this.$Notice.error({
+              title: 'Error',
+              desc: errorMsg.message
+            })
+            return
+          }
           // eslint-disable-next-line no-unused-vars
           let fileStream = response.data
-          if (response.status < 400) {
-            let fileName = file.name
-            let blob = new Blob([fileStream])
-            if ('msSaveOrOpenBlob' in navigator) {
-              // Microsoft Edge and Microsoft Internet Explorer 10-11
-              window.navigator.msSaveOrOpenBlob(blob, fileName)
+          let fileName = file.name
+          let blob = new Blob([fileStream])
+          if ('msSaveOrOpenBlob' in navigator) {
+            // Microsoft Edge and Microsoft Internet Explorer 10-11
+            window.navigator.msSaveOrOpenBlob(blob, fileName)
+          } else {
+            if ('download' in document.createElement('a')) {
+              // 非IE下载
+              let elink = document.createElement('a')
+              elink.download = fileName
+              elink.style.display = 'none'
+              elink.href = URL.createObjectURL(blob)
+              document.body.appendChild(elink)
+              elink.click()
+              URL.revokeObjectURL(elink.href) // 释放URL 对象
+              document.body.removeChild(elink)
             } else {
-              if ('download' in document.createElement('a')) {
-                // 非IE下载
-                let elink = document.createElement('a')
-                elink.download = fileName
-                elink.style.display = 'none'
-                elink.href = URL.createObjectURL(blob)
-                document.body.appendChild(elink)
-                elink.click()
-                URL.revokeObjectURL(elink.href) // 释放URL 对象
-                document.body.removeChild(elink)
-              } else {
-                // IE10+下载
-                navigator.msSaveOrOpenBlob(blob, fileName)
-              }
+              // IE10+下载
+              navigator.msSaveOrOpenBlob(blob, fileName)
             }
           }
         })
@@ -328,7 +322,7 @@ export default {
   z-index: 10;
   right: 0;
   background: #fefefef5;
-  width: 800px;
+  width: 710px;
   font-weight: 600;
   padding-left: 8px;
   color: #7e9192;

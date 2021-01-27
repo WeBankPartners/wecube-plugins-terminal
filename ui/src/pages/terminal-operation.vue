@@ -133,24 +133,23 @@ export default {
   methods: {
     sendForMulti () {
       const height = document.body.scrollHeight
-      this.consoleConfig.terminalH = height - 260 + 'px'
+      this.consoleConfig.terminalH = height - 350 + 'px'
       console.log(this.consoleConfig.terminalH)
-      let terminalH = (height - 96) / 17
+      let terminalH = (height - 186) / 17
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
       this.showCmd = true
     },
     initConsole () {
       const height = document.body.scrollHeight
-      this.consoleConfig.terminalH = height - 60 + 'px'
+      this.consoleConfig.terminalH = height - 150 + 'px'
       console.log(this.consoleConfig.terminalH)
-      let terminalH = (height - 96) / 17
+      let terminalH = (height - 186) / 17
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
 
       const width = document.body.scrollWidth
       let terminalW = ((width - 260) * 18) / 24 / 8.2
-      // let terminalW = ((width-130) * 18) / 24 / 8.2
       terminalW = Math.floor(terminalW)
       this.consoleConfig.cols = terminalW
       this.showCmd = false
@@ -257,7 +256,7 @@ export default {
 }
 .container-height {
   border: 1px solid #c4d3f1;
-  height: ~'calc(100vh - 10px)';
+  height: ~'calc(100vh - 100px)';
 }
 
 .normal-icon {

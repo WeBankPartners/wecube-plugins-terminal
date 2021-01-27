@@ -153,7 +153,6 @@ export default {
         }
       })
       url = url.substring(0, 60)
-      console.log(url + 'replay-page.html')
       window.open(url + 'replay-page.html', '_blank')
     }
   },
