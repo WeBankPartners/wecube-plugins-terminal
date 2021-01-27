@@ -326,6 +326,7 @@ class TerminalChar:
     CH_SRH = '\x12'  # Ctrl+R
     CH_TAB = '\t'  # Tab
     CH_ENT = '\r'  # Enter
+    CH_NL = '\n'  # Enter
     CH_ESC = '\x1b'  # Enter
 
     ESC_MVUP = '\x1b[A'  # Move Up
@@ -369,7 +370,7 @@ class CommandParser:
             elif data == TerminalChar.CH_TAB:
                 # feed data from output
                 self._state = TerminalChar.CH_TAB
-            elif data == TerminalChar.CH_ENT:
+            elif data == TerminalChar.CH_ENT or data == TerminalChar.CH_NL:
                 # TODO: input with multiline data support
                 # TODO: vim mode optimize
                 command = "".join(self.screen.display).strip()
@@ -385,7 +386,7 @@ class CommandParser:
                 # NOTE: leave reset for user
                 # self.reset()
                 return command
-            elif TerminalChar.CH_ENT in data:
+            elif TerminalChar.CH_ENT in data or TerminalChar.CH_NL in data:
                 # parse with multine data optimize
                 command = "".join(self.screen.display).strip()
                 command = command + data.replace(TerminalChar.CH_ENT, '\r\n')
