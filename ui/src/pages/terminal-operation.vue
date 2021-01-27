@@ -133,7 +133,7 @@ export default {
       this.consoleConfig.rows = terminalH
 
       const width = document.body.scrollWidth
-      let terminalW = ((width - 60) * 18) / 24 / 8.2
+      let terminalW = ((width - 200) * 18) / 24 / 8.2
       terminalW = Math.floor(terminalW)
       this.consoleConfig.cols = terminalW
     },
@@ -216,10 +216,13 @@ export default {
         })
         showName = `${host.showName}(${index})`
       }
+      console.log(showName)
+      this.activeTab = ''
       this.activeTab = showName
+      this.$forceUpdate()
     },
     handleTabRemove (name) {
-      const index = this.terminalTabs.findIndex(item => item.label === name)
+      const index = this.terminalTabs.findIndex(item => item.showName === name)
       this.terminalTabs.splice(index, 1)
     }
   },

@@ -31,8 +31,11 @@
         :headers="headers"
         style="position: absolute;bottom: 0;"
       >
-        <Button icon="ios-cloud-upload-outline">{{ $t('t_file_upload') }}</Button>
+        <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('download')">{{
+          $t('t_file_upload')
+        }}</Button>
       </Upload>
+
       <Button
         @click="isOpenDrawer = !isOpenDrawer"
         style="margin-right: 10px;position: absolute;right: 0;bottom: 10px;"
@@ -41,10 +44,29 @@
       >
     </div>
     <div id="terminal" ref="terminal"></div>
+    <Modal v-model="confirmModal.isShowConfirmModal" width="900">
+      <div>
+        <Icon :size="28" :color="'#f90'" type="md-help-circle" />
+        <span class="confirm-msg">{{ $t('confirm_to_exect') }}</span>
+      </div>
+      <div style="max-height: 400px;overflow-y: auto;">
+        <pre style="margin-left: 44px;">{{ this.confirmModal.message }}</pre>
+      </div>
+      <div slot="footer">
+        <span style="margin-left:30px;color:#ed4014;float: left;text-align:left">
+          <Checkbox v-model="confirmModal.check">{{ $t('dangerous_confirm_tip') }}</Checkbox>
+        </span>
+        <Button type="text" @click="confirmModal.isShowConfirmModal = false">{{ $t('bc_cancel') }}</Button>
+        <Button type="warning" :disabled="!confirmModal.check" @click="confirmToExecution">{{
+          $t('bc_confirm')
+        }}</Button>
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script>
+import { getFileManagementPermission } from '@/api/server'
 import { setCookie, getCookie } from '../util/cookie'
 import axios from 'axios'
 import { Terminal } from 'xterm'
@@ -58,9 +80,17 @@ export default {
       ssh_session: '',
 
       isOpenDrawer: false,
+      filePermisson: [],
       fileLists: '',
       currentDir: '',
-      headers: {}
+      headers: {},
+
+      confirmModal: {
+        isShowConfirmModal: false,
+        check: false,
+        message: ''
+      },
+      cmd: '' // 缓存命令
     }
   },
   computed: {
@@ -134,7 +164,12 @@ export default {
           console.log('receive file list:', data)
           this.showDir(data)
         } else if (data.type === 'warn') {
-          // show_confirm(data.data)
+          this.confirm(data)
+        } else if (data.type === 'error') {
+          this.$Notice.error({
+            title: 'Error',
+            message: data.data
+          })
         }
       }
       s.onclose = function (e) {
@@ -146,6 +181,7 @@ export default {
     operate () {
       this.term.onData(data => {
         if (this.ssh_session.readyState === 1) {
+          this.cmd = data
           // console.log('sending console:', JSON.stringify({ type: 'console', data: data }))
           this.ssh_session.send(JSON.stringify({ type: 'console', data: data }))
           // if (data == 'l'){
@@ -161,7 +197,9 @@ export default {
       this.ssh_session.send(JSON.stringify({ type: 'console', data: cmd }))
     },
 
-    openDrawer () {
+    async openDrawer () {
+      const res = await getFileManagementPermission(this.host.key)
+      this.filePermisson = res.data
       this.isOpenDrawer = true
       this.ssh_session.send(JSON.stringify({ type: 'listdir', data: '.' }))
     },
@@ -265,6 +303,14 @@ export default {
       this.headers = {
         Authorization: 'Bearer ' + getCookie('accessToken')
       }
+    },
+    confirm (data) {
+      this.confirmModal.message = data.data
+      this.confirmModal.isShowConfirmModal = true
+    },
+    async confirmToExecution () {
+      this.confirmModal.isShowConfirmModal = false
+      this.ssh_session.send(JSON.stringify({ type: 'console', data: this.cmd }))
     }
   },
   components: {}
@@ -275,7 +321,7 @@ export default {
 .file-operate {
   position: absolute;
   z-index: 10;
-  right: 0;
+  right: 20px;
 }
 .file-content {
   position: absolute;
@@ -291,5 +337,7 @@ export default {
   word-break: break-all;
   width: 280px;
   vertical-align: top;
+  cursor: pointer;
+  color: #2d8cf0;
 }
 </style>

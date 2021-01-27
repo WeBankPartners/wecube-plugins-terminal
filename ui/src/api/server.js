@@ -22,6 +22,7 @@ export const deleteTableRow = (url, id) => req.delete(`${url}/${id}`)
 export const getHost = () => req.get(`/terminal/v1/assets`)
 
 export const getAssets = () => req.get(`/terminal/v1/view-assets`)
+export const getFileManagementPermission = id => req.get(`/terminal/v1/assets/${id}/permissions`)
 
 export const savePermission = data => req.post(`/terminal/v1/permissions`, data)
 export const editPermissions = (id, data) => req.patch(`/terminal/v1/permissions/${id}`, data)

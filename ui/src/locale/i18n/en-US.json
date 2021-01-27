@@ -103,6 +103,11 @@
   },
   "delete_confirm": "Confirm the deletion：",
 
+  "confirm_to_exect": "Confirm Execution ?",
+  "dangerous_confirm_tip": "I HEREBY ACKNOWLEDGE THAT I AM AWARE OF THESE HIGH-RISK OPERATIONS DISCOVERED DURING SCANNING AND HAVE EVALUATED ALL THE RISKS, I CONFIRM TO CONTINUE THE EXECUTION AND BEAR THE CONSEQUENCES IT MAY CAUSE.",
+  "bc_confirm": "Confirm",
+  "bc_cancel": "Cancel",
+
   "t_operation_replay": "Replay",
   "t_session_records": "Session Records",
   "t_transfer_records": "Transfer Records",
