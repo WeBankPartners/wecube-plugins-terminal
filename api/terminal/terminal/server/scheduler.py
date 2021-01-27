@@ -95,10 +95,16 @@ def main():
     config.setup(os.environ.get('TERMINAL_CONF', '/etc/terminal/terminal.conf'),
                  dir_path=os.environ.get('TERMINAL_CONF_DIR', '/etc/terminal/terminal.conf.d'))
     mylogger.setup()
+    tz_info = timezone(CONF.timezone)
+    try:
+        if CONF.platform_timezone:
+            tz_info = timezone(CONF.platform_timezone)
+    except Exception as e:
+        LOG.exception(e)
     scheduler = BlockingScheduler(jobstores=jobstores,
                                   executors=executors,
                                   job_defaults=job_defaults,
-                                  timezone=timezone(CONF.timezone))
+                                  timezone=tz_info)
     # scheduler.add_job(cleanup_cached_dir, 'cron', hour='*')
     scheduler.add_job(rotate_log, 'cron', hour=3, minute=5)
     try:
