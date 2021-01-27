@@ -168,7 +168,7 @@ export default {
         } else if (data.type === 'error') {
           this.$Notice.error({
             title: 'Error',
-            message: data.data
+            desc: data.data
           })
         }
       }
@@ -209,9 +209,9 @@ export default {
       this.getHeaders()
     },
     getFileList (file) {
-      if (file.type !== 'dir') {
+      if (['link', 'file'].includes(file.type)) {
         this.downFile(file)
-      } else {
+      } else if (file.type === 'dir') {
         this.ssh_session.send(JSON.stringify({ type: 'listdir', data: file.fullpath }))
       }
     },
@@ -321,7 +321,7 @@ export default {
 .file-operate {
   position: absolute;
   z-index: 10;
-  right: 20px;
+  right: 40px;
 }
 .file-content {
   position: absolute;

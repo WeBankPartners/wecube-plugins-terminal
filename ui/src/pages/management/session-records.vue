@@ -145,7 +145,16 @@ export default {
     replay (data) {
       localStorage.setItem('fileId', data.id)
       localStorage.setItem('replayToken', getCookie('accessToken'))
-      window.open('../replay-page.html', '_blank')
+      let url = ''
+      const scripts = document.getElementsByTagName('script')
+      scripts.forEach(item => {
+        if (item.src.endsWith('/xtem-player/xterm-player.min.js')) {
+          url = item.src
+        }
+      })
+      url = url.substring(0, 60)
+      console.log(url + 'replay-page.html')
+      window.open(url + 'replay-page.html', '_blank')
     }
   },
   components: {}

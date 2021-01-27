@@ -70,13 +70,11 @@ let tableEle = [
   {
     title: 't_name',
     value: 'name',
-    style: { width: '100px' },
     display: true
   },
   {
     title: 't_asset_id',
     value: 'asset_id',
-    style: { width: '400px' },
     display: true,
     render: item => {
       const res = item.assets.map(asset => {
@@ -88,7 +86,6 @@ let tableEle = [
   {
     title: 't_roles',
     value: 'roles',
-    style: { width: '300px' },
     display: true,
     render: item => {
       return item.roles.join('/')
@@ -97,7 +94,7 @@ let tableEle = [
   {
     title: 't_auth_upload',
     value: 'auth_upload', //
-    style: { width: '300px' },
+    style: { width: '100px' },
     display: true,
     render: item => {
       return item.auth_upload === 1 ? 'TRUE' : 'FALSE'
@@ -106,6 +103,7 @@ let tableEle = [
   {
     title: 't_auth_download',
     value: 'auth_download',
+    style: { width: '100px' },
     display: true,
     render: item => {
       return item.auth_download === 1 ? 'TRUE' : 'FALSE'
@@ -114,6 +112,7 @@ let tableEle = [
   {
     title: 't_auth_execute',
     value: 'auth_execute',
+    style: { width: '100px' },
     display: true,
     render: item => {
       return item.auth_execute === 1 ? 'TRUE' : 'FALSE'
@@ -122,6 +121,7 @@ let tableEle = [
   {
     title: 't_enabled',
     value: 'enabled',
+    style: { width: '100px' },
     display: true,
     render: item => {
       return item.enabled === 1 ? 'YES' : 'NO'
