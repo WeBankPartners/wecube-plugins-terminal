@@ -180,26 +180,26 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             user_confirm = msg.get('confirm', False)
             is_dangerous = False
             if command and not user_confirm and utils.bool_from_string(CONF.check_itsdangerous, default=True):
-                client = wecube.WeCubeClient(CONF.wecube.base_url, None)
-                subsys_token = cache.get_or_create(TOKEN_KEY, client.login_subsystem, expires=600)
-                client.token = subsys_token
-                check_data = {
-                    "operator": self._auth_user,
-                    "serviceName": "N/A",
-                    "servicePath": "",
-                    "entityType": CONF.asset.asset_type,
-                    "entityInstances": [{
-                        "id": self._asset_info['id'],
-                        'displayName': self._asset_info['display_name']
-                    }],
-                    "inputParams": {},
-                    "scripts": [{
-                        "type": None,
-                        "content": command,
-                        "name": "console input"
-                    }]
-                }
                 try:
+                    client = wecube.WeCubeClient(CONF.wecube.base_url, None)
+                    subsys_token = cache.get_or_create(TOKEN_KEY, client.login_subsystem, expires=600)
+                    client.token = subsys_token
+                    check_data = {
+                        "operator": self._auth_user,
+                        "serviceName": "N/A",
+                        "servicePath": "",
+                        "entityType": CONF.asset.asset_type,
+                        "entityInstances": [{
+                            "id": self._asset_info['id'],
+                            'displayName': self._asset_info['display_name']
+                        }],
+                        "inputParams": {},
+                        "scripts": [{
+                            "type": None,
+                            "content": command,
+                            "name": "console input"
+                        }]
+                    }
                     box_ids = re.split(r',|\||;', CONF.boxes_check)
                     if len(box_ids) == 1 and not box_ids[0].isnumeric():
                         box_ids = None
@@ -224,7 +224,9 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                         }
                     }),
                                        binary=False)
-
+            # reset audit
+            if command and not is_dangerous:
+                self._audit.reset()
             if not self._ssh_client.is_shell_closed:
                 self._last_transfer = time.time()
                 if not is_dangerous:
