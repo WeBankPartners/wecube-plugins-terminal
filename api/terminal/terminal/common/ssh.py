@@ -16,6 +16,7 @@ import time
 import json
 import stat
 import os.path
+import re
 
 import pyte
 import paramiko
@@ -342,6 +343,10 @@ class CommandParser:
         rows = rows or DEFAULT_ROWS
         self.screen.resize(lines=rows, columns=cols)
 
+    def reset(self):
+        self._state = None
+        self.screen.reset()
+
     def feed(self, data_type, data):
         '''feed data, and return command to be execute if any
 
@@ -357,7 +362,7 @@ class CommandParser:
             return None
         if data_type == 'input':
             if data == TerminalChar.CH_SOH:
-                self.screen.reset()
+                self.reset()
             elif data == TerminalChar.CH_SRH:
                 # feed data from output
                 self._state = TerminalChar.CH_SRH
@@ -368,19 +373,23 @@ class CommandParser:
                 # TODO: input with multiline data support
                 # TODO: vim mode optimize
                 command = "".join(self.screen.display).strip()
-                self.screen.reset()
-                if self._state == TerminalChar.CH_SRH + 'input':
-                    parts = command.split(':')
-                    if len(parts) == 2:
-                        command = parts[1]
-                self._state = None
+                if (self._state == TerminalChar.CH_SRH + 'input' or self._state == TerminalChar.CH_SRH):
+                    if 'reverse-i-search)`' in command:
+                        parts = command.split(':', 1)
+                        if len(parts) == 2:
+                            command = parts[1]
+                    else:
+                        parts = re.split(r'\$|#', command, maxsplit=1)
+                        if len(parts) == 2:
+                            command = parts[1]
+                # NOTE: leave reset for user
+                # self.reset()
                 return command
             elif TerminalChar.CH_ENT in data:
                 # parse with multine data optimize
                 command = "".join(self.screen.display).strip()
                 command = command + data.replace(TerminalChar.CH_ENT, '\r\n')
-                self.screen.reset()
-                self._state = None
+                self.reset()
                 return command
             elif data == TerminalChar.ESC_MVUP:
                 # feed data from output
