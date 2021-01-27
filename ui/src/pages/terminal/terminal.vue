@@ -166,7 +166,10 @@ export default {
         } else if (data.type === 'warn') {
           this.confirm(data)
         } else if (data.type === 'error') {
-          // show_confirm(data.data)
+          this.$Notice.error({
+            title: 'Error',
+            message: data.data
+          })
         }
       }
       s.onclose = function (e) {
