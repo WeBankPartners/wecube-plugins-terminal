@@ -63,7 +63,7 @@
                       :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }"
                     >
                       <Terminal :ref="tab.uniqueCode" :host="tab" :consoleConfig="consoleConfig"></Terminal>
-                      <Button v-if="!showCmd" @click="sendForMulti" style="margin-top:5px">多终端交互</Button>
+                      <Button v-if="!showCmd" @click="sendForMulti">多终端交互</Button>
                     </div>
                   </TabPane>
                 </template>
@@ -87,7 +87,7 @@
             <Input
               v-model="uniteCmd"
               type="textarea"
-              :autosize="{ minRows: 7, maxRows: 16 }"
+              :autosize="{ minRows: 5, maxRows: 16 }"
               @on-enter="sendCmdValidate"
               placeholder="Enter something..."
             />
@@ -136,15 +136,15 @@ export default {
     sendForMulti () {
       const height = document.body.scrollHeight
       this.consoleConfig.terminalH = height - 350
-      let terminalH = (height - 186) / 17
+      let terminalH = (height - 256) / 17
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
       this.showCmd = true
     },
     initConsole () {
       const height = document.body.scrollHeight
-      this.consoleConfig.terminalH = height - 140
-      let terminalH = (height - 180) / 17
+      this.consoleConfig.terminalH = height - 150
+      let terminalH = (height - 210) / 17
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
 
@@ -251,11 +251,11 @@ export default {
 <style scoped lang="less">
 .container-host {
   overflow-y: auto;
-  height: ~'calc(100vh - 210px)';
+  height: ~'calc(100vh - 220px)';
 }
 .container-height {
   border: 1px solid #c4d3f1;
-  height: ~'calc(100vh - 120px)';
+  height: ~'calc(100vh - 130px)';
 }
 
 .normal-icon {
