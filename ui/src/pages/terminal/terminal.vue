@@ -3,7 +3,11 @@
     <Button @click="openDrawer" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
     <div
       class="file-content"
-      :style="{ height: consoleConfig.terminalH + 'px', display: isOpenDrawer ? 'inherit' : 'none', overflow: 'auto' }"
+      :style="{
+        height: consoleConfig.terminalH - 40 + 'px',
+        display: isOpenDrawer ? 'inherit' : 'none',
+        overflow: 'auto'
+      }"
       type="primary"
     >
       <div style="margin-top: 8px">

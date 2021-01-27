@@ -59,7 +59,9 @@
               <Tabs type="card" closable :animated="false" @on-tab-remove="handleTabRemove" :value="activeTab">
                 <template v-for="tab in terminalTabs">
                   <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
-                    <div :style="{ height: consoleConfig.terminalH, 'overflow-y': 'auto', 'margin-right': '7px' }">
+                    <div
+                      :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }"
+                    >
                       <Terminal :ref="tab.uniqueCode" :host="tab" :consoleConfig="consoleConfig"></Terminal>
                       <Button v-if="!showCmd" @click="sendForMulti" style="margin-top:5px">多终端交互</Button>
                     </div>
@@ -134,7 +136,6 @@ export default {
     sendForMulti () {
       const height = document.body.scrollHeight
       this.consoleConfig.terminalH = height - 350
-      console.log(this.consoleConfig.terminalH)
       let terminalH = (height - 186) / 17
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
@@ -142,9 +143,8 @@ export default {
     },
     initConsole () {
       const height = document.body.scrollHeight
-      this.consoleConfig.terminalH = height - 200
-      console.log(this.consoleConfig.terminalH)
-      let terminalH = (height - 186) / 17
+      this.consoleConfig.terminalH = height - 140
+      let terminalH = (height - 180) / 17
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
 
@@ -233,7 +233,6 @@ export default {
         })
         showName = `${host.showName}(${index})`
       }
-      console.log(showName)
       this.activeTab = ''
       this.activeTab = showName
       this.$forceUpdate()
