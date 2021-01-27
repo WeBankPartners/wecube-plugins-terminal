@@ -251,11 +251,11 @@ export default {
 <style scoped lang="less">
 .container-host {
   overflow-y: auto;
-  height: ~'calc(100vh - 190px)';
+  height: ~'calc(100vh - 210px)';
 }
 .container-height {
   border: 1px solid #c4d3f1;
-  height: ~'calc(100vh - 100px)';
+  height: ~'calc(100vh - 120px)';
 }
 
 .normal-icon {
