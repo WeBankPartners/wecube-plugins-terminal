@@ -102,7 +102,7 @@ export default {
       return `/terminal/v1/assets/${this.host.key}/file?path=${this.currentDir}`
     }
   },
-  props: ['host', 'consoleConfig'],
+  props: ['host', 'consoleConfig', 'sendHostSet'],
   created () {},
   async mounted () {
     await this.initTerminal()
@@ -318,7 +318,12 @@ export default {
       this.$emit('cancelDangerousCmd')
     },
     dangerousCmd () {
-      this.$emit('exectDangerousCmd')
+      console.log(this.sendHostSet, this.host)
+      if (this.sendHostSet.includes(this.host.uniqueCode)) {
+        this.$emit('exectDangerousCmd')
+      } else {
+        this.confirmToExecution()
+      }
     },
     async confirmToExecution () {
       this.confirmModal.isShowConfirmModal = false

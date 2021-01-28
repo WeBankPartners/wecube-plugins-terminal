@@ -75,6 +75,7 @@
                       <Terminal
                         :ref="tab.uniqueCode"
                         :host="tab"
+                        :sendHostSet="sendHostSet"
                         :consoleConfig="consoleConfig"
                         @exectDangerousCmd="exectDangerousCmd"
                         @cancelDangerousCmd="cancelDangerousCmd"
