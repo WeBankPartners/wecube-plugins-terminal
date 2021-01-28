@@ -5,8 +5,12 @@
         <div>
           <Card>
             <div slot="title">
-              {{ $t('t_asset_id') }}
+              <span style="line-height: 19px">
+                {{ $t('t_asset_id') }}
+              </span>
+              <!-- <Icon type="ios-arrow-dropleft" style="float:right;cursor:pointer" size="20" /> -->
             </div>
+            <!-- <Button icon="ios-search" slot="extra"></Button> -->
             <div class="container-host">
               <Input
                 v-model="searchHost"
@@ -72,7 +76,8 @@
                         :ref="tab.uniqueCode"
                         :host="tab"
                         :consoleConfig="consoleConfig"
-                        @exectDangerrousCmd="exectDangerrousCmd"
+                        @exectDangerousCmd="exectDangerousCmd"
+                        @cancelDangerousCmd="cancelDangerousCmd"
                       ></Terminal>
                       <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
                     </div>
@@ -140,7 +145,6 @@ export default {
       showCmd: false
     }
   },
-  computed: {},
   mounted () {
     this.initConsole()
     this.getHostList()
@@ -256,7 +260,12 @@ export default {
       //   this.activeTab = showName
       // })
     },
-    handleTabRemove (name) {
+    handleTabRemove (name, xx) {
+      const tab = this.terminalTabs.find(item => item.showName === name)
+      const uniqueCode = tab.uniqueCode
+      const indexSet = this.sendHostSet.findIndex(item => item === uniqueCode)
+      this.sendHostSet.splice(indexSet, 1)
+
       const index = this.terminalTabs.findIndex(item => item.showName === name)
       this.terminalTabs.splice(index, 1)
       if (this.terminalTabs.length > 0) {
@@ -274,9 +283,14 @@ export default {
         this.$refs[tab.uniqueCode][0].focus()
       })
     },
-    exectDangerrousCmd () {
+    exectDangerousCmd () {
       this.sendHostSet.forEach(item => {
         this.$refs[item][0].confirmToExecution()
+      })
+    },
+    cancelDangerousCmd () {
+      this.sendHostSet.forEach(item => {
+        this.$refs[item][0].cancelConfirmToExecution()
       })
     }
   },
@@ -289,7 +303,7 @@ export default {
 <style scoped lang="less">
 .container-host {
   overflow-y: auto;
-  height: ~'calc(100vh - 205px)';
+  height: ~'calc(100vh - 210px)';
 }
 .container-height {
   border: 1px solid #c4d3f1;

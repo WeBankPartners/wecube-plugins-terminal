@@ -62,7 +62,7 @@
         <span style="margin-left:30px;color:#ed4014;float: left;text-align:left">
           <Checkbox v-model="confirmModal.check">{{ $t('dangerous_confirm_tip') }}</Checkbox>
         </span>
-        <Button type="text" @click="confirmModal.isShowConfirmModal = false">{{ $t('bc_cancel') }}</Button>
+        <Button type="text" @click="cancelConfirm">{{ $t('bc_cancel') }}</Button>
         <Button type="warning" :disabled="!confirmModal.check" @click="dangerousCmd">{{ $t('bc_confirm') }}</Button>
       </div>
     </Modal>
@@ -192,6 +192,7 @@ export default {
       })
     },
     externalTrigger (cmd) {
+      this.cmd = cmd
       this.ssh_session.send(JSON.stringify({ type: 'console', data: cmd }))
     },
     async openDrawer () {
@@ -312,13 +313,20 @@ export default {
       this.confirmModal.check = false
       this.confirmModal.isShowConfirmModal = true
     },
+    cancelConfirm () {
+      this.confirmModal.isShowConfirmModal = false
+      this.$emit('cancelDangerousCmd')
+    },
     dangerousCmd () {
-      this.$emit('exectDangerrousCmd')
+      this.$emit('exectDangerousCmd')
     },
     async confirmToExecution () {
       this.confirmModal.isShowConfirmModal = false
       this.ssh_session.send(JSON.stringify({ type: 'console', confirm: true, data: this.cmd }))
       this.term.focus()
+    },
+    cancelConfirmToExecution () {
+      this.confirmModal.isShowConfirmModal = false
     }
   },
   beforeDestroy () {
@@ -332,6 +340,7 @@ export default {
 .file-operate {
   position: absolute;
   z-index: 10;
+  margin-top: 6px;
   right: 40px;
 }
 .file-content {
