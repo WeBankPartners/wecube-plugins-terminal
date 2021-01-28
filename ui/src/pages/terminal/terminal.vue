@@ -4,9 +4,7 @@
     <div
       class="file-content"
       :style="{
-        height: consoleConfig.terminalH - 40 + 'px',
-        display: isOpenDrawer ? 'inherit' : 'none',
-        overflow: 'auto'
+        display: isOpenDrawer ? 'inherit' : 'none'
       }"
       type="primary"
     >
@@ -28,21 +26,28 @@
         <Button @click="closeDrawer" type="primary" style="position: absolute;right: 40px;">{{ $t('t_close') }}</Button>
       </div>
       <span>{{ $t('t_current_directory') }}：</span> {{ currentDir }}
-      <template v-for="(file, index) in fileLists">
-        <div :key="index" style="">
-          <label style="width:80px">{{ file.mode }} </label>
-          <label style="width:50px">{{ file.gid }} </label>
-          <label style="width:50px">{{ file.uid }} </label>
-          <label style="width:100px">{{ file.size }} </label>
-          <label style="width:100px">{{ file.mtime }} </label>
-          <label class="file-name" @click="getFileList(file)">
-            <Icon v-if="file.type === 'dir'" type="ios-folder" />
-            <Icon v-if="file.type === 'link'" type="ios-link" />
-            <Icon v-if="file.type === 'file'" type="md-document" />
-            {{ file.name }}
-          </label>
-        </div>
-      </template>
+      <div
+        :style="{
+          height: consoleConfig.terminalH - 145 + 'px',
+          overflow: 'auto'
+        }"
+      >
+        <template v-for="(file, index) in fileLists">
+          <div :key="index">
+            <label style="width:80px">{{ file.mode }} </label>
+            <label style="width:50px">{{ file.gid }} </label>
+            <label style="width:50px">{{ file.uid }} </label>
+            <label style="width:100px">{{ file.size }} </label>
+            <label style="width:100px">{{ file.mtime }} </label>
+            <label class="file-name" @click="getFileList(file)">
+              <Icon v-if="file.type === 'dir'" type="ios-folder" />
+              <Icon v-if="file.type === 'link'" type="ios-link" />
+              <Icon v-if="file.type === 'file'" type="md-document" />
+              {{ file.name }}
+            </label>
+          </div>
+        </template>
+      </div>
     </div>
     <div id="terminal" ref="terminal"></div>
     <Modal v-model="confirmModal.isShowConfirmModal" width="900">
@@ -58,9 +63,7 @@
           <Checkbox v-model="confirmModal.check">{{ $t('dangerous_confirm_tip') }}</Checkbox>
         </span>
         <Button type="text" @click="confirmModal.isShowConfirmModal = false">{{ $t('bc_cancel') }}</Button>
-        <Button type="warning" :disabled="!confirmModal.check" @click="confirmToExecution">{{
-          $t('bc_confirm')
-        }}</Button>
+        <Button type="warning" :disabled="!confirmModal.check" @click="dangerousCmd">{{ $t('bc_confirm') }}</Button>
       </div>
     </Modal>
   </div>
@@ -170,9 +173,6 @@ export default {
             desc: data.data
           })
         }
-      }
-      s.onclose = function (e) {
-        this.term.write('\r\nConnection close')
       }
       // 把s挂到全局
       this.ssh_session = s
@@ -312,11 +312,17 @@ export default {
       this.confirmModal.check = false
       this.confirmModal.isShowConfirmModal = true
     },
+    dangerousCmd () {
+      this.$emit('exectDangerrousCmd')
+    },
     async confirmToExecution () {
       this.confirmModal.isShowConfirmModal = false
       this.ssh_session.send(JSON.stringify({ type: 'console', confirm: true, data: this.cmd }))
       this.term.focus()
     }
+  },
+  beforeDestroy () {
+    this.ssh_session.close()
   },
   components: {}
 }

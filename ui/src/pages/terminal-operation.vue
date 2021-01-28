@@ -53,7 +53,6 @@
       </Col>
       <Col span="18">
         <div class="container-height">
-          <!-- <Split v-model="split2" mode="vertical"> -->
           <div>
             <div slot="top">
               <Tabs
@@ -69,7 +68,12 @@
                     <div
                       :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }"
                     >
-                      <Terminal :ref="tab.uniqueCode" :host="tab" :consoleConfig="consoleConfig"></Terminal>
+                      <Terminal
+                        :ref="tab.uniqueCode"
+                        :host="tab"
+                        :consoleConfig="consoleConfig"
+                        @exectDangerrousCmd="exectDangerrousCmd"
+                      ></Terminal>
                       <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
                     </div>
                   </TabPane>
@@ -267,6 +271,11 @@ export default {
       this.activeTab = tab.showName
       this.$nextTick(() => {
         this.$refs[tab.uniqueCode][0].focus()
+      })
+    },
+    exectDangerrousCmd () {
+      this.sendHostSet.forEach(item => {
+        this.$refs[item][0].confirmToExecution()
       })
     }
   },
