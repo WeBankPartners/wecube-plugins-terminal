@@ -4,9 +4,9 @@
       <Col span="6">
         <div>
           <Card>
-            <h4 slot="title">
+            <div slot="title">
               {{ $t('t_asset_id') }}
-            </h4>
+            </div>
             <div class="container-host">
               <Input
                 v-model="searchHost"
@@ -176,7 +176,7 @@ export default {
       if (!this.sendHostSet.length) {
         this.$Notice.warning({
           title: 'Warning',
-          desc: '请选择终端机器'
+          desc: this.$t('t_select_terminal')
         })
         return
       }
@@ -251,9 +251,10 @@ export default {
         })
         showName = `${host.showName}(${index})`
       }
-      this.activeTab = ''
       this.activeTab = showName
-      this.$forceUpdate()
+      // this.$nextTick(() => {
+      //   this.activeTab = showName
+      // })
     },
     handleTabRemove (name) {
       const index = this.terminalTabs.findIndex(item => item.showName === name)
@@ -288,7 +289,7 @@ export default {
 <style scoped lang="less">
 .container-host {
   overflow-y: auto;
-  height: ~'calc(100vh - 220px)';
+  height: ~'calc(100vh - 205px)';
 }
 .container-height {
   border: 1px solid #c4d3f1;

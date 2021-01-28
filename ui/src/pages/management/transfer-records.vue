@@ -86,7 +86,7 @@ export default {
             {
               value: 'user__icontains',
               type: 'input',
-              placeholder: 'user',
+              placeholder: 't_user',
               style: ''
             }
           ],
@@ -142,7 +142,7 @@ export default {
       this.pageConfig.researchConfig.filters.ended_time__lte = val[1]
     },
     async initTableData () {
-      if (this.asset_id === '') {
+      if (!this.asset_id) {
         delete this.pageConfig.researchConfig.filters.asset_id
       } else {
         this.pageConfig.researchConfig.filters.asset_id = this.asset_id
