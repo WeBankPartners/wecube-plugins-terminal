@@ -25,9 +25,7 @@
           }}</Button>
         </Upload>
 
-        <Button @click="isOpenDrawer = !isOpenDrawer" type="primary" style="position: absolute;right: 40px;">{{
-          $t('t_close')
-        }}</Button>
+        <Button @click="closeDrawer" type="primary" style="position: absolute;right: 40px;">{{ $t('t_close') }}</Button>
       </div>
       <span>{{ $t('t_current_directory') }}：</span> {{ currentDir }}
       <template v-for="(file, index) in fileLists">
@@ -110,8 +108,15 @@ export default {
     this.getHeaders()
   },
   methods: {
+    focus () {
+      this.term.focus()
+    },
+    closeDrawer () {
+      this.isOpenDrawer = !this.isOpenDrawer
+      this.focus()
+    },
     async initTerminal () {
-      this.term = new Terminal({
+      const term = new Terminal({
         rendererType: 'canvas', // 渲染类型
         rows: this.consoleConfig.rows, // 行数
         cols: this.consoleConfig.cols, // 不指定行数，自动回车后光标从下一行开始
@@ -127,8 +132,10 @@ export default {
           lineHeight: 16
         }
       })
-      this.term.open(this.$refs['terminal'])
-      this.term.focus()
+
+      term.open(this.$refs['terminal'])
+      term.focus()
+      this.term = term
     },
     async terminalConnect () {
       if (this.ssh_session) {
@@ -187,7 +194,6 @@ export default {
     externalTrigger (cmd) {
       this.ssh_session.send(JSON.stringify({ type: 'console', data: cmd }))
     },
-
     async openDrawer () {
       const res = await getFileManagementPermission(this.host.key)
       this.filePermisson = res.data
@@ -309,6 +315,7 @@ export default {
     async confirmToExecution () {
       this.confirmModal.isShowConfirmModal = false
       this.ssh_session.send(JSON.stringify({ type: 'console', confirm: true, data: this.cmd }))
+      this.term.focus()
     }
   },
   components: {}

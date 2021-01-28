@@ -56,7 +56,14 @@
           <!-- <Split v-model="split2" mode="vertical"> -->
           <div>
             <div slot="top">
-              <Tabs type="card" closable :animated="false" @on-tab-remove="handleTabRemove" :value="activeTab">
+              <Tabs
+                type="card"
+                closable
+                :animated="false"
+                @on-click="clickTab"
+                @on-tab-remove="handleTabRemove"
+                :value="activeTab"
+              >
                 <template v-for="tab in terminalTabs">
                   <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
                     <div
@@ -72,7 +79,7 @@
           </div>
           <div v-if="showCmd">
             <div style="margin:8px">
-              <Button @click="initConsole" type="warning" icon="md-exit">{{
+              <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
                 $t('t_cancel_terminal_interaction')
               }}</Button>
               <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600;">
@@ -135,6 +142,12 @@ export default {
     this.getHostList()
   },
   methods: {
+    cancelTerminalInteraction () {
+      this.initConsole()
+      this.showCmd = false
+      const tab = this.terminalTabs.find(item => item.showName === this.activeTab)
+      this.$refs[tab.uniqueCode][0].focus()
+    },
     sendForMulti () {
       const height = document.body.scrollHeight
       this.consoleConfig.terminalH = height - 350
@@ -154,7 +167,6 @@ export default {
       let terminalW = ((width - 260) * 18) / 24 / 8.2
       terminalW = Math.floor(terminalW)
       this.consoleConfig.cols = terminalW
-      this.showCmd = false
     },
     sendCmdValidate () {
       if (!this.sendHostSet.length) {
@@ -242,6 +254,20 @@ export default {
     handleTabRemove (name) {
       const index = this.terminalTabs.findIndex(item => item.showName === name)
       this.terminalTabs.splice(index, 1)
+      if (this.terminalTabs.length > 0) {
+        const lastTab = this.terminalTabs.slice(-1)[0]
+        this.activeTab = lastTab.showName
+        this.$nextTick(() => {
+          this.$refs[lastTab.uniqueCode][0].focus()
+        })
+      }
+    },
+    clickTab (godTab) {
+      const tab = this.terminalTabs.find(item => item.showName === godTab)
+      this.activeTab = tab.showName
+      this.$nextTick(() => {
+        this.$refs[tab.uniqueCode][0].focus()
+      })
     }
   },
   components: {
