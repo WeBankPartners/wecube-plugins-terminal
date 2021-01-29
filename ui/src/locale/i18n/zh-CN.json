@@ -135,5 +135,6 @@
   "t_close": "关闭",
   "t_terminal_interaction": "多终端交互",
   "t_cancel_terminal_interaction": "取消多终端交互",
-  "t_select_terminal": "请选择终端机器"
+  "t_select_terminal": "请选择终端机器",
+  "t_downloading": "正在下载......"
 }

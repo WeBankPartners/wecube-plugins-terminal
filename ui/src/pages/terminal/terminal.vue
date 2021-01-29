@@ -220,6 +220,10 @@ export default {
       }
     },
     downFile (file) {
+      this.$Notice.info({
+        title: 'info',
+        desc: this.$t('t_downloading')
+      })
       const api = `/terminal/v1/assets/${this.host.key}/file?path=${file.fullpath}`
       axios({
         method: 'GET',

@@ -133,5 +133,6 @@
   "t_close": "Close",
   "t_terminal_interaction": "Multi-terminal Interaction",
   "t_cancel_terminal_interaction": "Cancel Multi-terminal Interaction",
-  "t_select_terminal": "Please Select Terminal"
+  "t_select_terminal": "Please Select Terminal",
+  "t_downloading": "Downloading"
 }
