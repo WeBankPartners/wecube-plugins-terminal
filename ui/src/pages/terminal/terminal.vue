@@ -214,14 +214,14 @@ export default {
     },
     getFileList (file) {
       if (['link', 'file'].includes(file.type)) {
-        this.downFile(file)
+        this.downLoadFile(file)
       } else if (file.type === 'dir') {
         this.ssh_session.send(JSON.stringify({ type: 'listdir', data: file.fullpath }))
       }
     },
-    downFile (file) {
+    downLoadFile (file) {
       const api = `/terminal/v1/assets/${this.host.key}/file?path=${file.fullpath}`
-      window.open(api, '_parent')
+      window.open(api, '_blank')
     },
     uploadSucess (response) {
       this.$refs.uploadButton.clearFiles()
