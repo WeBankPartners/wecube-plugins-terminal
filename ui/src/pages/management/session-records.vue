@@ -152,7 +152,8 @@ export default {
           url = item.src
         }
       })
-      url = url.substring(0, 60)
+      const len = url.length
+      url = url.substring(0, len - 31)
       window.open(url + 'replay-page.html', '_blank')
     }
   },
