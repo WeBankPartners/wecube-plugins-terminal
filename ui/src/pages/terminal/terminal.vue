@@ -220,56 +220,8 @@ export default {
       }
     },
     downFile (file) {
-      this.$Notice.info({
-        title: 'info',
-        desc: this.$t('t_downloading')
-      })
       const api = `/terminal/v1/assets/${this.host.key}/file?path=${file.fullpath}`
-      axios({
-        method: 'GET',
-        url: api,
-        headers: this.headers,
-        responseType: 'blob'
-      })
-        .then(async response => {
-          if (response.data.type === 'application/json') {
-            const errorMsg = JSON.parse(await response.data.text())
-            this.$Notice.error({
-              title: 'Error',
-              desc: errorMsg.message
-            })
-            return
-          }
-          // eslint-disable-next-line no-unused-vars
-          let fileStream = response.data
-          let fileName = file.name
-          let blob = new Blob([fileStream])
-          if ('msSaveOrOpenBlob' in navigator) {
-            // Microsoft Edge and Microsoft Internet Explorer 10-11
-            window.navigator.msSaveOrOpenBlob(blob, fileName)
-          } else {
-            if ('download' in document.createElement('a')) {
-              // 非IE下载
-              let elink = document.createElement('a')
-              elink.download = fileName
-              elink.style.display = 'none'
-              elink.href = URL.createObjectURL(blob)
-              document.body.appendChild(elink)
-              elink.click()
-              URL.revokeObjectURL(elink.href) // 释放URL 对象
-              document.body.removeChild(elink)
-            } else {
-              // IE10+下载
-              navigator.msSaveOrOpenBlob(blob, fileName)
-            }
-          }
-        })
-        .catch(() => {
-          this.$Notice.error({
-            title: 'Error',
-            desc: 'Download Faild'
-          })
-        })
+      window.open(api, '_parent')
     },
     uploadSucess (response) {
       this.$refs.uploadButton.clearFiles()
