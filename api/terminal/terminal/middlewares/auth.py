@@ -15,6 +15,9 @@ class JWTAuth(object):
     """中间件，提供JWT Token信息解析"""
     def process_request(self, req, resp):
         token_header = req.headers.get('Authorization'.upper(), None)
+        token_cookie = req.get_cookie_values('accessToken')
+        if token_cookie:
+            token_header = token_header or 'Bearer ' + token_cookie[0]
         secret = CONF.jwt_signing_key
         if token_header:
             token = token_header[len('Bearer '):]
