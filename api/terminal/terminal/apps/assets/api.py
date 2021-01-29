@@ -175,6 +175,18 @@ class AssetFile(object):
             })
             raise exceptions.ValidationError(message=_('%(filepath)s is not a regular file') % {'filepath': filepath})
         filesize = stat_result['size']
+        if filesize and filesize > int(CONF.download_max_size):
+            TransferRecord().update(
+                record['id'], {
+                    'ended_time': datetime.datetime.now(),
+                    'status': 'ERROR',
+                    'message': 'File size (%s bytes) exceeds maximum of %s' % (filesize, CONF.download_max_size)
+                })
+            raise exceptions.ValidationError(
+                message=_('file size (%(size)s bytes) exceeds maximum of %(maximum_size)s') % {
+                    'size': filesize,
+                    'maximum_size': CONF.download_max_size
+                })
         TransferRecord().update(record['id'], {'filesize': filesize})
         fileobj = sftp.open(filepath, "rb")
         fileobj.close = _close_proxy(fileobj.close, record)

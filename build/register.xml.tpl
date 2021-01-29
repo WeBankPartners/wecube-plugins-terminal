@@ -17,33 +17,31 @@
 
     <!-- 4.系统参数 - 描述运行本插件包需要的系统参数 -->
     <systemParameters>
-        <systemParameter name="TERMINAL_ASSET_TYPE" scopeType="plugins" defaultValue="wecmdb:host_resource_instance"/>
-        <systemParameter name="TERMINAL_FIELD_NAME" scopeType="plugins" defaultValue="name"/>
-        <systemParameter name="TERMINAL_FIELD_IP" scopeType="plugins" defaultValue="ip_address"/>
-        <systemParameter name="TERMINAL_FIELD_PORT" scopeType="plugins" defaultValue="login_port"/>
-        <systemParameter name="TERMINAL_FIELD_USER" scopeType="plugins" defaultValue="user_name"/>
-        <systemParameter name="TERMINAL_FIELD_PASSWORD" scopeType="plugins" defaultValue="user_password"/>
-        <systemParameter name="TERMINAL_FIELD_DESC" scopeType="plugins" defaultValue="description"/>
-        <systemParameter name="TERMINAL_BOXES" scopeType="plugins" defaultValue="all"/>
-        <systemParameter name="TERMINAL_SESSION_TIMEOUT" scopeType="plugins" defaultValue="1800"/>
-        <systemParameter name="TERMINAL_WEBSOCKET_URL" scopeType="plugins" defaultValue="ws://127.0.0.1:19002"/>
-        <systemParameter name="TERMINAL_COMMAND_CHECK" scopeType="plugins" defaultValue="ON"/>
+        <systemParameter name="TERMINAL_ASSET_TYPE" scopeType="plugins" defaultValue="wecmdb:host_resource_instance" />
+        <systemParameter name="TERMINAL_FIELD_NAME" scopeType="plugins" defaultValue="name" />
+        <systemParameter name="TERMINAL_FIELD_IP" scopeType="plugins" defaultValue="ip_address" />
+        <systemParameter name="TERMINAL_FIELD_PORT" scopeType="plugins" defaultValue="login_port" />
+        <systemParameter name="TERMINAL_FIELD_USER" scopeType="plugins" defaultValue="user_name" />
+        <systemParameter name="TERMINAL_FIELD_PASSWORD" scopeType="plugins" defaultValue="user_password" />
+        <systemParameter name="TERMINAL_FIELD_DESC" scopeType="plugins" defaultValue="description" />
+        <systemParameter name="TERMINAL_BOXES" scopeType="plugins" defaultValue="all" />
+        <systemParameter name="TERMINAL_SESSION_TIMEOUT" scopeType="plugins" defaultValue="1800" />
+        <systemParameter name="TERMINAL_WEBSOCKET_URL" scopeType="plugins" defaultValue="ws://127.0.0.1:19002" />
+        <systemParameter name="TERMINAL_COMMAND_CHECK" scopeType="plugins" defaultValue="ON" />
+        <systemParameter name="TERMINAL_FILE_DOWNLOAD_MAX_BYTES" scopeType="plugins" defaultValue="104857600" />
     </systemParameters>
 
     <!-- 5.权限设定 -->
     <authorities>
-        <authority systemRoleName="SUPER_ADMIN" >
+        <authority systemRoleName="SUPER_ADMIN">
             <menu code="IMPLEMENTATION_TERMINAL" />
             <menu code="ADMIN_TERMINAL_CONFIG" />
-        </authority >
+        </authority>
     </authorities>
 
     <!-- 6.运行资源 - 描述部署运行本插件包需要的基础资源(如主机、虚拟机、容器、数据库等) -->
     <resourceDependencies>
-        <docker imageName="{{IMAGENAME}}" containerName="{{CONTAINERNAME}}" 
-        portBindings="{{ALLOCATE_PORT}}:9001,19002:9002"
-        volumeBindings="/etc/localtime:/etc/localtime,{{BASE_MOUNT_PATH}}/terminal/logs:/var/log/terminal,{{BASE_MOUNT_PATH}}/certs:/certs,{{BASE_MOUNT_PATH}}/terminal/records:/data/terminal/records" 
-        envVariables="TERMINAL_DB_USERNAME={{DB_USER}},TERMINAL_DB_PASSWORD={{DB_PWD}},TERMINAL_DB_HOSTIP={{DB_HOST}},TERMINAL_DB_HOSTPORT={{DB_PORT}},TERMINAL_DB_SCHEMA={{DB_SCHEMA}},TERMINAL_ASSET_TYPE={{TERMINAL_ASSET_TYPE}},TERMINAL_FIELD_NAME={{TERMINAL_FIELD_NAME}},TERMINAL_FIELD_IP={{TERMINAL_FIELD_IP}},TERMINAL_FIELD_PORT={{TERMINAL_FIELD_PORT}},TERMINAL_FIELD_USER={{TERMINAL_FIELD_USER}},TERMINAL_FIELD_PASSWORD={{TERMINAL_FIELD_PASSWORD}},TERMINAL_FIELD_DESC={{TERMINAL_FIELD_DESC}},GATEWAY_URL={{GATEWAY_URL}},JWT_SIGNING_KEY={{JWT_SIGNING_KEY}},TERMINAL_BOXES={{TERMINAL_BOXES}},TERMINAL_SESSION_TIMEOUT={{TERMINAL_SESSION_TIMEOUT}},TERMINAL_WEBSOCKET_URL={{TERMINAL_WEBSOCKET_URL}},TERMINAL_COMMAND_CHECK={{TERMINAL_COMMAND_CHECK}},SUB_SYSTEM_CODE={{SUB_SYSTEM_CODE}},SUB_SYSTEM_KEY={{SUB_SYSTEM_KEY}}" />
+        <docker imageName="{{IMAGENAME}}" containerName="{{CONTAINERNAME}}" portBindings="{{ALLOCATE_PORT}}:9001,19002:9002" volumeBindings="/etc/localtime:/etc/localtime,{{BASE_MOUNT_PATH}}/terminal/logs:/var/log/terminal,{{BASE_MOUNT_PATH}}/certs:/certs,{{BASE_MOUNT_PATH}}/terminal/records:/data/terminal/records" envVariables="TERMINAL_DB_USERNAME={{DB_USER}},TERMINAL_DB_PASSWORD={{DB_PWD}},TERMINAL_DB_HOSTIP={{DB_HOST}},TERMINAL_DB_HOSTPORT={{DB_PORT}},TERMINAL_DB_SCHEMA={{DB_SCHEMA}},TERMINAL_ASSET_TYPE={{TERMINAL_ASSET_TYPE}},TERMINAL_FIELD_NAME={{TERMINAL_FIELD_NAME}},TERMINAL_FIELD_IP={{TERMINAL_FIELD_IP}},TERMINAL_FIELD_PORT={{TERMINAL_FIELD_PORT}},TERMINAL_FIELD_USER={{TERMINAL_FIELD_USER}},TERMINAL_FIELD_PASSWORD={{TERMINAL_FIELD_PASSWORD}},TERMINAL_FIELD_DESC={{TERMINAL_FIELD_DESC}},GATEWAY_URL={{GATEWAY_URL}},JWT_SIGNING_KEY={{JWT_SIGNING_KEY}},TERMINAL_BOXES={{TERMINAL_BOXES}},TERMINAL_SESSION_TIMEOUT={{TERMINAL_SESSION_TIMEOUT}},TERMINAL_WEBSOCKET_URL={{TERMINAL_WEBSOCKET_URL}},TERMINAL_COMMAND_CHECK={{TERMINAL_COMMAND_CHECK}},TERMINAL_DOWNLOAD_MAX_FILE_BYTES={{TERMINAL_DOWNLOAD_MAX_FILE_BYTES}},SUB_SYSTEM_CODE={{SUB_SYSTEM_CODE}},SUB_SYSTEM_KEY={{SUB_SYSTEM_KEY}}" />
         <mysql schema="terminal" initFileName="init.sql" upgradeFileName="upgrade.sql" />
     </resourceDependencies>
 
