@@ -25,7 +25,10 @@
 
         <Button @click="closeDrawer" type="primary" style="position: absolute;right: 40px;">{{ $t('t_close') }}</Button>
       </div>
-      <span>{{ $t('t_current_directory') }}：</span> {{ currentDir }}
+      <div style="margin: 4px 0">
+        {{ $t('t_current_directory') }}：
+        <Input style="width:60%" v-model="currentDir" @on-enter="getFiles"> </Input>
+      </div>
       <div
         :style="{
           height: consoleConfig.terminalH - 145 + 'px',
@@ -62,7 +65,7 @@
         <span style="margin-left:30px;color:#ed4014;float: left;text-align:left">
           <Checkbox v-model="confirmModal.check">{{ $t('dangerous_confirm_tip') }}</Checkbox>
         </span>
-        <Button type="text" @click="confirmModal.isShowConfirmModal = false">{{ $t('bc_cancel') }}</Button>
+        <Button type="text" @click="cancelConfirm">{{ $t('bc_cancel') }}</Button>
         <Button type="warning" :disabled="!confirmModal.check" @click="dangerousCmd">{{ $t('bc_confirm') }}</Button>
       </div>
     </Modal>
@@ -102,7 +105,7 @@ export default {
       return `/terminal/v1/assets/${this.host.key}/file?path=${this.currentDir}`
     }
   },
-  props: ['host', 'consoleConfig'],
+  props: ['host', 'consoleConfig', 'sendHostSet'],
   created () {},
   async mounted () {
     await this.initTerminal()
@@ -192,7 +195,11 @@ export default {
       })
     },
     externalTrigger (cmd) {
+      this.cmd = cmd
       this.ssh_session.send(JSON.stringify({ type: 'console', data: cmd }))
+    },
+    getFiles () {
+      this.ssh_session.send(JSON.stringify({ type: 'listdir', data: this.currentDir }))
     },
     async openDrawer () {
       const res = await getFileManagementPermission(this.host.key)
@@ -213,6 +220,10 @@ export default {
       }
     },
     downFile (file) {
+      this.$Notice.info({
+        title: 'info',
+        desc: this.$t('t_downloading')
+      })
       const api = `/terminal/v1/assets/${this.host.key}/file?path=${file.fullpath}`
       axios({
         method: 'GET',
@@ -312,13 +323,24 @@ export default {
       this.confirmModal.check = false
       this.confirmModal.isShowConfirmModal = true
     },
+    cancelConfirm () {
+      this.confirmModal.isShowConfirmModal = false
+      this.$emit('cancelDangerousCmd')
+    },
     dangerousCmd () {
-      this.$emit('exectDangerrousCmd')
+      if (this.sendHostSet.includes(this.host.uniqueCode)) {
+        this.$emit('exectDangerousCmd')
+      } else {
+        this.confirmToExecution()
+      }
     },
     async confirmToExecution () {
       this.confirmModal.isShowConfirmModal = false
       this.ssh_session.send(JSON.stringify({ type: 'console', confirm: true, data: this.cmd }))
       this.term.focus()
+    },
+    cancelConfirmToExecution () {
+      this.confirmModal.isShowConfirmModal = false
     }
   },
   beforeDestroy () {
@@ -332,6 +354,7 @@ export default {
 .file-operate {
   position: absolute;
   z-index: 10;
+  margin-top: 6px;
   right: 40px;
 }
 .file-content {

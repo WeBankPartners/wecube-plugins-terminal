@@ -4,9 +4,13 @@
       <Col span="6">
         <div>
           <Card>
-            <h4 slot="title">
-              {{ $t('t_asset_id') }}
-            </h4>
+            <div slot="title">
+              <span style="line-height: 19px">
+                {{ $t('t_asset_id') }}
+              </span>
+              <!-- <Icon type="ios-arrow-dropleft" style="float:right;cursor:pointer" size="20" /> -->
+            </div>
+            <!-- <Button icon="ios-search" slot="extra"></Button> -->
             <div class="container-host">
               <Input
                 v-model="searchHost"
@@ -32,7 +36,7 @@
                     </template>
                     <div slot="content">
                       <div class="host-content">
-                        <span class="host-content-title">ID:</span>
+                        <span class="host-content-title">id:</span>
                         <span>{{ host.id }}</span>
                       </div>
                       <div class="host-content">
@@ -71,8 +75,10 @@
                       <Terminal
                         :ref="tab.uniqueCode"
                         :host="tab"
+                        :sendHostSet="sendHostSet"
                         :consoleConfig="consoleConfig"
-                        @exectDangerrousCmd="exectDangerrousCmd"
+                        @exectDangerousCmd="exectDangerousCmd"
+                        @cancelDangerousCmd="cancelDangerousCmd"
                       ></Terminal>
                       <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
                     </div>
@@ -140,7 +146,6 @@ export default {
       showCmd: false
     }
   },
-  computed: {},
   mounted () {
     this.initConsole()
     this.getHostList()
@@ -176,7 +181,7 @@ export default {
       if (!this.sendHostSet.length) {
         this.$Notice.warning({
           title: 'Warning',
-          desc: '请选择终端机器'
+          desc: this.$t('t_select_terminal')
         })
         return
       }
@@ -251,11 +256,17 @@ export default {
         })
         showName = `${host.showName}(${index})`
       }
-      this.activeTab = ''
       this.activeTab = showName
-      this.$forceUpdate()
+      // this.$nextTick(() => {
+      //   this.activeTab = showName
+      // })
     },
-    handleTabRemove (name) {
+    handleTabRemove (name, xx) {
+      const tab = this.terminalTabs.find(item => item.showName === name)
+      const uniqueCode = tab.uniqueCode
+      const indexSet = this.sendHostSet.findIndex(item => item === uniqueCode)
+      this.sendHostSet.splice(indexSet, 1)
+
       const index = this.terminalTabs.findIndex(item => item.showName === name)
       this.terminalTabs.splice(index, 1)
       if (this.terminalTabs.length > 0) {
@@ -273,9 +284,14 @@ export default {
         this.$refs[tab.uniqueCode][0].focus()
       })
     },
-    exectDangerrousCmd () {
+    exectDangerousCmd () {
       this.sendHostSet.forEach(item => {
         this.$refs[item][0].confirmToExecution()
+      })
+    },
+    cancelDangerousCmd () {
+      this.sendHostSet.forEach(item => {
+        this.$refs[item][0].cancelConfirmToExecution()
       })
     }
   },
@@ -288,7 +304,7 @@ export default {
 <style scoped lang="less">
 .container-host {
   overflow-y: auto;
-  height: ~'calc(100vh - 220px)';
+  height: ~'calc(100vh - 210px)';
 }
 .container-height {
   border: 1px solid #c4d3f1;
