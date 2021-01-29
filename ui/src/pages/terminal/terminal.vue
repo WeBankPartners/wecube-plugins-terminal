@@ -25,7 +25,10 @@
 
         <Button @click="closeDrawer" type="primary" style="position: absolute;right: 40px;">{{ $t('t_close') }}</Button>
       </div>
-      <span>{{ $t('t_current_directory') }}：</span> {{ currentDir }}
+      <div style="margin: 4px 0">
+        {{ $t('t_current_directory') }}：
+        <Input style="width:60%" v-model="currentDir" @on-enter="getFiles"> </Input>
+      </div>
       <div
         :style="{
           height: consoleConfig.terminalH - 145 + 'px',
@@ -195,6 +198,9 @@ export default {
       this.cmd = cmd
       this.ssh_session.send(JSON.stringify({ type: 'console', data: cmd }))
     },
+    getFiles () {
+      this.ssh_session.send(JSON.stringify({ type: 'listdir', data: this.currentDir }))
+    },
     async openDrawer () {
       const res = await getFileManagementPermission(this.host.key)
       this.filePermisson = res.data
@@ -318,7 +324,6 @@ export default {
       this.$emit('cancelDangerousCmd')
     },
     dangerousCmd () {
-      console.log(this.sendHostSet, this.host)
       if (this.sendHostSet.includes(this.host.uniqueCode)) {
         this.$emit('exectDangerousCmd')
       } else {

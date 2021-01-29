@@ -36,7 +36,7 @@
                     </template>
                     <div slot="content">
                       <div class="host-content">
-                        <span class="host-content-title">ID:</span>
+                        <span class="host-content-title">id:</span>
                         <span>{{ host.id }}</span>
                       </div>
                       <div class="host-content">
