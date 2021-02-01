@@ -98,6 +98,14 @@ class Asset(object):
         datas = [item for item in datas if item['id'] in auth_asset_ids]
         for item in datas:
             item['connnection_url'] = CONF.websocket_url
+            # decrypt password if encrypted
+            encrypted_prefix = '{cipher_a}'
+            if item['password'].startswith(encrypted_prefix):
+                origin_password = item['password'][len(encrypted_prefix):]
+                origin_password = bytes.fromhex(origin_password)
+                key = utils.md5(item['id'] + CONF.platform_encrypt_seed)[:16]
+                origin_password = utils.aes_cbc_pkcs7_decrypt(origin_password, key, key)
+                item['password'] = origin_password.decode()
         return datas
 
 
