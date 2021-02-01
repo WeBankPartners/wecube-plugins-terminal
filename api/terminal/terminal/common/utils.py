@@ -15,6 +15,8 @@ import os.path
 import shutil
 import tempfile
 import time
+import hashlib
+from Crypto.Cipher import AES
 
 import requests
 from talos.core import config
@@ -363,3 +365,16 @@ def transform_filter_to_entity_query(filters, fields_mapping=None):
                 new_filters.append({"attrName": filter_key, "op": "eq", "condition": filter_value})
         query['additionalFilters'] = new_filters
     return query
+
+
+def md5(text):
+    hasher = hashlib.md5()
+    hasher.update(text.encode())
+    return hasher.hexdigest()
+
+
+def aes_cbc_pkcs7_decrypt(encrypted, key, iv):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    data = cipher.decrypt(encrypted)
+    # pkcs7 padding
+    return data[0:-data[-1]]
