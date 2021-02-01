@@ -14,15 +14,16 @@
             <div class="container-host">
               <Input
                 v-model="searchHost"
-                placeholder="Enter something..."
+                placeholder="Filter ip or name"
                 @on-change="filterHost"
                 style="width: 100%;margin-bottom:16px"
               />
               <Collapse>
                 <template v-for="host in hostInfo">
                   <Panel :name="host.ip_address" :key="host.ip_address">
-                    <span>{{ host.ip_address }}</span>
-                    <span style="color:#2d8cf0">[{{ host.username }}]</span>
+                    <div class="diyTitle">
+                      {{ host.ip_address }}<span style="color:#2d8cf0">[{{ host.username }}]</span>{{ host.name }}
+                    </div>
                     <template>
                       <Tooltip content="Console" :delay="500" style="float:right">
                         <i
@@ -208,7 +209,9 @@ export default {
     },
     filterHost () {
       if (this.searchHost) {
-        this.hostInfo = this.oriHostInfo.filter(item => item.ip_address.includes(this.searchHost))
+        this.hostInfo = this.oriHostInfo.filter(
+          item => item.ip_address.includes(this.searchHost) || item.name.includes(this.searchHost)
+        )
       } else {
         this.hostInfo = this.oriHostInfo
       }
@@ -302,6 +305,14 @@ export default {
 </script>
 
 <style scoped lang="less">
+.diyTitle {
+  width: calc(100% - 80px);
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
 .container-host {
   overflow-y: auto;
   height: ~'calc(100vh - 210px)';
