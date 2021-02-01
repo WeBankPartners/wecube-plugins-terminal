@@ -293,6 +293,7 @@ class SSHRecorder:
         header = {"version": 2, "width": cols, "height": rows, "timestamp": self._start_time, "env": {}}
         header = json.dumps(header) + '\n'
         self._fileobj.write(header)
+        self._fileobj.flush()
 
     def write_command(self, input_content, output_content):
         # start as default meta info if user not calling start()
@@ -307,6 +308,7 @@ class SSHRecorder:
             self._fileobj.write(json.dumps([str(time.time() - self._start_time), "i", input_content]) + '\n')
         if output_content is not None:
             self._fileobj.write(json.dumps([time.time() - self._start_time, "o", output_content]) + '\n')
+        self._fileobj.flush()
 
     def close(self, read_content=False):
         content = None
