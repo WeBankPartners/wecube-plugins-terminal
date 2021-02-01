@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 import logging
+import socket
 import time
 import re
 import datetime
@@ -150,6 +151,9 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                 self._asset_info = asset
                 self._auth_user = token_user
             except exceptions.PluginError as e:
+                self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
+                raise e
+            except socket.timeout as e:
                 self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
                 raise e
             self._ssh_client.create_shell(self, cols=user_cols, rows=user_rows)
