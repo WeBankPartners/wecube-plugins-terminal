@@ -14,6 +14,7 @@ from terminal.common import wecmdb
 from terminal.common import ssh
 from terminal.common import utils
 from terminal.common import exceptions
+from terminal.common import s3
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
@@ -246,10 +247,14 @@ class SessionRecord(resource.SessionRecord):
     def download(self, rid):
         ref = self.get(rid)
         if ref:
-            fullpath = os.path.join(CONF.session.record_path, ref['filepath'])
-            if not os.path.exists(fullpath):
-                raise exceptions.NotFoundError(resource='File of SessionRecord[%s]' % rid)
-            return open(fullpath, 'rb'), os.path.getsize(fullpath)
+            if CONF.s3.server not in ref['filepath']:
+                fullpath = os.path.join(CONF.session.record_path, ref['filepath'])
+                if not os.path.exists(fullpath):
+                    raise exceptions.NotFoundError(resource='File of SessionRecord[%s]' % rid)
+                return open(fullpath, 'rb'), os.path.getsize(fullpath)
+            else:
+                client = s3.S3Client(CONF.s3.server, CONF.s3.access_key, CONF.s3.secret_key)
+                return client.download_stream(ref['filepath'])
         else:
             raise exceptions.NotFoundError(resource='SessionRecord[%s]' % rid)
 

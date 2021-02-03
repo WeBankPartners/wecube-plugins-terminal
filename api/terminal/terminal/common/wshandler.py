@@ -21,6 +21,7 @@ from talos.core import config
 from talos.core import utils
 from talos.common import cache
 from talos.core.i18n import _
+import zmq
 
 from terminal.common import ssh
 from terminal.common import exceptions
@@ -48,6 +49,9 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
         self._ssh_recorder = None
         self._ssh_recorder_db = None
         self._audit = ssh.CommandParser()
+        zmq_socket = application.zmq_context.socket(zmq.PUSH)
+        zmq_socket.connect(CONF.ipc.bind)
+        self.event_pusher = zmq_socket
 
     def check_origin(self, origin):
         return True
@@ -92,6 +96,15 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         self._ssh_client.close()
         if self._ssh_recorder:
+            self.event_pusher.send_json({
+                'session_id':
+                self._ssh_recorder_db['id'],
+                'filepath':
+                self._ssh_recorder._filepath,
+                'object_key':
+                self._asset_info['id'] + '/' + os.path.basename(self._ssh_recorder._filepath)
+            })
+            self.event_pusher.close()
             self._ssh_recorder.close()
             self._ssh_recorder = None
         if self._ssh_recorder_db:

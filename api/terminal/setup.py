@@ -120,6 +120,7 @@ setup(
             'terminal_server=terminal.server.simple_server:main',
             'terminal_tunnel_server=terminal.server.ws_server:main',
             'terminal_scheduler=terminal.server.scheduler:main',
+            'terminal_uploader=terminal.server.uploader:main',
         ],
     },
 )

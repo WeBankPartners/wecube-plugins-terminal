@@ -11,7 +11,6 @@ from __future__ import absolute_import
 import logging
 import io
 import functools
-import tempfile
 import time
 import json
 import stat
@@ -269,7 +268,7 @@ class SSHRecorder:
     '''record everything to file, using format:
     https://github.com/asciinema/asciinema/blob/develop/doc/asciicast-v2.md
     '''
-    def __init__(self, filepath=None):
+    def __init__(self, filepath):
         self._start_time = None
         self._filepath = filepath
         self._fileobj = None
@@ -284,10 +283,7 @@ class SSHRecorder:
         '''
         cols = cols or DEFAULT_COLUMNS
         rows = rows or DEFAULT_ROWS
-        if self._filepath:
-            self._fileobj = open(self._filepath, 'w+')
-        else:
-            self._fileobj = tempfile.TemporaryFile('w+')
+        self._fileobj = open(self._filepath, 'w+')
         LOG.info('generating terminal-record file: %s', self._fileobj.name)
         self._start_time = time.time()
         header = {"version": 2, "width": cols, "height": rows, "timestamp": self._start_time, "env": {}}

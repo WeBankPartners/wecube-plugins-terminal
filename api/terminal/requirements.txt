@@ -16,3 +16,6 @@ M2Crypto
 gevent
 pytz
 apscheduler
+zmq
+minio
+certifi
