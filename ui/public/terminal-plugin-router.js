@@ -1,4 +1,44 @@
-import router from '../src/router-plugin'
+const router = [
+  {
+    path: '/terminalOperation',
+    name: 'terminalOperation',
+    redirect: 'terminalOperation',
+    children: [
+      {
+        path: '/terminalOperation',
+        name: 'terminalOperation',
+        params: {},
+        props: true
+      }
+    ]
+  },
+  {
+    path: '/terminalManagement',
+    name: 'terminalManagement',
+    redirect: '/terminalManagement/sessionRecords',
+    children: [
+      {
+        path: 'permissions',
+        name: 'permissions',
+        title: '文件传输权限',
+        meta: {}
+      },
+      {
+        path: 'sessionRecords',
+        name: 'sessionRecords',
+        title: '访问记录',
+        meta: {}
+      },
+      {
+        path: 'transferRecords',
+        name: 'transferRecords',
+        title: '文件传输列表',
+        meta: {}
+      }
+    ]
+  }
+]
+
 const implicitRoute = {
   'terminalManagement/sessionRecords': {
     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
