@@ -1,5 +1,5 @@
 import 'regenerator-runtime/runtime'
-import router from './router-plugin'
+// import router from './router-plugin'
 import 'view-design/dist/styles/iview.css'
 import './locale/i18n'
 import { validate } from '@/assets/js/validate.js'
@@ -25,20 +25,20 @@ window.component('ModalComponent', ModalComponent)
 
 window.locale('zh-CN', zhCN)
 window.locale('en-US', enUS)
-const implicitRoute = {
-  'terminalManagement/sessionRecords': {
-    parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
-    childBreadcrumb: { 'zh-CN': '会话记录', 'en-US': 'Session Records' }
-  },
-  'terminalManagement/transferRecords': {
-    parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
-    childBreadcrumb: { 'zh-CN': '文件传输', 'en-US': 'Transfer Records' }
-  },
-  'terminalManagement/permissions': {
-    parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
-    childBreadcrumb: { 'zh-CN': '权限管理', 'en-US': 'Permissions' }
-  }
-}
+// const implicitRoute = {
+//   'terminalManagement/sessionRecords': {
+//     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
+//     childBreadcrumb: { 'zh-CN': '会话记录', 'en-US': 'Session Records' }
+//   },
+//   'terminalManagement/transferRecords': {
+//     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
+//     childBreadcrumb: { 'zh-CN': '文件传输', 'en-US': 'Transfer Records' }
+//   },
+//   'terminalManagement/permissions': {
+//     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
+//     childBreadcrumb: { 'zh-CN': '权限管理', 'en-US': 'Permissions' }
+//   }
+// }
 
-window.addImplicitRoute(implicitRoute)
-window.addRoutes && window.addRoutes(router, 'terminal')
+// window.addImplicitRoute(implicitRoute)
+// window.addRoutes && window.addRoutes(router, 'terminal')
