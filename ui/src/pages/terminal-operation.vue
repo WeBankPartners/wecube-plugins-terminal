@@ -1,14 +1,14 @@
 <template>
   <div>
     <Row>
-      <Col span="6">
+      <Col span="6" v-if="showHostList">
         <div>
           <Card>
             <div slot="title">
               <span style="line-height: 19px">
                 {{ $t('t_asset_id') }}
               </span>
-              <!-- <Icon type="ios-arrow-dropleft" style="float:right;cursor:pointer" size="20" /> -->
+              <Icon type="ios-arrow-dropleft" style="float:right;cursor:pointer" @click="hideHost" size="20" />
             </div>
             <!-- <Button icon="ios-search" slot="extra"></Button> -->
             <div class="container-host">
@@ -56,37 +56,34 @@
           </Card>
         </div>
       </Col>
-      <Col span="18">
+      <Col :span="showHostList ? 18 : 24">
         <div class="container-height">
+          <Icon v-if="!showHostList" @click="showHost" type="ios-arrow-dropright" />
           <div>
-            <div slot="top">
-              <Tabs
-                type="card"
-                closable
-                :animated="false"
-                @on-click="clickTab"
-                @on-tab-remove="handleTabRemove"
-                :value="activeTab"
-              >
-                <template v-for="tab in terminalTabs">
-                  <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
-                    <div
-                      :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }"
-                    >
-                      <Terminal
-                        :ref="tab.uniqueCode"
-                        :host="tab"
-                        :sendHostSet="sendHostSet"
-                        :consoleConfig="consoleConfig"
-                        @exectDangerousCmd="exectDangerousCmd"
-                        @cancelDangerousCmd="cancelDangerousCmd"
-                      ></Terminal>
-                      <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
-                    </div>
-                  </TabPane>
-                </template>
-              </Tabs>
-            </div>
+            <Tabs
+              type="card"
+              closable
+              :animated="false"
+              @on-click="clickTab"
+              @on-tab-remove="handleTabRemove"
+              :value="activeTab"
+            >
+              <template v-for="tab in terminalTabs">
+                <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
+                  <div :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }">
+                    <Terminal
+                      :ref="tab.uniqueCode"
+                      :host="tab"
+                      :sendHostSet="sendHostSet"
+                      :consoleConfig="consoleConfig"
+                      @exectDangerousCmd="exectDangerousCmd"
+                      @cancelDangerousCmd="cancelDangerousCmd"
+                    ></Terminal>
+                    <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
+                  </div>
+                </TabPane>
+              </template>
+            </Tabs>
           </div>
           <div v-if="showCmd">
             <div style="margin:8px">
@@ -152,6 +149,12 @@ export default {
     this.getHostList()
   },
   methods: {
+    hideHost () {
+      this.showHostList = false
+    },
+    showHost () {
+      this.showHostList = true
+    },
     cancelTerminalInteraction () {
       this.initConsole()
       this.showCmd = false
@@ -260,11 +263,8 @@ export default {
         showName = `${host.showName}(${index})`
       }
       this.activeTab = showName
-      // this.$nextTick(() => {
-      //   this.activeTab = showName
-      // })
     },
-    handleTabRemove (name, xx) {
+    handleTabRemove (name) {
       const tab = this.terminalTabs.find(item => item.showName === name)
       const uniqueCode = tab.uniqueCode
       const indexSet = this.sendHostSet.findIndex(item => item === uniqueCode)
