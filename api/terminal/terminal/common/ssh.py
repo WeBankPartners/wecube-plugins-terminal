@@ -387,7 +387,7 @@ class CommandParser:
             elif TerminalChar.CH_ENT in data or TerminalChar.CH_NL in data:
                 # parse with multine data optimize
                 command = "".join(self.screen.display).strip()
-                command = command + data.replace(TerminalChar.CH_ENT, '\r\n')
+                command = command + data.replace(TerminalChar.CH_ENT, TerminalChar.CH_NL)
                 self.reset()
                 return command
             elif data == TerminalChar.ESC_MVUP:
