@@ -63,6 +63,7 @@ class SessionRecord(Base, DictBase):
     id = Column(BIGINT(20), primary_key=True)
     asset_id = Column(String(36), nullable=False)
     filepath = Column(String(255), nullable=False)
+    filesize = Column(BIGINT(20), nullable=False)
     user = Column(String(36), nullable=False)
     started_time = Column(DateTime, nullable=False)
     ended_time = Column(DateTime)

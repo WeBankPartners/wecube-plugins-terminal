@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 import logging
+import socket
 import time
 import re
 import datetime
@@ -20,6 +21,7 @@ from talos.core import config
 from talos.core import utils
 from talos.common import cache
 from talos.core.i18n import _
+import zmq
 
 from terminal.common import ssh
 from terminal.common import exceptions
@@ -47,6 +49,9 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
         self._ssh_recorder = None
         self._ssh_recorder_db = None
         self._audit = ssh.CommandParser()
+        zmq_socket = application.zmq_context.socket(zmq.PUSH)
+        zmq_socket.connect(CONF.ipc.bind)
+        self.event_pusher = zmq_socket
 
     def check_origin(self, origin):
         return True
@@ -91,10 +96,25 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         self._ssh_client.close()
         if self._ssh_recorder:
+            # close record file
             self._ssh_recorder.close()
+            if self._ssh_recorder_db:
+                asset_api.SessionRecord().update(self._ssh_recorder_db['id'], {
+                    'ended_time': datetime.datetime.now(),
+                    'filesize': os.path.getsize(self._ssh_recorder.filepath)
+                })
+            # push task to uploader
+            self.event_pusher.send_json({
+                'session_id':
+                self._ssh_recorder_db['id'],
+                'filepath':
+                self._ssh_recorder.filepath,
+                'object_key':
+                self._asset_info['id'] + '/' + os.path.basename(self._ssh_recorder.filepath)
+            })
+            self.event_pusher.close()
+            # reset pointer
             self._ssh_recorder = None
-        if self._ssh_recorder_db:
-            asset_api.SessionRecord().update(self._ssh_recorder_db['id'], {'ended_time': datetime.datetime.now()})
             self._ssh_recorder_db = None
         # if any exception happened, we should cancel all timers
         if self._timer_client_close_check:
@@ -150,6 +170,9 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                 self._asset_info = asset
                 self._auth_user = token_user
             except exceptions.PluginError as e:
+                self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
+                raise e
+            except socket.timeout as e:
                 self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
                 raise e
             self._ssh_client.create_shell(self, cols=user_cols, rows=user_rows)

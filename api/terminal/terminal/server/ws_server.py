@@ -10,6 +10,7 @@ terminal.server.ws_server
 import sys
 import asyncio
 
+import zmq
 import tornado.websocket
 import tornado.web
 import tornado.httpserver
@@ -28,6 +29,7 @@ settings = {}
 app = tornado.web.Application([
     (r"/terminal/v1/ssh", SSHHandler),
 ], **settings)
+app.zmq_context = zmq.Context()
 
 
 def main():
