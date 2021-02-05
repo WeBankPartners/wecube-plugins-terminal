@@ -6,6 +6,7 @@ import datetime
 import logging
 import os.path
 
+from talos.common import cache
 from talos.core import config
 from talos.core.i18n import _
 from talos.utils.scoped_globals import GLOBALS
@@ -48,6 +49,10 @@ class Asset(object):
         return asset
 
     def list_query(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
+        cached_key = 'terminal.asset.list_query/' + str(filters)
+        datas = cache.get(cached_key, 5)
+        if cache.validate(datas):
+            return datas
         fields = {
             'id': 'id',
             CONF.asset.asset_field_name: 'name',
@@ -63,6 +68,7 @@ class Asset(object):
         resp_json = client.retrieve(package, entity, query)
         datas = resp_json.get('data', [])
         datas = self._transform_field(datas, fields)
+        cache.set(cached_key, datas)
         return datas
 
     def list(self,
@@ -73,6 +79,13 @@ class Asset(object):
              hooks=None,
              auth_roles=None,
              auth_type='execute'):
+        permission_filters = {"roles.role": {'in': auth_roles or list(GLOBALS.request.auth_permissions)}, 'enabled': 1}
+        permission_filters['auth_' + auth_type] = 1
+        permissions = resource.Permission().list(permission_filters)
+        auth_asset_ids = []
+        for permission in permissions:
+            auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
+        auth_asset_ids = set(auth_asset_ids)
         fields = {
             'id': 'id',
             CONF.asset.asset_field_name: 'name',
@@ -83,19 +96,16 @@ class Asset(object):
             CONF.asset.asset_field_password: 'password',
             CONF.asset.asset_field_desc: 'description'
         }
-        client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
-        query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-        package, entity = CONF.asset.asset_type.split(':')
-        resp_json = client.retrieve(package, entity, query)
-        datas = resp_json.get('data', [])
-        datas = self._transform_field(datas, fields)
-        permission_filters = {"roles.role": {'in': auth_roles or list(GLOBALS.request.auth_permissions)}, 'enabled': 1}
-        permission_filters['auth_' + auth_type] = 1
-        permissions = resource.Permission().list(permission_filters)
-        auth_asset_ids = []
-        for permission in permissions:
-            auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
-        auth_asset_ids = set(auth_asset_ids)
+        datas = []
+        filters = filters or {}
+        if auth_asset_ids:
+            filters.setdefault('id', {'in': list(auth_asset_ids)})
+            client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
+            query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
+            package, entity = CONF.asset.asset_type.split(':')
+            resp_json = client.retrieve(package, entity, query)
+            datas = resp_json.get('data', [])
+            datas = self._transform_field(datas, fields)
         datas = [item for item in datas if item['id'] in auth_asset_ids]
         for item in datas:
             item['connnection_url'] = CONF.websocket_url
@@ -223,11 +233,14 @@ class AssetPermission(object):
 
 class TransferRecord(resource.TransferRecord):
     def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
-        assets = Asset().list_query()
+        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        assets = []
         assets_mapping = {}
+        query_asset_ids = list(set([r['asset_id'] for r in refs]))
+        if query_asset_ids:
+            assets = Asset().list_query(filters={'id': {'in': query_asset_ids}})
         for asset in assets:
             assets_mapping[asset['id']] = asset
-        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
         for ref in refs:
             ref['asset'] = assets_mapping.get(ref['asset_id'], None)
         return refs
@@ -235,11 +248,14 @@ class TransferRecord(resource.TransferRecord):
 
 class SessionRecord(resource.SessionRecord):
     def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
-        assets = Asset().list_query()
+        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        assets = []
         assets_mapping = {}
+        query_asset_ids = list(set([r['asset_id'] for r in refs]))
+        if query_asset_ids:
+            assets = Asset().list_query(filters={'id': {'in': query_asset_ids}})
         for asset in assets:
             assets_mapping[asset['id']] = asset
-        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
         for ref in refs:
             ref['asset'] = assets_mapping.get(ref['asset_id'], None)
         return refs
