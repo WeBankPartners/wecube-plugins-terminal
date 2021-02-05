@@ -369,7 +369,6 @@ class CommandParser:
                 # feed data from output
                 self._state = TerminalChar.CH_TAB
             elif data == TerminalChar.CH_ENT or data == TerminalChar.CH_NL:
-                # TODO: input with multiline data support
                 # TODO: vim mode optimize
                 command = "".join(self.screen.display).strip()
                 if (self._state == TerminalChar.CH_SRH + 'input' or self._state == TerminalChar.CH_SRH):
@@ -381,6 +380,10 @@ class CommandParser:
                         parts = re.split(r'\$|#', command, maxsplit=1)
                         if len(parts) == 2:
                             command = parts[1]
+                elif command.endswith('\\'):
+                    # input with multiline data support
+                    command = ''
+                    self.stream.feed(TerminalChar.CH_NL.encode())
                 # NOTE: leave reset for user
                 # self.reset()
                 return command
