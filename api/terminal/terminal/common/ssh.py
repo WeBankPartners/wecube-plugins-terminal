@@ -273,6 +273,10 @@ class SSHRecorder:
         self._filepath = filepath
         self._fileobj = None
 
+    @property
+    def filepath(self):
+        return self._filepath
+
     def start(self, cols=None, rows=None):
         '''start recording, it will write header line to record file. 
 

@@ -96,19 +96,25 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         self._ssh_client.close()
         if self._ssh_recorder:
+            # close record file
+            self._ssh_recorder.close()
+            if self._ssh_recorder_db:
+                asset_api.SessionRecord().update(self._ssh_recorder_db['id'], {
+                    'ended_time': datetime.datetime.now(),
+                    'filesize': os.path.getsize(self._ssh_recorder.filepath)
+                })
+            # push task to uploader
             self.event_pusher.send_json({
                 'session_id':
                 self._ssh_recorder_db['id'],
                 'filepath':
-                self._ssh_recorder._filepath,
+                self._ssh_recorder.filepath,
                 'object_key':
-                self._asset_info['id'] + '/' + os.path.basename(self._ssh_recorder._filepath)
+                self._asset_info['id'] + '/' + os.path.basename(self._ssh_recorder.filepath)
             })
             self.event_pusher.close()
-            self._ssh_recorder.close()
+            # reset pointer
             self._ssh_recorder = None
-        if self._ssh_recorder_db:
-            asset_api.SessionRecord().update(self._ssh_recorder_db['id'], {'ended_time': datetime.datetime.now()})
             self._ssh_recorder_db = None
         # if any exception happened, we should cancel all timers
         if self._timer_client_close_check:

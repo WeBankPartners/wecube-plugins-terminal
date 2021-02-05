@@ -78,3 +78,9 @@ CREATE TABLE `transfer_record` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+#@v0.1.0.1-begin@;
+ALTER TABLE `session_record` ADD filesize BIGINT UNSIGNED NULL;
+ALTER TABLE `session_record` CHANGE filesize filesize BIGINT UNSIGNED NULL AFTER filepath;
+
+#@v0.1.0.1-end@;
