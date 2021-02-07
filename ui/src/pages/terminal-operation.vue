@@ -1,14 +1,23 @@
 <template>
   <div>
     <Row>
-      <Col span="6">
-        <div>
+      <Col span="6" v-if="showHostList">
+        <div
+          v-if="showHideIcon"
+          style="cursor:pointer;width: 24px;color:#2d8cf0;
+          position: absolute;
+          z-index: 100;
+          top: 10px;
+          right: -13px;"
+        >
+          <Icon type="ios-arrow-dropleft" @click="hideHost" size="20" />
+        </div>
+        <div @mouseenter="mouseenter('showHideIcon')" @mouseleave="mouseleave('showHideIcon')">
           <Card>
             <div slot="title">
               <span style="line-height: 19px">
                 {{ $t('t_asset_id') }}
               </span>
-              <!-- <Icon type="ios-arrow-dropleft" style="float:right;cursor:pointer" size="20" /> -->
             </div>
             <!-- <Button icon="ios-search" slot="extra"></Button> -->
             <div class="container-host">
@@ -56,37 +65,50 @@
           </Card>
         </div>
       </Col>
-      <Col span="18">
-        <div class="container-height">
+      <Col :span="showHostList ? 18 : 24">
+        <div
+          v-if="!showHostList"
+          @mouseenter="mouseenter('showDisplayIcon')"
+          @mouseleave="mouseleave('showDisplayIcon')"
+          style="width: 20px;background:#fafafa;display:inline-block;height:calc(100vh - 130px)"
+        >
+          <div
+            v-if="showDisplayIcon"
+            style="cursor:pointer;width: 24px;color:#2d8cf0;
+            position: absolute;
+            z-index: 100;
+            top: 10px;
+            left: 14px;"
+          >
+            <Icon @click="showHost" type="ios-arrow-dropright" size="20" />
+          </div>
+        </div>
+        <div class="container-height" style="display:inline-block;vertical-align: top;">
           <div>
-            <div slot="top">
-              <Tabs
-                type="card"
-                closable
-                :animated="false"
-                @on-click="clickTab"
-                @on-tab-remove="handleTabRemove"
-                :value="activeTab"
-              >
-                <template v-for="tab in terminalTabs">
-                  <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
-                    <div
-                      :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }"
-                    >
-                      <Terminal
-                        :ref="tab.uniqueCode"
-                        :host="tab"
-                        :sendHostSet="sendHostSet"
-                        :consoleConfig="consoleConfig"
-                        @exectDangerousCmd="exectDangerousCmd"
-                        @cancelDangerousCmd="cancelDangerousCmd"
-                      ></Terminal>
-                      <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
-                    </div>
-                  </TabPane>
-                </template>
-              </Tabs>
-            </div>
+            <Tabs
+              type="card"
+              closable
+              :animated="false"
+              @on-click="clickTab"
+              @on-tab-remove="handleTabRemove"
+              :value="activeTab"
+            >
+              <template v-for="tab in terminalTabs">
+                <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
+                  <div :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }">
+                    <Terminal
+                      :ref="tab.uniqueCode"
+                      :host="tab"
+                      :sendHostSet="sendHostSet"
+                      :consoleConfig="consoleConfig"
+                      @exectDangerousCmd="exectDangerousCmd"
+                      @cancelDangerousCmd="cancelDangerousCmd"
+                    ></Terminal>
+                    <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
+                  </div>
+                </TabPane>
+              </template>
+            </Tabs>
           </div>
           <div v-if="showCmd">
             <div style="margin:8px">
@@ -127,6 +149,8 @@ export default {
     return {
       split2: 1,
       showHostList: true,
+      showHideIcon: false, // 收起控制
+      showDisplayIcon: false, // 展开控制
       // sendForAll: true,
       sendHostSet: [],
       searchHost: '',
@@ -152,6 +176,20 @@ export default {
     this.getHostList()
   },
   methods: {
+    mouseenter (type) {
+      this[type] = true
+    },
+    mouseleave (type) {
+      setTimeout(() => {
+        this[type] = false
+      }, 1000)
+    },
+    hideHost () {
+      this.showHostList = false
+    },
+    showHost () {
+      this.showHostList = true
+    },
     cancelTerminalInteraction () {
       this.initConsole()
       this.showCmd = false
@@ -260,11 +298,8 @@ export default {
         showName = `${host.showName}(${index})`
       }
       this.activeTab = showName
-      // this.$nextTick(() => {
-      //   this.activeTab = showName
-      // })
     },
-    handleTabRemove (name, xx) {
+    handleTabRemove (name) {
       const tab = this.terminalTabs.find(item => item.showName === name)
       const uniqueCode = tab.uniqueCode
       const indexSet = this.sendHostSet.findIndex(item => item === uniqueCode)
@@ -320,6 +355,7 @@ export default {
 .container-height {
   border: 1px solid #c4d3f1;
   height: ~'calc(100vh - 130px)';
+  width: ~'calc(100% - 30px)';
 }
 
 .normal-icon {
