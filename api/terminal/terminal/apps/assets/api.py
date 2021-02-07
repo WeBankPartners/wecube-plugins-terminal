@@ -12,6 +12,8 @@ from talos.core.i18n import _
 from talos.utils.scoped_globals import GLOBALS
 from terminal.db import resource
 from terminal.common import wecmdb
+from terminal.common import wecube
+from terminal.common import expression
 from terminal.common import ssh
 from terminal.common import utils
 from terminal.common import exceptions
@@ -19,6 +21,7 @@ from terminal.common import s3
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
+TOKEN_KEY = 'terminal_subsystem_token'
 
 
 class Asset(object):
@@ -63,11 +66,44 @@ class Asset(object):
             CONF.asset.asset_field_desc: 'description'
         }
         client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
+        filters = filters or {}
+        # expression search
+        filter_expression = filters.pop('expression', None)
         query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
         package, entity = CONF.asset.asset_type.split(':')
         resp_json = client.retrieve(package, entity, query)
         datas = resp_json.get('data', [])
         datas = self._transform_field(datas, fields)
+        if filter_expression:
+            # validate expression
+            if not isinstance(filter_expression, str):
+                raise exceptions.ValidationError(
+                    message=_('%(expression)s not acceptable, expect url?expression=value') %
+                    {'expression': filter_expression})
+            query_expression_groups = []
+            try:
+                query_expression_groups = expression.expr_parse(filter_expression)
+            except exceptions.PluginError as e:
+                LOG.exception(e)
+            if not query_expression_groups:
+                raise exceptions.ValidationError(message=_('%(expression)s invalid') %
+                                                 {'expression': filter_expression})
+            # if last expr_group is not CONF.asset.asset_type, return empty list
+            if '%s:%s' % (query_expression_groups[-1].get('data', {}).get(
+                    'plugin', ''), query_expression_groups[-1].get('data', {}).get('ci', '')) == CONF.asset.asset_type:
+                wecube_client = wecube.WeCubeClient(CONF.wecube.base_url, None)
+                subsys_token = cache.get_or_create(TOKEN_KEY, wecube_client.login_subsystem, expires=600)
+                wecube_client.token = subsys_token
+                expression_assets = wecube_client.post(
+                    wecube_client.build_url('/platform/v1/data-model/dme/integrated-query'), {
+                        'dataModelExpression': filter_expression,
+                        'filters': []
+                    })
+                expression_assets = expression_assets['data'] or []
+                expression_assets_ids = set([item['id'] for item in expression_assets])
+                datas = [item for item in datas if item['id'] in expression_assets_ids]
+            else:
+                datas = []
         cache.set(cached_key, datas)
         return datas
 
@@ -98,6 +134,8 @@ class Asset(object):
         }
         datas = []
         filters = filters or {}
+        # expression search
+        filter_expression = filters.pop('expression', None)
         if auth_asset_ids:
             filters.setdefault('id', {'in': list(auth_asset_ids)})
             client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
@@ -106,6 +144,37 @@ class Asset(object):
             resp_json = client.retrieve(package, entity, query)
             datas = resp_json.get('data', [])
             datas = self._transform_field(datas, fields)
+            if filter_expression:
+                # validate expression
+                if not isinstance(filter_expression, str):
+                    raise exceptions.ValidationError(
+                        message=_('%(expression)s not acceptable, expect url?expression=value') %
+                        {'expression': filter_expression})
+                query_expression_groups = []
+                try:
+                    query_expression_groups = expression.expr_parse(filter_expression)
+                except exceptions.PluginError as e:
+                    LOG.exception(e)
+                if not query_expression_groups:
+                    raise exceptions.ValidationError(message=_('%(expression)s invalid') %
+                                                     {'expression': filter_expression})
+                # if last expr_group is not CONF.asset.asset_type, return empty list
+                if '%s:%s' % (query_expression_groups[-1].get('data', {}).get('plugin', ''),
+                              query_expression_groups[-1].get('data', {}).get('ci', '')) == CONF.asset.asset_type:
+                    wecube_client = wecube.WeCubeClient(CONF.wecube.base_url, None)
+                    subsys_token = cache.get_or_create(TOKEN_KEY, wecube_client.login_subsystem, expires=600)
+                    wecube_client.token = subsys_token
+                    expression_assets = wecube_client.post(
+                        wecube_client.build_url('/platform/v1/data-model/dme/integrated-query'), {
+                            'dataModelExpression': filter_expression,
+                            'filters': []
+                        })
+                    expression_assets = expression_assets['data'] or []
+                    expression_assets_ids = set([item['id'] for item in expression_assets])
+                    datas = [item for item in datas if item['id'] in expression_assets_ids]
+                else:
+                    datas = []
+
         datas = [item for item in datas if item['id'] in auth_asset_ids]
         for item in datas:
             item['connnection_url'] = CONF.websocket_url
