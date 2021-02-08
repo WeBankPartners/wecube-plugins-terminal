@@ -2,14 +2,7 @@
   <div>
     <Row>
       <Col span="6" v-if="showHostList">
-        <div
-          v-if="showHideIcon"
-          style="cursor:pointer;width: 24px;color:#2d8cf0;
-          position: absolute;
-          z-index: 100;
-          top: 10px;
-          right: -13px;"
-        >
+        <div v-if="showHideIcon" class="hide-icon-left">
           <Icon type="ios-arrow-dropleft" @click="hideHost" size="20" />
         </div>
         <div @mouseenter="mouseenter('showHideIcon')" @mouseleave="mouseleave('showHideIcon')">
@@ -72,14 +65,7 @@
           @mouseleave="mouseleave('showDisplayIcon')"
           style="width: 20px;background:#fafafa;display:inline-block;height:calc(100vh - 130px)"
         >
-          <div
-            v-if="showDisplayIcon"
-            style="cursor:pointer;width: 24px;color:#2d8cf0;
-            position: absolute;
-            z-index: 100;
-            top: 10px;
-            left: 14px;"
-          >
+          <div v-if="showDisplayIcon" class="hide-icon-right">
             <Icon @click="showHost" type="ios-arrow-dropright" size="20" />
           </div>
         </div>
@@ -139,7 +125,6 @@
     </Row>
   </div>
 </template>
-
 <script>
 import { getHost } from '@/api/server'
 import Terminal from './terminal/terminal'
@@ -200,7 +185,7 @@ export default {
       this.initConsole()
       this.showCmd = false
       const tab = this.terminalTabs.find(item => item.showName === this.activeTab)
-      this.$refs[tab.uniqueCode][0].focus()
+      this.focusConsole(tab.uniqueCode)
     },
     sendForMulti () {
       const height = document.body.scrollHeight
@@ -225,6 +210,10 @@ export default {
           this.$refs[item.uniqueCode][0].resizeScreen()
         })
       })
+      const tab = this.terminalTabs.find(item => item.showName === this.activeTab)
+      if (tab) {
+        this.focusConsole(tab.uniqueCode)
+      }
     },
     initConsole () {
       const height = document.body.scrollHeight
@@ -332,17 +321,13 @@ export default {
       if (this.terminalTabs.length > 0) {
         const lastTab = this.terminalTabs.slice(-1)[0]
         this.activeTab = lastTab.showName
-        this.$nextTick(() => {
-          this.$refs[lastTab.uniqueCode][0].focus()
-        })
+        this.focusConsole(lastTab.uniqueCode)
       }
     },
     clickTab (godTab) {
       const tab = this.terminalTabs.find(item => item.showName === godTab)
       this.activeTab = tab.showName
-      this.$nextTick(() => {
-        this.$refs[tab.uniqueCode][0].focus()
-      })
+      this.focusConsole(tab.uniqueCode)
     },
     exectDangerousCmd () {
       this.sendHostSet.forEach(item => {
@@ -353,6 +338,11 @@ export default {
       this.sendHostSet.forEach(item => {
         this.$refs[item][0].cancelConfirmToExecution()
       })
+    },
+    focusConsole (uniqueCode) {
+      this.$nextTick(() => {
+        this.$refs[uniqueCode][0].focus()
+      })
     }
   },
   components: {
@@ -360,7 +350,32 @@ export default {
   }
 }
 </script>
+<style scoped lang="less">
+.hide-icon {
+  cursor: pointer;
+  width: 24px;
+  color: #b2b4b8;
+  position: absolute;
+  z-index: 100;
+  top: 10px;
+}
 
+.hide-icon-left {
+  &:extend(.hide-icon);
+  right: -13px;
+}
+.hide-icon-right {
+  &:extend(.hide-icon);
+  left: 14px;
+}
+
+.hide-icon-left:hover {
+  color: #5ea7f3;
+}
+.hide-icon-right:hover {
+  color: #5ea7f3;
+}
+</style>
 <style scoped lang="less">
 .diyTitle {
   width: calc(100% - 80px);
