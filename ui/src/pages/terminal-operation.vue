@@ -186,9 +186,15 @@ export default {
     },
     hideHost () {
       this.showHostList = false
+      this.resizeConsole()
+      this.showHideIcon = false
+      this.showDisplayIcon = false
     },
     showHost () {
       this.showHostList = true
+      this.resizeConsole()
+      this.showHideIcon = false
+      this.showDisplayIcon = false
     },
     cancelTerminalInteraction () {
       this.initConsole()
@@ -203,6 +209,22 @@ export default {
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
       this.showCmd = true
+    },
+    resizeConsole () {
+      const width = document.body.scrollWidth
+      let terminalW
+      if (this.showHostList) {
+        terminalW = ((width - 260) * 18) / 24 / 8.2
+      } else {
+        terminalW = (width - 260) / 8.2
+      }
+      terminalW = Math.floor(terminalW)
+      this.consoleConfig.cols = terminalW
+      this.terminalTabs.forEach(item => {
+        this.$nextTick(() => {
+          this.$refs[item.uniqueCode][0].resizeScreen()
+        })
+      })
     },
     initConsole () {
       const height = document.body.scrollHeight
