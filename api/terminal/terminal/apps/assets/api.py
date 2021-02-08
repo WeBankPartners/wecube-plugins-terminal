@@ -497,16 +497,28 @@ class Bookmark(resource.Bookmark):
                     new_ref['type'] = ref_type
                     resource_type(transaction=session).create(new_ref)
 
-    def update(self, rid, resource, filters=None, validate=True, detail=True):
+    def update(self, rid, data, filters=None, validate=True, detail=True):
         auth_roles = GLOBALS.request.auth_permissions
-        filters = filters or {}
-        filters['roles.role'] = {'in': list(auth_roles)}
-        filters['roles.type'] = 'owner'
-        return super().update(rid, resource, filters=filters, validate=validate, detail=detail)
+        if super().count({'id': rid}) and resource.BookmarkRole().count({
+                'bookmark_id': rid,
+                'role': {
+                    'in': list(auth_roles)
+                },
+                'type': 'owner'
+        }) == 0:
+            raise exceptions.ValidationError(message=_('the resource(%(resource)s) does not belong to you') %
+                                             {'resource': 'Bookmark[%s]' % rid})
+        return super().update(rid, data, filters=filters, validate=validate, detail=detail)
 
     def delete(self, rid, filters=None, detail=True):
         auth_roles = GLOBALS.request.auth_permissions
-        filters = filters or {}
-        filters['roles.role'] = {'in': list(auth_roles)}
-        filters['roles.type'] = 'owner'
+        if super().count({'id': rid}) and resource.BookmarkRole().count({
+                'bookmark_id': rid,
+                'role': {
+                    'in': list(auth_roles)
+                },
+                'type': 'owner'
+        }) == 0:
+            raise exceptions.ValidationError(message=_('the resource(%(resource)s) does not belong to you') %
+                                             {'resource': 'Bookmark[%s]' % rid})
         return super().delete(rid, filters=filters, detail=detail)
