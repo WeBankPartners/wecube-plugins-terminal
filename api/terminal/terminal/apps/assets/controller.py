@@ -135,3 +135,13 @@ class CollectionPermissions(Collection):
 class ItemPermission(Item):
     name = 'terminal.permissions'
     resource = files_api.Permission
+
+
+class CollectionBookmarks(Collection):
+    name = 'terminal.bookmarks'
+    resource = files_api.Bookmark
+
+
+class ItemBookmark(Item):
+    name = 'terminal.bookmarks'
+    resource = files_api.Bookmark
