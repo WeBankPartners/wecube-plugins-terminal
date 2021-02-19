@@ -57,7 +57,8 @@
                     v-model="expressionPath"
                     :allDataModelsWithAttrs="allEntityType"
                   ></FilterRules>
-                  <div style="margin:12px 0;text-align:center">
+
+                  <div style="display:flex;justify-content: space-around;margin:12px">
                     <Button
                       :disabled="expressionPath === ''"
                       type="primary"
