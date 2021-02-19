@@ -77,7 +77,7 @@ import { getFileManagementPermission } from '@/api/server'
 import { setCookie, getCookie } from '../util/cookie'
 import axios from 'axios'
 import { Terminal } from 'xterm'
-import { FitAddon } from 'xterm-addon-fit'
+// import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
 export default {
   name: '',
@@ -85,7 +85,7 @@ export default {
     return {
       shellWs: '',
       term: '', // 保存terminal实例
-      fitAddon: null,
+      // fitAddon: null,
       ssh_session: '',
 
       isOpenDrawer: false,
@@ -141,14 +141,15 @@ export default {
         }
       })
       term.open(this.$refs['terminal'])
-      this.fitAddon = new FitAddon()
-      term.loadAddon(this.fitAddon)
-      this.fitAddon.fit()
+      // this.fitAddon = new FitAddon()
+      // term.loadAddon(this.fitAddon)
+      // this.fitAddon.fit()
       term.focus()
       this.term = term
     },
     resizeScreen () {
-      this.fitAddon.fit()
+      // this.fitAddon.fit()
+      this.term.resize(this.consoleConfig.cols, this.consoleConfig.rows)
       this.ssh_session.send(
         JSON.stringify({ type: 'resize', data: { rows: this.consoleConfig.rows, cols: this.consoleConfig.cols } })
       )
