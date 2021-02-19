@@ -12,48 +12,112 @@
                 {{ $t('t_asset_id') }}
               </span>
             </div>
-            <!-- <Button icon="ios-search" slot="extra"></Button> -->
             <div class="container-host">
-              <Input
-                v-model="searchHost"
-                placeholder="Filter ip or name"
-                @on-change="filterHost"
-                style="width: 100%;margin-bottom:16px"
-              />
-              <Collapse>
-                <template v-for="host in hostInfo">
-                  <Panel :name="host.ip_address" :key="host.ip_address">
-                    <div class="diyTitle">
-                      {{ host.ip_address }}<span style="color:#2d8cf0">[{{ host.username }}]</span>{{ host.name }}
-                    </div>
-                    <template>
-                      <Tooltip content="Console" :delay="500" style="float:right">
-                        <i
-                          disabled
-                          class="fa fa-terminal operation-icon-terminal"
-                          @click.stop="openTerminal(host)"
-                          aria-hidden="true"
-                        >
-                        </i>
-                      </Tooltip>
-                    </template>
-                    <div slot="content">
-                      <div class="host-content">
-                        <span class="host-content-title">id:</span>
-                        <span>{{ host.id }}</span>
+              <Tabs :value="currentHostTab" :animated="false" @on-click="changeHostTabs">
+                <TabPane :label="$t('t_default')" name="default"></TabPane>
+                <TabPane :label="$t('t_favorites')" name="favorites">
+                  <Form :label-width="80">
+                    <FormItem :label="$t('t_favorites')">
+                      <Select
+                        clearable
+                        @on-clear="clearSelectedCollectionId"
+                        v-model="selectedCollectionId"
+                        @on-open-change="favoritesList"
+                        @on-change="changeCollections"
+                        filterable
+                      >
+                        <Option v-for="item in favoritesLists" :value="item.id" :key="item.id" :label="item.name">
+                          <span>{{ item.name }}</span>
+                          <span style="float:right;">
+                            <Button
+                              icon="ios-trash"
+                              type="error"
+                              size="small"
+                              @click="showDeleteConfirm(item)"
+                            ></Button>
+                          </span>
+                          <span v-if="item.is_owner" style="float:right;margin-right: 10px">
+                            <Button
+                              icon="ios-build"
+                              type="primary"
+                              @click="openCollectionModal(false, item)"
+                              size="small"
+                            ></Button>
+                          </span>
+                        </Option>
+                      </Select>
+                    </FormItem>
+                  </Form>
+                </TabPane>
+                <TabPane :label="$t('t_regular_expression')" name="regular_expression">
+                  <FilterRules
+                    style="display:inline-block;vertical-align: middle;padding:0"
+                    class="col-md-12"
+                    :needAttr="true"
+                    v-model="expressionPath"
+                    :allDataModelsWithAttrs="allEntityType"
+                  ></FilterRules>
+                  <div style="margin:12px 0;text-align:center">
+                    <Button
+                      :disabled="expressionPath === ''"
+                      type="primary"
+                      icon="ios-search"
+                      @click="getAssetsByExpression"
+                      >{{ $t('button.search') }}</Button
+                    >
+                    <Button type="warning" icon="ios-star-outline" @click="openCollectionModal(true, null)">{{
+                      $t('t_to_be_favorites')
+                    }}</Button>
+                  </div>
+                </TabPane>
+              </Tabs>
+              <template v-if="hostInfo.length > 0">
+                <Input
+                  v-model="searchHost"
+                  placeholder="Filter ip or name"
+                  @on-change="filterHost"
+                  style="width: 100%;margin-bottom:16px"
+                />
+                <Collapse>
+                  <template v-for="host in hostInfo">
+                    <Panel :name="host.ip_address" :key="host.ip_address">
+                      <div class="diyTitle">
+                        {{ host.ip_address }}<span style="color:#2d8cf0">[{{ host.username }}]</span>{{ host.name }}
                       </div>
-                      <div class="host-content">
-                        <span class="host-content-title">name:</span>
-                        <span>{{ host.name }}</span>
+                      <template>
+                        <Tooltip content="Console" :delay="500" style="float:right">
+                          <i
+                            disabled
+                            class="fa fa-terminal operation-icon-terminal"
+                            @click.stop="openTerminal(host)"
+                            aria-hidden="true"
+                          >
+                          </i>
+                        </Tooltip>
+                      </template>
+                      <div slot="content">
+                        <div class="host-content">
+                          <span class="host-content-title">id:</span>
+                          <span>{{ host.id }}</span>
+                        </div>
+                        <div class="host-content">
+                          <span class="host-content-title">name:</span>
+                          <span>{{ host.name }}</span>
+                        </div>
+                        <div class="host-content">
+                          <span class="host-content-title">display_name:</span>
+                          <span style="word-break: break-all;">{{ host.display_name }}</span>
+                        </div>
                       </div>
-                      <div class="host-content">
-                        <span class="host-content-title">display_name:</span>
-                        <span style="word-break: break-all;">{{ host.display_name }}</span>
-                      </div>
-                    </div>
-                  </Panel>
-                </template>
-              </Collapse>
+                    </Panel>
+                  </template>
+                </Collapse>
+              </template>
+              <template v-else>
+                <div style="text-align:center;color:#969696;font-size:12px">
+                  暂无数据
+                </div>
+              </template>
             </div>
           </Card>
         </div>
@@ -123,16 +187,77 @@
         </div>
       </Col>
     </Row>
+
+    <Modal v-model="collectionRoleManageModal" width="700" :title="$t('t_to_be_favorites')" :mask-closable="false">
+      <Form :label-width="100">
+        <FormItem :label="$t('t_name')">
+          <Input v-model="collectionParams.name"></Input>
+        </FormItem>
+        <FormItem :label="$t('description')">
+          <Input v-model="collectionParams.description"></Input>
+        </FormItem>
+        <FormItem :label="$t('t_regular_expression')">
+          <FilterRules
+            style="display:inline-block;vertical-align: middle;padding:0"
+            class="col-md-12"
+            :needAttr="true"
+            v-model="collectionParams.expression"
+            :allDataModelsWithAttrs="allEntityType"
+          ></FilterRules>
+        </FormItem>
+      </Form>
+      <div>
+        <div class="role-transfer-title">{{ $t('mgmt_role') }}</div>
+        <Transfer
+          :titles="transferTitles"
+          :list-style="transferStyle"
+          :data="allRoles"
+          :target-keys="MGMT"
+          @on-change="handleMgmtRoleTransferChange"
+          filterable
+        ></Transfer>
+      </div>
+      <div style="margin-top: 30px">
+        <div class="role-transfer-title">{{ $t('use_role') }}</div>
+        <Transfer
+          :titles="transferTitles"
+          :list-style="transferStyle"
+          :data="allRolesBackUp"
+          :target-keys="USE"
+          @on-change="handleUseRoleTransferChange"
+          filterable
+        ></Transfer>
+      </div>
+      <div slot="footer">
+        <Button @click="collectionRoleManageModal = false">{{ $t('bc_cancel') }}</Button>
+        <Button type="primary" @click="confirmCollection">{{ $t('bc_confirm') }}</Button>
+      </div>
+    </Modal>
   </div>
 </template>
 <script>
-import { getHost } from '@/api/server'
+import {
+  getHost,
+  getRoleList,
+  getRolesByCurrentUser,
+  addCollection,
+  getAllDataModels,
+  getFavoritesList,
+  getAssetsByExpression,
+  deleteFavorites,
+  editCollection
+} from '@/api/server'
+import FilterRules from './components/filter-rules.vue'
 import Terminal from './terminal/terminal'
 export default {
   name: '',
   data () {
     return {
-      split2: 1,
+      currentHostTab: 'default',
+      selectedCollectionId: '',
+      favoritesLists: [],
+      expressionPath: '',
+
       showHostList: true,
       showHideIcon: false, // 收起控制
       showDisplayIcon: false, // 展开控制
@@ -153,7 +278,30 @@ export default {
         rows: 0,
         cols: 0
       },
-      showCmd: false
+      showCmd: false,
+
+      collectionRoleManageModal: false,
+      collectionName: '',
+      description: '',
+
+      isAddCollect: false,
+      allRoles: [],
+      MGMT: [],
+      allRolesBackUp: [],
+      USE: [],
+      transferTitles: [this.$t('unselected_role'), this.$t('selected_role')],
+      transferStyle: { width: '300px' },
+      collectionParams: {
+        name: '',
+        description: '',
+        expression: '',
+        roles: {
+          owner: [],
+          executor: []
+        }
+      },
+      favoriteId: '',
+      allEntityType: []
     }
   },
   mounted () {
@@ -161,6 +309,157 @@ export default {
     this.getHostList()
   },
   methods: {
+    async changeHostTabs (name) {
+      this.currentHostTab = name
+      this.hostInfo = []
+      this.oriHostInfo = []
+      this.selectedCollectionId = ''
+      this.searchHost = ''
+      if (name === 'default') {
+        this.getHostList()
+      } else if (name === 'favorites') {
+        // this.favoritesList()
+      } else {
+        this.expressionPath = ''
+        await this.getAllDataModels()
+      }
+    },
+    async changeCollections (val) {
+      if (!val) return
+      const item = this.favoritesLists.find(i => i.id === Number(val))
+      const { status, data } = await getAssetsByExpression(item.expression)
+      if (status === 'OK') {
+        data.data.forEach(item => {
+          item.showName = item.ip_address
+          return item
+        })
+        this.hostInfo = data.data
+        this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
+      }
+    },
+    clearSelectedCollectionId () {
+      this.selectedCollectionId = ''
+      this.hostInfo = []
+      this.oriHostInfo = []
+    },
+    async favoritesList () {
+      const { status, data } = await getFavoritesList()
+      if (status === 'OK') {
+        this.favoritesLists = data.data
+      }
+    },
+    showDeleteConfirm (item) {
+      this.$nextTick(() => {
+        this.$Modal.confirm({
+          title: this.$t('confirm_to_delete'),
+          content: item.name,
+          onOk: () => {
+            this.deleteCollection(item)
+          },
+          onCancel: () => {}
+        })
+      })
+    },
+    async deleteCollection (item) {
+      const { status, message } = await deleteFavorites(item.id)
+      if (status === 'OK') {
+        this.clearSelectedCollectionId()
+        this.$Message.success(message)
+      }
+    },
+    async getAllDataModels () {
+      let { data, status } = await getAllDataModels()
+      if (status === 'OK') {
+        this.allEntityType = data
+      }
+    },
+    async openCollectionModal (isAdd, params) {
+      this.isAddCollect = isAdd
+      if (isAdd) {
+        this.MGMT = []
+        this.USE = []
+        this.collectionParams.name = this.collectionParams.description = ''
+        this.collectionParams.expression = this.expressionPath
+      } else {
+        const { name, description, expression, roles, id } = params
+        this.favoriteId = id
+        this.collectionParams = {
+          name,
+          description,
+          expression,
+          roles: {
+            owner: [],
+            executor: []
+          }
+        }
+        this.MGMT = roles.owner
+        this.USE = roles.executor
+      }
+      await this.getRoleList()
+      await this.getRolesByCurrentUser()
+      await this.getAllDataModels()
+      this.collectionRoleManageModal = true
+    },
+    async getAssetsByExpression () {
+      const { status, data } = await getAssetsByExpression(this.expressionPath)
+      if (status === 'OK') {
+        data.data.forEach(item => {
+          item.showName = item.ip_address
+          return item
+        })
+        this.hostInfo = data.data
+        this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
+      }
+    },
+    async getRoleList () {
+      const { status, data } = await getRoleList()
+      if (status === 'OK') {
+        this.allRolesBackUp = data.map(_ => {
+          return {
+            ..._,
+            key: _.name,
+            label: _.displayName
+          }
+        })
+      }
+    },
+    async getRolesByCurrentUser () {
+      const { status, data } = await getRolesByCurrentUser()
+      if (status === 'OK') {
+        this.allRoles = data.map(_ => {
+          return {
+            ..._,
+            key: _.name,
+            label: _.displayName
+          }
+        })
+      }
+    },
+    async handleMgmtRoleTransferChange (newTargetKeys, direction, moveKeys) {
+      this.MGMT = newTargetKeys
+    },
+    async handleUseRoleTransferChange (newTargetKeys, direction, moveKeys) {
+      this.USE = newTargetKeys
+    },
+    async confirmCollection () {
+      if (!this.MGMT.length) {
+        this.$Message.warning(this.$t('bc_mgmt_role_cannot_empty'))
+        return
+      }
+      this.collectionParams.roles.owner = this.MGMT
+      this.collectionParams.roles.executor = this.USE
+      let result
+      if (this.isAddCollect) {
+        result = await addCollection([this.collectionParams])
+      } else {
+        result = await editCollection(this.favoriteId, this.collectionParams)
+        this.clearSelectedCollectionId()
+      }
+      if (result.status === 'OK') {
+        this.$Message.success('成功！')
+        this.collectionRoleManageModal = false
+      }
+    },
     mouseenter (type) {
       this[type] = true
     },
@@ -308,7 +607,7 @@ export default {
         })
         showName = `${host.showName}(${index})`
       }
-      this.activeTab = showName
+      this.activeTab = showName || host.ip_address
     },
     handleTabRemove (name) {
       const tab = this.terminalTabs.find(item => item.showName === name)
@@ -346,11 +645,15 @@ export default {
     }
   },
   components: {
-    Terminal
+    Terminal,
+    FilterRules
   }
 }
 </script>
 <style scoped lang="less">
+.ivu-form-item {
+  margin-bottom: 4px;
+}
 .hide-icon {
   cursor: pointer;
   width: 24px;
@@ -420,5 +723,12 @@ export default {
 .host-content-title {
   font-size: 16px;
   margin-right: 4px;
+}
+.role-transfer-title {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  background-color: rgb(226, 222, 222);
+  margin-bottom: 5px;
 }
 </style>
