@@ -16,6 +16,7 @@ from talos.core import utils
 
 from terminal.middlewares import auth
 from terminal.middlewares import permission
+from terminal.middlewares import language
 from terminal.server import base as terminal_base
 
 
@@ -34,6 +35,8 @@ def error_serializer(req, resp, exception):
 application = base.initialize_server('terminal',
                                      os.environ.get('TERMINAL_CONF', '/etc/terminal/terminal.conf'),
                                      conf_dir=os.environ.get('TERMINAL_CONF_DIR', '/etc/terminal/terminal.conf.d'),
-                                     middlewares=[auth.JWTAuth(), permission.Permission()])
+                                     middlewares=[language.Language(),
+                                                  auth.JWTAuth(),
+                                                  permission.Permission()])
 application.set_error_serializer(error_serializer)
 application.req_options.auto_parse_qs_csv = True

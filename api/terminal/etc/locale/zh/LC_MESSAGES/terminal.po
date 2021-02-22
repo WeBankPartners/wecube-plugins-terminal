@@ -11,8 +11,8 @@ msgstr ""
 "POT-Creation-Date: 2021-02-20 14:37+0800\n"
 "PO-Revision-Date: 2021-02-20 14:40+0800\n"
 "Last-Translator: Roy <EMAIL@ADDRESS>\n"
-"Language-Team: en <wecube>\n"
-"Language: en\n"
+"Language-Team: zh-CN <wecube>\n"
+"Language: zh-CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,232 +20,230 @@ msgstr ""
 #: terminal/apps/assets/api.py:43
 #, python-format
 msgid "Not allowed to perform %(action)s on Asset(#%(id)s)"
-msgstr ""
+msgstr "不允许对资源 Asset(#%(id)s) 进行 %(action)s 操作"
 
 #: terminal/apps/assets/api.py:81 terminal/apps/assets/api.py:151
 #, python-format
 msgid "%(expression)s not acceptable, expect url?expression=value"
-msgstr ""
+msgstr "非法表达式参数：%(expression)s, 期望输入 http://path?expression=value"
 
 #: terminal/apps/assets/api.py:89 terminal/apps/assets/api.py:159
 #, python-format
 msgid "%(expression)s invalid"
-msgstr ""
+msgstr "非法表达式：%(expression)s"
 
 #: terminal/apps/assets/api.py:216 terminal/apps/assets/api.py:256
 #, python-format
 msgid "%(filepath)s not exist"
-msgstr ""
+msgstr "%(filepath)s 不存在"
 
 #: terminal/apps/assets/api.py:223
 #, python-format
 msgid "upload to %(filepath)s error: permission denied"
-msgstr ""
+msgstr "上传文件到 %(filepath)s 错误: 无权限"
 
 #: terminal/apps/assets/api.py:264
 #, python-format
 msgid "%(filepath)s is not a regular file"
-msgstr ""
+msgstr "%(filepath)s 不是一个常规文件"
 
 #: terminal/apps/assets/api.py:274
 #, python-format
 msgid "file size (%(size)s bytes) exceeds maximum of %(maximum_size)s"
-msgstr ""
+msgstr "文件大小 (%(size)s 字节) 超过最大限制 %(maximum_size)s"
 
 #: terminal/apps/assets/api.py:456 terminal/apps/assets/api.py:477
 msgid "length of roles.owner must be >= 1"
-msgstr ""
+msgstr "roles.owner 至少包含一个角色"
 
 #: terminal/apps/assets/api.py:509 terminal/apps/assets/api.py:522
 #, python-format
 msgid "the resource(%(resource)s) does not belong to you"
-msgstr ""
+msgstr "资源(%(resource)s) 不属于你"
 
 #: terminal/apps/assets/controller.py:64 terminal/apps/assets/controller.py:81
 #, python-format
 msgid "missing query: %(name)s"
-msgstr ""
+msgstr "缺少query参数: %(name)s"
 
 #: terminal/apps/assets/controller.py:67
 #, python-format
 msgid "form-data named \"%(name)s\" not found"
-msgstr ""
+msgstr "缺少名称为: '%(name)s' 的form数据"
 
 #: terminal/common/controller.py:44 terminal/common/controller.py:62
 #: terminal/common/controller.py:91
 msgid "data must be list type"
-msgstr ""
+msgstr "data必须是列表([])类型"
 
 #: terminal/common/controller.py:124
 msgid "data must be dict type"
-msgstr ""
+msgstr "data必须是字典({})类型"
 
 #: terminal/common/exceptions.py:30
 msgid "Plugin Business Processing Error"
-msgstr ""
+msgstr "插件业务处理错误"
 
 #: terminal/common/exceptions.py:40
 msgid "Field Missing"
-msgstr ""
+msgstr "字段缺失"
 
 #: terminal/common/exceptions.py:44
 #, python-format
 msgid "column: %(attribute)s must be specific"
-msgstr ""
+msgstr "必须指定 %(attribute)s 列的值"
 
 #: terminal/common/exceptions.py:54
 msgid "Validation Error"
-msgstr ""
+msgstr "校验错误"
 
 #: terminal/common/exceptions.py:58
 #, python-format
 msgid "column %(attribute)s validate failed, because: %(msg)s"
-msgstr ""
+msgstr "列 %(attribute)s 校验错误, 原因: %(msg)s"
 
 #: terminal/common/exceptions.py:74 terminal/common/wshandler.py:162
 #, python-format
 msgid "the resource(%(resource)s) you request not found"
-msgstr ""
+msgstr "资源(%(resource)s) 不存在"
 
 #: terminal/common/exceptions.py:84
 msgid "Batch Operation Partial Error"
-msgstr ""
+msgstr "批量操作错误"
 
 #: terminal/common/exceptions.py:88
 #, python-format
 msgid "fail to %(action)s [%(num)s] record, detail error in the data block"
-msgstr ""
+msgstr "[%(num)s] 个记录%(action)s失败, 详细信息请参见data内容"
 
 #: terminal/common/exceptions.py:98
 msgid "Conflict"
-msgstr ""
+msgstr "冲突"
 
 #: terminal/common/exceptions.py:102
 #, python-format
 msgid "object[%(oid)s] is used by %(name)s"
-msgstr ""
+msgstr "资源[%(oid)s] 被 %(name)s 使用"
 
 #: terminal/common/s3.py:40
-msgid ""
-"invalid s3 endpoint url, eg: [(http|https|s3)://]host[:port][/bucket/"
-"object_key]"
-msgstr ""
+msgid "invalid s3 endpoint url, eg: [(http|https|s3)://]host[:port][/bucket/object_key]"
+msgstr "非法的s3 url, 正确格式如: [(http|https|s3)://]host[:port][/bucket/object_key]"
 
 #: terminal/common/s3.py:65 terminal/common/s3.py:90
 #, python-format
 msgid "failed to download file[%(filepath)s] from s3: %(reason)s"
-msgstr ""
+msgstr "从s3下载文件[%(filepath)s]失败， %(reason)s"
 
 #: terminal/common/ssh.py:65
 #, python-format
 msgid ""
 "failed to authenticate %(username)s@%(host)s:%(port)s with password: "
 "%(password)s, detail: %(detail)s"
-msgstr ""
+msgstr "使用密码登陆%(username)s@%(host)s:%(port)s认证失败，原因: %(detail)s"
 
 #: terminal/common/ssh.py:76
 #, python-format
 msgid ""
 "failed to connect %(username)s@%(host)s:%(port)s with password: "
 "%(password)s, detail: %(detail)s"
-msgstr ""
+msgstr "连接%(username)s@%(host)s:%(port)s失败，原因: %(detail)s"
 
 #: terminal/common/ssh.py:85 terminal/common/ssh.py:121
 #, python-format
 msgid "failed to establish connection on %(host)s:%(port)s"
-msgstr ""
+msgstr "无法与%(host)s:%(port)s建立连接"
 
 #: terminal/common/ssh.py:104
 #, python-format
 msgid ""
 "failed to authenticate %(username)s@%(host)s:%(port)s with private key, "
 "detail: %(detail)s"
-msgstr ""
+msgstr "使用私钥登陆%(username)s@%(host)s:%(port)s认证失败，原因: %(detail)s"
 
 #: terminal/common/ssh.py:113
 #, python-format
 msgid ""
 "failed to connect %(username)s@%(host)s:%(port)s with private key, detail: "
 "%(detail)s"
-msgstr ""
+msgstr "连接%(username)s@%(host)s:%(port)s失败，原因: %(detail)s"
 
 #: terminal/common/utils.py:96
 msgid "Connection Error"
-msgstr ""
+msgstr "连接错误"
 
 #: terminal/common/utils.py:97
 msgid "Failed to establish a new connection"
-msgstr ""
+msgstr "无法建立连接"
 
 #: terminal/common/utils.py:103
 msgid "Timeout Error"
-msgstr ""
+msgstr "超时错误"
 
 #: terminal/common/utils.py:104
 msgid "Server do not respond"
-msgstr ""
+msgstr "服务器无响应"
 
 #: terminal/common/utils.py:113
 msgid "Not Found"
-msgstr ""
+msgstr "资源不存在"
 
 #: terminal/common/utils.py:114
 msgid "The resource you request not exist"
-msgstr ""
+msgstr "你请求的资源不存在"
 
 #: terminal/common/utils.py:128
 msgid "Server Error"
-msgstr ""
+msgstr "服务器错误"
 
 #: terminal/common/wshandler.py:152
 msgid "missing param: asset_id"
-msgstr ""
+msgstr "缺少参数: asset_id"
 
 #: terminal/common/wshandler.py:157
 msgid "invalid token"
-msgstr ""
+msgstr "非法token"
 
 #: terminal/common/wshandler.py:245
 #, python-format
 msgid "error calling itsdangerous: %(reason)s"
-msgstr ""
+msgstr "调用高危插件错误: %(reason)s"
 
 #: terminal/common/wshandler.py:273
 #, python-format
 msgid "cannot open directory \"%(name)s\": File not found"
-msgstr ""
+msgstr "文件不存在：%(name)s"
 
 #: terminal/common/wshandler.py:281
 #, python-format
 msgid "cannot open directory \"%(name)s\": Permission denied"
-msgstr ""
+msgstr "权限不足：%(name)s"
 
 #: terminal/db/validator.py:17
 #, python-format
 msgid "expected string, not %(type)s "
-msgstr ""
+msgstr "期望字符串类型，当前输入类型为 %(type)s"
 
 #: terminal/db/validator.py:20
 #, python-format
 msgid "length required: %(min)d <= %(value)d <= %(max)d"
-msgstr ""
+msgstr "非法长度: %(min)d <= %(value)d <= %(max)d"
 
 #: terminal/db/validator.py:33
 #, python-format
 msgid "reference of %(resource)s(%(id)s) not found"
-msgstr ""
+msgstr "引用的资源 %(resource)s(%(id)s) 不存在"
 
 #: terminal/db/validator.py:45
 #, python-format
 msgid "expected %(choices)s, not %(value)s"
-msgstr ""
+msgstr "期望值为 %(choices)s，当前输入为 %(value)s"
 
 #: terminal/db/validator.py:48
 #, python-format
 msgid "value should be >= 1, not %(value)s"
-msgstr ""
+msgstr "值应 >= 1, 当前值为 %(value)s"
 
 #: terminal/db/validator.py:50
 #, python-format
 msgid "expected string in %(choices)s or int(>=1), not %(type)s "
-msgstr ""
+msgstr "期望值为 %(choices)s 或 >= 1的整数，当前输入为 %(type)s"
