@@ -301,9 +301,9 @@ class SSHRecorder:
             self.start()
         # eg. [5.402543, "o", "\u001b[?1000h\u001b[39;49m\u001b[37m\u001b[40m\u001b[H\u001b[2J"]
         if isinstance(input_content, bytes):
-            input_content = input_content.decode('utf8')
+            input_content = input_content.decode('utf-8', errors='replace')
         if isinstance(output_content, bytes):
-            output_content = output_content.decode('utf8')
+            output_content = output_content.decode('utf-8', errors='replace')
         if input_content is not None:
             self._fileobj.write(json.dumps([str(time.time() - self._start_time), "i", input_content]) + '\n')
         if output_content is not None:
@@ -360,7 +360,7 @@ class CommandParser:
         '''
         # ori_data = data
         # if isinstance(data, bytes):
-        #     data = data.decode('utf8')
+        #     data = data.decode('utf-8')
         if not data:
             return None
         if data_type == 'input':
