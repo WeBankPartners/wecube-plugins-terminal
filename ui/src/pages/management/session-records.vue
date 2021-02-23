@@ -25,6 +25,7 @@
 
 <script>
 import { getCookie } from '../util/cookie'
+import { byteConvert } from '../util/functools'
 import { getTableData, getAssets } from '@/api/server'
 let tableEle = [
   {
@@ -39,19 +40,19 @@ let tableEle = [
   {
     title: 't_user',
     value: 'user',
-    style: { width: '200px' },
+    style: { width: '150px' },
     display: true
   },
   {
     title: 't_started_time',
     value: 'started_time',
-    style: { width: '300px' },
+    style: { width: '250px' },
     display: true
   },
   {
     title: 't_ended_time',
     value: 'ended_time', //
-    style: { width: '300px' },
+    style: { width: '250px' },
     display: true
   },
   {
@@ -63,7 +64,10 @@ let tableEle = [
     title: 't_filesize',
     value: 'filesize',
     display: true,
-    style: { width: '150px' }
+    style: { width: '100px' },
+    render: item => {
+      return byteConvert(item.filesize)
+    }
   }
 ]
 const btn = [{ btn_name: 't_operation_replay', btn_func: 'replay' }]
