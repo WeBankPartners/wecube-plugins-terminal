@@ -58,6 +58,12 @@ let tableEle = [
     title: 't_filepath',
     value: 'filepath',
     display: true
+  },
+  {
+    title: 't_filesize',
+    value: 'filesize',
+    display: true,
+    style: { width: '150px' }
   }
 ]
 const btn = [{ btn_name: 't_operation_replay', btn_func: 'replay' }]
