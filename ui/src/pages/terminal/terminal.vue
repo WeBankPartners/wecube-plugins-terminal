@@ -105,7 +105,7 @@ export default {
   },
   computed: {
     uploadUrl () {
-      return `/terminal/v1/assets/${this.host.key}/file?path=${this.currentDir}`
+      return `/terminal/v1/assets/${this.host.key}/file?path=` + encodeURIComponent(this.currentDir)
     }
   },
   props: ['host', 'consoleConfig', 'sendHostSet'],
@@ -235,8 +235,8 @@ export default {
       }
     },
     downLoadFile (file) {
-      const api = `/terminal/v1/assets/${this.host.key}/file?path=${file.fullpath}`
-      window.open(api, '_blank')
+      const api = `/terminal/v1/assets/${this.host.key}/file?path=`
+      window.open(api + encodeURIComponent(file.fullpath), '_blank')
     },
     uploadSucess (response) {
       this.$refs.uploadButton.clearFiles()
