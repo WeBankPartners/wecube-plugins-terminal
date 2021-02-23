@@ -283,6 +283,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                     }
                 }),
                                    binary=False)
+            results['filelist'].sort(key=lambda x: x['name'])
             if dirpath != '/':
                 root_attr = ssh.SSHClient.format_sftp_attr(None, None)
                 root_attr['name'] = '..'
