@@ -51,12 +51,12 @@
                 </span>
                 <span class="ivu-table-sort" v-if="item.sortable">
                   <i
-                    class="ivu-icon ivu-icon-arrow-up-b"
+                    class="ivu-icon ivu-icon-md-arrow-dropup"
                     :class="{ on: getColumn(tableEleIndex)._sortType === 'asc' }"
                     @click="sort(item.value, tableEleIndex, '+')"
                   ></i>
                   <i
-                    class="ivu-icon ivu-icon-arrow-down-b"
+                    class="ivu-icon ivu-icon-md-arrow-dropdown"
                     :class="{ on: getColumn(tableEleIndex)._sortType === 'desc' }"
                     @click="sort(item.value, tableEleIndex, '-')"
                   ></i>

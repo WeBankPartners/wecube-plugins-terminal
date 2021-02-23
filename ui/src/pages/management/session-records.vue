@@ -47,12 +47,14 @@ let tableEle = [
     title: 't_started_time',
     value: 'started_time',
     style: { width: '250px' },
+    sortable: true,
     display: true
   },
   {
     title: 't_ended_time',
     value: 'ended_time', //
     style: { width: '250px' },
+    sortable: true,
     display: true
   },
   {
@@ -63,6 +65,7 @@ let tableEle = [
   {
     title: 't_filesize',
     value: 'filesize',
+    sortable: true,
     display: true,
     style: { width: '100px' },
     render: item => {

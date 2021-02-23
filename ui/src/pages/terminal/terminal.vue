@@ -40,7 +40,7 @@
             <label style="width:80px">{{ file.mode }} </label>
             <label style="width:50px">{{ file.gid }} </label>
             <label style="width:50px">{{ file.uid }} </label>
-            <label style="width:100px">{{ file.size }} </label>
+            <label style="width:100px" :title="file.size">{{ byteConvert(file.size) }}</label>
             <label style="width:100px">{{ file.mtime }} </label>
             <label class="file-name" @click="getFileList(file)">
               <Icon v-if="file.type === 'dir'" type="ios-folder" />
@@ -75,6 +75,7 @@
 <script>
 import { getFileManagementPermission } from '@/api/server'
 import { setCookie, getCookie } from '../util/cookie'
+import { byteConvert } from '../util/functools'
 import axios from 'axios'
 import { Terminal } from 'xterm'
 // import { FitAddon } from 'xterm-addon-fit'
@@ -118,6 +119,9 @@ export default {
   methods: {
     focus () {
       this.term.focus()
+    },
+    byteConvert (size) {
+      return byteConvert(size)
     },
     closeDrawer () {
       this.isOpenDrawer = !this.isOpenDrawer
