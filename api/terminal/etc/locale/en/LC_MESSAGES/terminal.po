@@ -42,6 +42,11 @@ msgstr ""
 msgid "upload to %(filepath)s error: permission denied"
 msgstr ""
 
+#: terminal/apps/assets/api.py:263
+#, python-format
+msgid "download %(filepath)s error: permission denied"
+msgstr ""
+
 #: terminal/apps/assets/api.py:264
 #, python-format
 msgid "%(filepath)s is not a regular file"

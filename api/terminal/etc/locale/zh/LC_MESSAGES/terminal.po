@@ -42,6 +42,11 @@ msgstr "%(filepath)s 不存在"
 msgid "upload to %(filepath)s error: permission denied"
 msgstr "上传文件到 %(filepath)s 错误: 无权限"
 
+#: terminal/apps/assets/api.py:263
+#, python-format
+msgid "download %(filepath)s error: permission denied"
+msgstr "下载文件 %(filepath)s 错误: 无权限"
+
 #: terminal/apps/assets/api.py:264
 #, python-format
 msgid "%(filepath)s is not a regular file"
