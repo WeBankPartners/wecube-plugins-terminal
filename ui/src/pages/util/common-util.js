@@ -16,7 +16,9 @@ const managementUrl = that => {
   if (params) {
     let tmp = ''
     for (let key in params) {
-      tmp = tmp + key + '=' + encodeURIComponent(params[key]) + '&'
+      if (params[key] !== undefined) {
+        tmp = tmp + key + '=' + encodeURIComponent(params[key]) + '&'
+      }
     }
     tableParams = tableParams + '?' + tmp
   }
