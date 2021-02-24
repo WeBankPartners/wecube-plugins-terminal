@@ -254,3 +254,8 @@ msgstr ""
 #, python-format
 msgid "expected string in %(choices)s or int(>=1), not %(type)s "
 msgstr ""
+
+#: talos ValidationError
+#, python-format
+msgid "detail: column %(attribute)s validate failed, because: %(msg)s"
+msgstr ""

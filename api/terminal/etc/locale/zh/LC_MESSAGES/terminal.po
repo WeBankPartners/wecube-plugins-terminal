@@ -105,7 +105,7 @@ msgstr "校验错误"
 #: terminal/common/exceptions.py:58
 #, python-format
 msgid "column %(attribute)s validate failed, because: %(msg)s"
-msgstr "列 %(attribute)s 校验错误, 原因: %(msg)s"
+msgstr "列 %(attribute)s 校验不通过, 原因: %(msg)s"
 
 #: terminal/common/exceptions.py:74 terminal/common/wshandler.py:162
 #, python-format
@@ -252,3 +252,8 @@ msgstr "值应 >= 1, 当前值为 %(value)s"
 #, python-format
 msgid "expected string in %(choices)s or int(>=1), not %(type)s "
 msgstr "期望值为 %(choices)s 或 >= 1的整数，当前输入为 %(type)s"
+
+#: talos ValidationError
+#, python-format
+msgid "detail: column %(attribute)s validate failed, because: %(msg)s"
+msgstr "列 %(attribute)s 校验不通过, 原因: %(msg)s"
