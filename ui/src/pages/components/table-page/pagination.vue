@@ -3,7 +3,7 @@
     <Page
       class-name="c-dark"
       :total="pagination.total"
-      :current="pagination.current"
+      :current="pagination.page"
       show-total
       show-sizer
       show-elevator
