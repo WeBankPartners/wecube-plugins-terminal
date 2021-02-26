@@ -28,7 +28,7 @@
                       >
                         <Option v-for="item in favoritesLists" :value="item.id" :key="item.id" :label="item.name">
                           <span>{{ item.name }}</span>
-                          <span style="float:right;">
+                          <span v-if="item.is_owner" style="float:right;">
                             <Button
                               icon="ios-trash"
                               type="error"
