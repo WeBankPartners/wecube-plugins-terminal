@@ -13,9 +13,14 @@ import os
 import json
 from talos.server import base
 from talos.core import utils
+from talos.middlewares import lazy_init
+from talos.middlewares import json_translator
+from talos.middlewares import limiter
+from talos.middlewares import globalvars
 
 from terminal.middlewares import auth
 from terminal.middlewares import permission
+from terminal.middlewares import language
 from terminal.server import base as terminal_base
 
 
@@ -34,6 +39,14 @@ def error_serializer(req, resp, exception):
 application = base.initialize_server('terminal',
                                      os.environ.get('TERMINAL_CONF', '/etc/terminal/terminal.conf'),
                                      conf_dir=os.environ.get('TERMINAL_CONF_DIR', '/etc/terminal/terminal.conf.d'),
-                                     middlewares=[auth.JWTAuth(), permission.Permission()])
+                                     middlewares=[
+                                         language.Language(),
+                                         globalvars.GlobalVars(),
+                                         json_translator.JSONTranslator(),
+                                         lazy_init.LazyInit(limiter.Limiter),
+                                         auth.JWTAuth(),
+                                         permission.Permission()
+                                     ],
+                                     override_middlewares=True)
 application.set_error_serializer(error_serializer)
 application.req_options.auto_parse_qs_csv = True

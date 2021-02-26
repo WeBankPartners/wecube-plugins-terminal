@@ -82,7 +82,7 @@ class ItemAssetFile(Item):
         stream, stream_len = self.download(req, path, **kwargs)
         resp.set_stream(stream, stream_len)
         resp.set_header('Content-Disposition',
-                        ('attachment;filename=' + os.path.basename(path)).encode('utf8').decode('latin-1'))
+                        ('attachment;filename=' + os.path.basename(path)).encode('utf-8').decode('latin-1'))
         resp.set_header('Content-Type', 'application/octet-stream')
 
     def download(self, req, filepath, **kwargs):

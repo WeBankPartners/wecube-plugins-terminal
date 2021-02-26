@@ -9,13 +9,16 @@ const managementUrl = that => {
   let tableParams = that.pageConfig.CRUD
   const pp = {
     __offset: (that.pageConfig.pagination.page - 1) * that.pageConfig.pagination.size,
-    __limit: that.pageConfig.pagination.size
+    __limit: that.pageConfig.pagination.size,
+    __orders: that.pageConfig.pagination['__orders']
   }
   const params = Object.assign({}, pp, that.pageConfig.researchConfig.filters)
   if (params) {
     let tmp = ''
     for (let key in params) {
-      tmp = tmp + key + '=' + params[key] + '&'
+      if (params[key] !== undefined) {
+        tmp = tmp + key + '=' + encodeURIComponent(params[key]) + '&'
+      }
     }
     tableParams = tableParams + '?' + tmp
   }

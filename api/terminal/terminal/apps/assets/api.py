@@ -254,6 +254,14 @@ class AssetFile(object):
                 'message': 'File not found'
             })
             raise exceptions.ValidationError(message=_('%(filepath)s not exist') % {'filepath': filepath})
+        except PermissionError:
+            TransferRecord().update(record['id'], {
+                'ended_time': datetime.datetime.now(),
+                'status': 'ERROR',
+                'message': 'Permission denied'
+            })
+            raise exceptions.ValidationError(message=_('download %(filepath)s error: permission denied') %
+                                             {'filepath': filepath})
         stat_result = ssh.SSHClient.format_sftp_attr('./', stat_result)
         if stat_result['type'] != ssh.FileType.T_FILE:
             TransferRecord().update(record['id'], {

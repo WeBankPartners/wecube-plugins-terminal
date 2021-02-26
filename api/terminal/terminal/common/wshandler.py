@@ -61,11 +61,11 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
 
     def _encode(self, data):
         # if isinstance(data, bytes):
-        #     return base64.b64encode(data).decode('utf8')
+        #     return base64.b64encode(data).decode('utf-8')
         # else:
-        #     return base64.b64encode(data.encode('utf8')).decode('utf8')
+        #     return base64.b64encode(data.encode('utf-8')).decode('utf-8')
         if isinstance(data, bytes):
-            return data.decode('utf8')
+            return data.decode('utf-8', errors='replace')
         return data
 
     def _client_close_check(self):
@@ -283,6 +283,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                     }
                 }),
                                    binary=False)
+            results['filelist'].sort(key=lambda x: x['name'])
             if dirpath != '/':
                 root_attr = ssh.SSHClient.format_sftp_attr(None, None)
                 root_attr['name'] = '..'

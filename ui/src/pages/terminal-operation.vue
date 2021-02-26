@@ -50,14 +50,17 @@
                   </Form>
                 </TabPane>
                 <TabPane :label="$t('t_regular_expression')" name="regular_expression">
-                  <FilterRules
-                    style="display:inline-block;vertical-align: middle;padding:0"
-                    class="col-md-12"
-                    :needAttr="true"
-                    v-model="expressionPath"
-                    :allDataModelsWithAttrs="allEntityType"
-                  ></FilterRules>
-                  <div style="margin:12px 0;text-align:center">
+                  <span v-if="showFilterRules">
+                    <FilterRules
+                      style="display:inline-block;vertical-align: middle;padding:0"
+                      class="col-md-12"
+                      :needAttr="true"
+                      v-model="expressionPath"
+                      :allDataModelsWithAttrs="allEntityType"
+                    ></FilterRules>
+                  </span>
+
+                  <div style="display:flex;justify-content: space-around;margin:12px">
                     <Button
                       :disabled="expressionPath === ''"
                       type="primary"
@@ -115,7 +118,7 @@
               </template>
               <template v-else>
                 <div style="text-align:center;color:#969696;font-size:12px">
-                  暂无数据
+                  {{ $t('t_no_data') }}
                 </div>
               </template>
             </div>
@@ -257,6 +260,7 @@ export default {
       selectedCollectionId: '',
       favoritesLists: [],
       expressionPath: '',
+      showFilterRules: false,
 
       showHostList: true,
       showHideIcon: false, // 收起控制
@@ -310,6 +314,7 @@ export default {
   },
   methods: {
     async changeHostTabs (name) {
+      this.showFilterRules = false
       this.currentHostTab = name
       this.hostInfo = []
       this.oriHostInfo = []
@@ -321,6 +326,7 @@ export default {
         // this.favoritesList()
       } else {
         this.expressionPath = ''
+        this.showFilterRules = true
         await this.getAllDataModels()
       }
     },
