@@ -25,6 +25,7 @@
 
 <script>
 import { getTableData, getAssets } from '@/api/server'
+import { byteConvert } from '../util/functools'
 let tableEle = [
   {
     title: 't_asset_id',
@@ -35,6 +36,32 @@ let tableEle = [
     }
   },
   {
+    title: 't_user',
+    value: 'user', //
+    style: { width: '150px' },
+    display: true
+  },
+  {
+    title: 't_operation_type',
+    value: 'operation_type', //
+    style: { width: '150px' },
+    display: true
+  },
+  {
+    title: 't_started_time',
+    value: 'started_time', //
+    style: { width: '250px' },
+    sortable: true,
+    display: true
+  },
+  {
+    title: 't_ended_time',
+    value: 'ended_time', //
+    style: { width: '250px' },
+    sortable: true,
+    display: true
+  },
+  {
     title: 't_filepath',
     value: 'filepath',
     display: true
@@ -42,31 +69,17 @@ let tableEle = [
   {
     title: 't_filesize',
     value: 'filesize',
-    display: true
-  },
-  {
-    title: 't_user',
-    value: 'user', //
-    display: true
-  },
-  {
-    title: 't_operation_type',
-    value: 'operation_type', //
-    display: true
-  },
-  {
-    title: 't_started_time',
-    value: 'started_time', //
-    display: true
-  },
-  {
-    title: 't_ended_time',
-    value: 'ended_time', //
-    display: true
+    sortable: true,
+    display: true,
+    style: { width: '100px' },
+    render: item => {
+      return byteConvert(item.filesize)
+    }
   },
   {
     title: 't_status',
     value: 'status',
+    style: { width: '100px' },
     display: true
   },
   {

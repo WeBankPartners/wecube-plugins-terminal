@@ -15,3 +15,5 @@ def add_routes(api):
     api.add_route('/terminal/v1/session-records/{rid}/file', controller.ItemSessionRecordFile())
     api.add_route('/terminal/v1/permissions', controller.CollectionPermissions())
     api.add_route('/terminal/v1/permissions/{rid}', controller.ItemPermission())
+    api.add_route('/terminal/v1/bookmarks', controller.CollectionBookmarks())
+    api.add_route('/terminal/v1/bookmarks/{rid}', controller.ItemBookmark())

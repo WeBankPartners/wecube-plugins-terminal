@@ -11,6 +11,9 @@ if (window.request) {
   }
 }
 
+export const getRoleList = () => req.get(`/platform/v1/roles/retrieve`)
+export const getRolesByCurrentUser = () => req.get(`/platform/v1/users/roles`)
+
 // Wecube Api
 export const getAllRoles = () => req.get(`/platform/v1/roles/retrieve`)
 
@@ -22,7 +25,19 @@ export const deleteTableRow = (url, id) => req.delete(`${url}/${id}`)
 export const getHost = () => req.get(`/terminal/v1/assets`)
 
 export const getAssets = () => req.get(`/terminal/v1/view-assets`)
+export const getAssetsByExpression = data => req.get(`/terminal/v1/assets?expression=${data}`)
 export const getFileManagementPermission = id => req.get(`/terminal/v1/assets/${id}/permissions`)
 
 export const savePermission = data => req.post(`/terminal/v1/permissions`, data)
 export const editPermissions = (id, data) => req.patch(`/terminal/v1/permissions/${id}`, data)
+
+export const addCollection = data => req.post(`/terminal/v1/bookmarks`, data)
+export const getTargetOptions = (pkgName, entityName) =>
+  req.get(`/platform/v1/packages/${pkgName}/entities/${entityName}/retrieve`)
+export const getEntityRefsByPkgNameAndEntityName = (pkgName, entityName) =>
+  req.get(`/platform/v1/models/package/${pkgName}/entity/${entityName}`)
+export const getAllDataModels = () => req.get(`/platform/v1/models`)
+
+export const getFavoritesList = () => req.get(`/terminal/v1/bookmarks`)
+export const deleteFavorites = id => req.delete(`/terminal/v1/bookmarks/${id}`)
+export const editCollection = (id, data) => req.patch(`/terminal/v1/bookmarks/${id}`, data)

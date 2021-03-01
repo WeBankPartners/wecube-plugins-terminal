@@ -69,3 +69,34 @@ class SessionRecord(crud.ResourceBase):
 class TransferRecord(crud.ResourceBase):
     orm_meta = models.TransferRecord
     _default_order = ['-id']
+
+
+class Bookmark(MetaCRUD):
+    orm_meta = models.Bookmark
+    _default_order = ['-id']
+
+    _validate = [
+        crud.ColumnValidator(field='name',
+                             rule=my_validator.LengthValidator(1, 36),
+                             validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='description',
+                             rule=my_validator.LengthValidator(0, 63),
+                             validate_on=('create:O', 'update:O'),
+                             nullable=True),
+        crud.ColumnValidator(field='expression',
+                             rule=my_validator.LengthValidator(1, 512),
+                             validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='created_by', validate_on=('create:O', 'update:O'), nullable=True),
+        crud.ColumnValidator(field='created_time', validate_on=('create:O', 'update:O'), nullable=True),
+        crud.ColumnValidator(field='updated_by', validate_on=('create:O', 'update:O'), nullable=True),
+        crud.ColumnValidator(field='updated_time', validate_on=('create:O', 'update:O'), nullable=True),
+        crud.ColumnValidator(field='roles',
+                             rule=validator.TypeValidator(dict),
+                             validate_on=('create:M', 'update:O'),
+                             orm_required=False),
+    ]
+
+
+class BookmarkRole(crud.ResourceBase):
+    orm_meta = models.BookmarkRole
+    _default_order = ['-id']

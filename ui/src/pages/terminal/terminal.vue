@@ -40,7 +40,7 @@
             <label style="width:80px">{{ file.mode }} </label>
             <label style="width:50px">{{ file.gid }} </label>
             <label style="width:50px">{{ file.uid }} </label>
-            <label style="width:100px">{{ file.size }} </label>
+            <label style="width:100px" :title="file.size">{{ byteConvert(file.size) }}</label>
             <label style="width:100px">{{ file.mtime }} </label>
             <label class="file-name" @click="getFileList(file)">
               <Icon v-if="file.type === 'dir'" type="ios-folder" />
@@ -75,8 +75,10 @@
 <script>
 import { getFileManagementPermission } from '@/api/server'
 import { setCookie, getCookie } from '../util/cookie'
+import { byteConvert } from '../util/functools'
 import axios from 'axios'
 import { Terminal } from 'xterm'
+// import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
 export default {
   name: '',
@@ -84,6 +86,7 @@ export default {
     return {
       shellWs: '',
       term: '', // 保存terminal实例
+      // fitAddon: null,
       ssh_session: '',
 
       isOpenDrawer: false,
@@ -102,7 +105,7 @@ export default {
   },
   computed: {
     uploadUrl () {
-      return `/terminal/v1/assets/${this.host.key}/file?path=${this.currentDir}`
+      return `/terminal/v1/assets/${this.host.key}/file?path=` + encodeURIComponent(this.currentDir)
     }
   },
   props: ['host', 'consoleConfig', 'sendHostSet'],
@@ -116,6 +119,9 @@ export default {
   methods: {
     focus () {
       this.term.focus()
+    },
+    byteConvert (size) {
+      return byteConvert(size)
     },
     closeDrawer () {
       this.isOpenDrawer = !this.isOpenDrawer
@@ -138,10 +144,19 @@ export default {
           lineHeight: 16
         }
       })
-
       term.open(this.$refs['terminal'])
+      // this.fitAddon = new FitAddon()
+      // term.loadAddon(this.fitAddon)
+      // this.fitAddon.fit()
       term.focus()
       this.term = term
+    },
+    resizeScreen () {
+      // this.fitAddon.fit()
+      this.term.resize(this.consoleConfig.cols, this.consoleConfig.rows)
+      this.ssh_session.send(
+        JSON.stringify({ type: 'resize', data: { rows: this.consoleConfig.rows, cols: this.consoleConfig.cols } })
+      )
     },
     async terminalConnect () {
       if (this.ssh_session) {
@@ -220,8 +235,8 @@ export default {
       }
     },
     downLoadFile (file) {
-      const api = `/terminal/v1/assets/${this.host.key}/file?path=${file.fullpath}`
-      window.open(api, '_blank')
+      const api = `/terminal/v1/assets/${this.host.key}/file?path=`
+      window.open(api + encodeURIComponent(file.fullpath), '_blank')
     },
     uploadSucess (response) {
       this.$refs.uploadButton.clearFiles()

@@ -51,12 +51,12 @@
                 </span>
                 <span class="ivu-table-sort" v-if="item.sortable">
                   <i
-                    class="ivu-icon ivu-icon-arrow-up-b"
+                    class="ivu-icon ivu-icon-md-arrow-dropup"
                     :class="{ on: getColumn(tableEleIndex)._sortType === 'asc' }"
                     @click="sort(item.value, tableEleIndex, '+')"
                   ></i>
                   <i
-                    class="ivu-icon ivu-icon-arrow-down-b"
+                    class="ivu-icon ivu-icon-md-arrow-dropdown"
                     :class="{ on: getColumn(tableEleIndex)._sortType === 'desc' }"
                     @click="sort(item.value, tableEleIndex, '-')"
                   ></i>
@@ -594,7 +594,7 @@ export default {
     sort (key, i, sort) {
       let orders = sort + key
       this.pageConfig.pagination['__orders'] = orders
-      this.pageConfig.pagination.current = 1
+      this.pageConfig.pagination.page = 1
       this.$parent.$parent.initTableData(this.pageConfig.CRUD, this.pageConfig)
       for (let ele in this.pageConfig.table.tableEle) {
         this.pageConfig.table.tableEle[parseInt(ele)]._sortType = 'normal'
@@ -674,7 +674,7 @@ export default {
       // 设置当前状态数据key
       this.pageConfig.table.tableEle[i]._activeKey = valx.value
 
-      this.pageConfig.pagination.current = 1
+      this.pageConfig.pagination.page = 1
       this.$parent.$parent.initTableData(this.pageConfig.CRUD, this.pageConfig)
     },
     // 多选筛选控制
@@ -683,7 +683,7 @@ export default {
       this.pageConfig.pagination[ele.filterable.filterParam] = this.pageConfig.table.tableEle[i].multiFilterParams
       this.multiVisibleFilter = false
 
-      this.pageConfig.pagination.current = 1
+      this.pageConfig.pagination.page = 1
       this.$parent.$parent.initTableData(this.pageConfig.CRUD, this.pageConfig)
 
       // .multiXX
@@ -694,7 +694,7 @@ export default {
       this.pageConfig.table.tableEle[i].multiFilterParams = []
       this.pageConfig.pagination[ele.filterable.filterParam] = this.pageConfig.table.tableEle[i].multiFilterParams
       this.multiVisibleFilter = false
-      this.pageConfig.pagination.current = 1
+      this.pageConfig.pagination.page = 1
       this.$parent.$parent.initTableData(this.pageConfig.CRUD, this.pageConfig)
     },
     // 获取排序状态active状态

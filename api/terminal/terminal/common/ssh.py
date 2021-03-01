@@ -11,7 +11,6 @@ from __future__ import absolute_import
 import logging
 import io
 import functools
-import tempfile
 import time
 import json
 import stat
@@ -269,10 +268,14 @@ class SSHRecorder:
     '''record everything to file, using format:
     https://github.com/asciinema/asciinema/blob/develop/doc/asciicast-v2.md
     '''
-    def __init__(self, filepath=None):
+    def __init__(self, filepath):
         self._start_time = None
         self._filepath = filepath
         self._fileobj = None
+
+    @property
+    def filepath(self):
+        return self._filepath
 
     def start(self, cols=None, rows=None):
         '''start recording, it will write header line to record file. 
@@ -284,15 +287,13 @@ class SSHRecorder:
         '''
         cols = cols or DEFAULT_COLUMNS
         rows = rows or DEFAULT_ROWS
-        if self._filepath:
-            self._fileobj = open(self._filepath, 'w+')
-        else:
-            self._fileobj = tempfile.TemporaryFile('w+')
+        self._fileobj = open(self._filepath, 'w+')
         LOG.info('generating terminal-record file: %s', self._fileobj.name)
         self._start_time = time.time()
         header = {"version": 2, "width": cols, "height": rows, "timestamp": self._start_time, "env": {}}
         header = json.dumps(header) + '\n'
         self._fileobj.write(header)
+        self._fileobj.flush()
 
     def write_command(self, input_content, output_content):
         # start as default meta info if user not calling start()
@@ -300,13 +301,14 @@ class SSHRecorder:
             self.start()
         # eg. [5.402543, "o", "\u001b[?1000h\u001b[39;49m\u001b[37m\u001b[40m\u001b[H\u001b[2J"]
         if isinstance(input_content, bytes):
-            input_content = input_content.decode('utf8')
+            input_content = input_content.decode('utf-8', errors='replace')
         if isinstance(output_content, bytes):
-            output_content = output_content.decode('utf8')
+            output_content = output_content.decode('utf-8', errors='replace')
         if input_content is not None:
             self._fileobj.write(json.dumps([str(time.time() - self._start_time), "i", input_content]) + '\n')
         if output_content is not None:
             self._fileobj.write(json.dumps([time.time() - self._start_time, "o", output_content]) + '\n')
+        self._fileobj.flush()
 
     def close(self, read_content=False):
         content = None
@@ -358,7 +360,7 @@ class CommandParser:
         '''
         # ori_data = data
         # if isinstance(data, bytes):
-        #     data = data.decode('utf8')
+        #     data = data.decode('utf-8')
         if not data:
             return None
         if data_type == 'input':
@@ -371,7 +373,6 @@ class CommandParser:
                 # feed data from output
                 self._state = TerminalChar.CH_TAB
             elif data == TerminalChar.CH_ENT or data == TerminalChar.CH_NL:
-                # TODO: input with multiline data support
                 # TODO: vim mode optimize
                 command = "".join(self.screen.display).strip()
                 if (self._state == TerminalChar.CH_SRH + 'input' or self._state == TerminalChar.CH_SRH):
@@ -383,13 +384,17 @@ class CommandParser:
                         parts = re.split(r'\$|#', command, maxsplit=1)
                         if len(parts) == 2:
                             command = parts[1]
+                elif command.endswith('\\'):
+                    # input with multiline data support
+                    command = ''
+                    self.stream.feed(TerminalChar.CH_NL.encode())
                 # NOTE: leave reset for user
                 # self.reset()
                 return command
             elif TerminalChar.CH_ENT in data or TerminalChar.CH_NL in data:
                 # parse with multine data optimize
                 command = "".join(self.screen.display).strip()
-                command = command + data.replace(TerminalChar.CH_ENT, '\r\n')
+                command = command + data.replace(TerminalChar.CH_ENT, TerminalChar.CH_NL)
                 self.reset()
                 return command
             elif data == TerminalChar.ESC_MVUP:

@@ -63,6 +63,7 @@ class SessionRecord(Base, DictBase):
     id = Column(BIGINT(20), primary_key=True)
     asset_id = Column(String(36), nullable=False)
     filepath = Column(String(255), nullable=False)
+    filesize = Column(BIGINT(20), nullable=False)
     user = Column(String(36), nullable=False)
     started_time = Column(DateTime, nullable=False)
     ended_time = Column(DateTime)
@@ -81,3 +82,32 @@ class TransferRecord(Base, DictBase):
     ended_time = Column(DateTime)
     status = Column(String(36))
     message = Column(String(255))
+
+
+class Bookmark(Base, DictBase):
+    __tablename__ = 'bookmark'
+    attributes = [
+        'id', 'name', 'description', 'expression', 'created_by', 'created_time', 'updated_by', 'updated_time', 'roles'
+    ]
+
+    id = Column(BIGINT(20), primary_key=True)
+    name = Column(String(36), nullable=False)
+    description = Column(String(63), server_default=text("''"))
+    expression = Column(String(512), nullable=False)
+    created_by = Column(String(36))
+    created_time = Column(DateTime)
+    updated_by = Column(String(36))
+    updated_time = Column(DateTime)
+
+    roles = relationship("BookmarkRole", back_populates="bookmark", uselist=True)
+
+
+class BookmarkRole(Base, DictBase):
+    __tablename__ = 'bookmark_roles'
+
+    id = Column(BIGINT(20), primary_key=True)
+    bookmark_id = Column(ForeignKey('bookmark.id', ondelete='CASCADE'), index=True)
+    type = Column(String(36), nullable=False)
+    role = Column(String(255), nullable=False)
+
+    bookmark = relationship('Bookmark')

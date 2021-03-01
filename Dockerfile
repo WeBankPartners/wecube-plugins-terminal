@@ -3,8 +3,8 @@ LABEL maintainer = "Webank CTB Team"
 # Install logrotate
 RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 RUN sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
-ADD api/terminal/requirements.txt /tmp/requirements.txt
-ADD api/terminal/dist/* /tmp/
+COPY api/terminal/requirements.txt /tmp/requirements.txt
+COPY api/terminal/dist/* /tmp/
 # Install && Clean up
 RUN apt update && apt-get -y install gcc python3-dev swig libssl-dev && \
     pip3 install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r /tmp/requirements.txt && \
@@ -16,11 +16,11 @@ RUN apt update && apt-get -y install gcc python3-dev swig libssl-dev && \
 RUN mkdir -p /etc/terminal/
 RUN mkdir -p /var/log/terminal/
 RUN mkdir -p /data/terminal/records
-ADD api/terminal/etc/* /etc/terminal/
+COPY api/terminal/etc /etc/terminal
 # RUN adduser --disabled-password app
 # RUN chown -R app:app /etc/terminal/
 # RUN chown -R app:app /var/log/terminal/
 # USER app
-ADD build/start_all.sh /scripts/start_all.sh
+COPY build/start_all.sh /scripts/start_all.sh
 RUN chmod +x /scripts/start_all.sh
 CMD ["/bin/sh","-c","/scripts/start_all.sh"]

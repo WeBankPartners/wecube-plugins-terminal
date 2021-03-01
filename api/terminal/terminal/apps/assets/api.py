@@ -6,17 +6,22 @@ import datetime
 import logging
 import os.path
 
+from talos.common import cache
 from talos.core import config
 from talos.core.i18n import _
 from talos.utils.scoped_globals import GLOBALS
 from terminal.db import resource
 from terminal.common import wecmdb
+from terminal.common import wecube
+from terminal.common import expression
 from terminal.common import ssh
 from terminal.common import utils
 from terminal.common import exceptions
+from terminal.common import s3
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
+TOKEN_KEY = 'terminal_subsystem_token'
 
 
 class Asset(object):
@@ -47,6 +52,10 @@ class Asset(object):
         return asset
 
     def list_query(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
+        cached_key = 'terminal.asset.list_query/' + str(filters)
+        datas = cache.get(cached_key, 5)
+        if cache.validate(datas):
+            return datas
         fields = {
             'id': 'id',
             CONF.asset.asset_field_name: 'name',
@@ -57,11 +66,45 @@ class Asset(object):
             CONF.asset.asset_field_desc: 'description'
         }
         client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
+        filters = filters or {}
+        # expression search
+        filter_expression = filters.pop('expression', None)
         query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
         package, entity = CONF.asset.asset_type.split(':')
         resp_json = client.retrieve(package, entity, query)
         datas = resp_json.get('data', [])
         datas = self._transform_field(datas, fields)
+        if filter_expression:
+            # validate expression
+            if not isinstance(filter_expression, str):
+                raise exceptions.ValidationError(
+                    message=_('%(expression)s not acceptable, expect url?expression=value') %
+                    {'expression': filter_expression})
+            query_expression_groups = []
+            try:
+                query_expression_groups = expression.expr_parse(filter_expression)
+            except exceptions.PluginError as e:
+                LOG.exception(e)
+            if not query_expression_groups:
+                raise exceptions.ValidationError(message=_('%(expression)s invalid') %
+                                                 {'expression': filter_expression})
+            # if last expr_group is not CONF.asset.asset_type, return empty list
+            if '%s:%s' % (query_expression_groups[-1].get('data', {}).get(
+                    'plugin', ''), query_expression_groups[-1].get('data', {}).get('ci', '')) == CONF.asset.asset_type:
+                wecube_client = wecube.WeCubeClient(CONF.wecube.base_url, None)
+                subsys_token = cache.get_or_create(TOKEN_KEY, wecube_client.login_subsystem, expires=600)
+                wecube_client.token = subsys_token
+                expression_assets = wecube_client.post(
+                    wecube_client.build_url('/platform/v1/data-model/dme/integrated-query'), {
+                        'dataModelExpression': filter_expression,
+                        'filters': []
+                    })
+                expression_assets = expression_assets['data'] or []
+                expression_assets_ids = set([item['id'] for item in expression_assets])
+                datas = [item for item in datas if item['id'] in expression_assets_ids]
+            else:
+                datas = []
+        cache.set(cached_key, datas)
         return datas
 
     def list(self,
@@ -72,6 +115,13 @@ class Asset(object):
              hooks=None,
              auth_roles=None,
              auth_type='execute'):
+        permission_filters = {"roles.role": {'in': auth_roles or list(GLOBALS.request.auth_permissions)}, 'enabled': 1}
+        permission_filters['auth_' + auth_type] = 1
+        permissions = resource.Permission().list(permission_filters)
+        auth_asset_ids = []
+        for permission in permissions:
+            auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
+        auth_asset_ids = set(auth_asset_ids)
         fields = {
             'id': 'id',
             CONF.asset.asset_field_name: 'name',
@@ -82,19 +132,49 @@ class Asset(object):
             CONF.asset.asset_field_password: 'password',
             CONF.asset.asset_field_desc: 'description'
         }
-        client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
-        query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-        package, entity = CONF.asset.asset_type.split(':')
-        resp_json = client.retrieve(package, entity, query)
-        datas = resp_json.get('data', [])
-        datas = self._transform_field(datas, fields)
-        permission_filters = {"roles.role": {'in': auth_roles or list(GLOBALS.request.auth_permissions)}, 'enabled': 1}
-        permission_filters['auth_' + auth_type] = 1
-        permissions = resource.Permission().list(permission_filters)
-        auth_asset_ids = []
-        for permission in permissions:
-            auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
-        auth_asset_ids = set(auth_asset_ids)
+        datas = []
+        filters = filters or {}
+        # expression search
+        filter_expression = filters.pop('expression', None)
+        if auth_asset_ids:
+            filters.setdefault('id', {'in': list(auth_asset_ids)})
+            client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
+            query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
+            package, entity = CONF.asset.asset_type.split(':')
+            resp_json = client.retrieve(package, entity, query)
+            datas = resp_json.get('data', [])
+            datas = self._transform_field(datas, fields)
+            if filter_expression:
+                # validate expression
+                if not isinstance(filter_expression, str):
+                    raise exceptions.ValidationError(
+                        message=_('%(expression)s not acceptable, expect url?expression=value') %
+                        {'expression': filter_expression})
+                query_expression_groups = []
+                try:
+                    query_expression_groups = expression.expr_parse(filter_expression)
+                except exceptions.PluginError as e:
+                    LOG.exception(e)
+                if not query_expression_groups:
+                    raise exceptions.ValidationError(message=_('%(expression)s invalid') %
+                                                     {'expression': filter_expression})
+                # if last expr_group is not CONF.asset.asset_type, return empty list
+                if '%s:%s' % (query_expression_groups[-1].get('data', {}).get('plugin', ''),
+                              query_expression_groups[-1].get('data', {}).get('ci', '')) == CONF.asset.asset_type:
+                    wecube_client = wecube.WeCubeClient(CONF.wecube.base_url, None)
+                    subsys_token = cache.get_or_create(TOKEN_KEY, wecube_client.login_subsystem, expires=600)
+                    wecube_client.token = subsys_token
+                    expression_assets = wecube_client.post(
+                        wecube_client.build_url('/platform/v1/data-model/dme/integrated-query'), {
+                            'dataModelExpression': filter_expression,
+                            'filters': []
+                        })
+                    expression_assets = expression_assets['data'] or []
+                    expression_assets_ids = set([item['id'] for item in expression_assets])
+                    datas = [item for item in datas if item['id'] in expression_assets_ids]
+                else:
+                    datas = []
+
         datas = [item for item in datas if item['id'] in auth_asset_ids]
         for item in datas:
             item['connnection_url'] = CONF.websocket_url
@@ -174,6 +254,14 @@ class AssetFile(object):
                 'message': 'File not found'
             })
             raise exceptions.ValidationError(message=_('%(filepath)s not exist') % {'filepath': filepath})
+        except PermissionError:
+            TransferRecord().update(record['id'], {
+                'ended_time': datetime.datetime.now(),
+                'status': 'ERROR',
+                'message': 'Permission denied'
+            })
+            raise exceptions.ValidationError(message=_('download %(filepath)s error: permission denied') %
+                                             {'filepath': filepath})
         stat_result = ssh.SSHClient.format_sftp_attr('./', stat_result)
         if stat_result['type'] != ssh.FileType.T_FILE:
             TransferRecord().update(record['id'], {
@@ -222,11 +310,14 @@ class AssetPermission(object):
 
 class TransferRecord(resource.TransferRecord):
     def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
-        assets = Asset().list_query()
+        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        assets = []
         assets_mapping = {}
+        query_asset_ids = list(set([r['asset_id'] for r in refs]))
+        if query_asset_ids:
+            assets = Asset().list_query(filters={'id': {'in': query_asset_ids}})
         for asset in assets:
             assets_mapping[asset['id']] = asset
-        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
         for ref in refs:
             ref['asset'] = assets_mapping.get(ref['asset_id'], None)
         return refs
@@ -234,11 +325,14 @@ class TransferRecord(resource.TransferRecord):
 
 class SessionRecord(resource.SessionRecord):
     def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
-        assets = Asset().list_query()
+        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        assets = []
         assets_mapping = {}
+        query_asset_ids = list(set([r['asset_id'] for r in refs]))
+        if query_asset_ids:
+            assets = Asset().list_query(filters={'id': {'in': query_asset_ids}})
         for asset in assets:
             assets_mapping[asset['id']] = asset
-        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
         for ref in refs:
             ref['asset'] = assets_mapping.get(ref['asset_id'], None)
         return refs
@@ -246,10 +340,14 @@ class SessionRecord(resource.SessionRecord):
     def download(self, rid):
         ref = self.get(rid)
         if ref:
-            fullpath = os.path.join(CONF.session.record_path, ref['filepath'])
-            if not os.path.exists(fullpath):
-                raise exceptions.NotFoundError(resource='File of SessionRecord[%s]' % rid)
-            return open(fullpath, 'rb'), os.path.getsize(fullpath)
+            if CONF.s3.server not in ref['filepath']:
+                fullpath = os.path.join(CONF.session.record_path, ref['filepath'])
+                if not os.path.exists(fullpath):
+                    raise exceptions.NotFoundError(resource='File of SessionRecord[%s]' % rid)
+                return open(fullpath, 'rb'), os.path.getsize(fullpath)
+            else:
+                client = s3.S3Client(CONF.s3.server, CONF.s3.access_key, CONF.s3.secret_key)
+                return client.download_stream(ref['filepath'])
         else:
             raise exceptions.NotFoundError(resource='SessionRecord[%s]' % rid)
 
@@ -326,3 +424,109 @@ class Permission(resource.Permission):
 
 PermissionAsset = resource.PermissionAsset
 PermissionRole = resource.PermissionRole
+
+
+class Bookmark(resource.Bookmark):
+    def count(self, filters=None, offset=None, limit=None, hooks=None):
+        auth_roles = GLOBALS.request.auth_permissions
+        filters = filters or {}
+        filters['roles.role'] = {'in': list(auth_roles)}
+        return super().count(filters=filters, offset=offset, limit=limit, hooks=hooks)
+
+    def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
+        auth_roles = GLOBALS.request.auth_permissions
+        filters = filters or {}
+        filters['roles.role'] = {'in': list(auth_roles)}
+        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        for ref in refs:
+            # process roles
+            role_mapping = {'owner': [], 'executor': []}
+            for role in ref['roles']:
+                role_mapping[role['type']].append(role['role'])
+            if set(role_mapping['owner']) & auth_roles:
+                ref['is_owner'] = 1
+            else:
+                ref['is_owner'] = 0
+            ref['roles'] = role_mapping
+        return refs
+
+    def _addtional_create(self, session, data, created):
+        if 'roles' in data:
+            refs = data['roles']
+            role_owner = refs.get('owner', []) or []
+            role_executor = refs.get('executor', []) or []
+            ref_groups = [(role_owner, 'owner', resource.BookmarkRole),
+                          (role_executor, 'executor', resource.BookmarkRole)]
+            for role_refs, ref_type, resource_type in ref_groups:
+                reduce_refs = list(set(role_refs))
+                reduce_refs.sort(key=role_refs.index)
+                if ref_type == 'owner' and len(reduce_refs) == 0:
+                    raise exceptions.ValidationError(message=_('length of roles.owner must be >= 1'))
+                for ref in reduce_refs:
+                    new_ref = {}
+                    new_ref['bookmark_id'] = created['id']
+                    new_ref['role'] = ref
+                    new_ref['type'] = ref_type
+                    resource_type(transaction=session).create(new_ref)
+
+    def _addtional_update(self, session, rid, data, before_updated, after_updated):
+        if 'roles' in data:
+            refs = data['roles']
+            role_owner = refs.get('owner', None)
+            role_executor = refs.get('executor', None)
+            ref_groups = [(role_owner, 'owner', resource.BookmarkRole),
+                          (role_executor, 'executor', resource.BookmarkRole)]
+            for role_refs, ref_type, resource_type in ref_groups:
+                if role_refs is None:
+                    continue
+                reduce_refs = list(set(role_refs))
+                reduce_refs.sort(key=role_refs.index)
+                if ref_type == 'owner' and len(reduce_refs) == 0:
+                    raise exceptions.ValidationError(message=_('length of roles.owner must be >= 1'))
+                old_refs = [
+                    result['role'] for result in resource_type(session=session).list(filters={
+                        'bookmark_id': before_updated['id'],
+                        'type': ref_type
+                    })
+                ]
+                create_refs = list(set(reduce_refs) - set(old_refs))
+                create_refs.sort(key=reduce_refs.index)
+                delete_refs = set(old_refs) - set(reduce_refs)
+
+                if delete_refs:
+                    resource_type(transaction=session).delete_all(filters={
+                        'bookmark_id': before_updated['id'],
+                        'type': ref_type
+                    })
+                for ref in create_refs:
+                    new_ref = {}
+                    new_ref['bookmark_id'] = before_updated['id']
+                    new_ref['role'] = ref
+                    new_ref['type'] = ref_type
+                    resource_type(transaction=session).create(new_ref)
+
+    def update(self, rid, data, filters=None, validate=True, detail=True):
+        auth_roles = GLOBALS.request.auth_permissions
+        if super().count({'id': rid}) and resource.BookmarkRole().count({
+                'bookmark_id': rid,
+                'role': {
+                    'in': list(auth_roles)
+                },
+                'type': 'owner'
+        }) == 0:
+            raise exceptions.ValidationError(message=_('the resource(%(resource)s) does not belong to you') %
+                                             {'resource': 'Bookmark[%s]' % rid})
+        return super().update(rid, data, filters=filters, validate=validate, detail=detail)
+
+    def delete(self, rid, filters=None, detail=True):
+        auth_roles = GLOBALS.request.auth_permissions
+        if super().count({'id': rid}) and resource.BookmarkRole().count({
+                'bookmark_id': rid,
+                'role': {
+                    'in': list(auth_roles)
+                },
+                'type': 'owner'
+        }) == 0:
+            raise exceptions.ValidationError(message=_('the resource(%(resource)s) does not belong to you') %
+                                             {'resource': 'Bookmark[%s]' % rid})
+        return super().delete(rid, filters=filters, detail=detail)

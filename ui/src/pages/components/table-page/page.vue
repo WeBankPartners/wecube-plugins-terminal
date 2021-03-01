@@ -69,7 +69,7 @@ export default {
       this.clearSelectedData()
       // 搜索时强制从第0条开始
       if (this.pageConfig.pagination) {
-        this.pageConfig.pagination.current = 1
+        this.pageConfig.pagination.page = 1
       }
       this.$parent.initTableData(this.pageConfig.CRUD, this.pageConfig)
     },

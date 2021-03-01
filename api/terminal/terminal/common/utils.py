@@ -203,11 +203,15 @@ def get_token():
 
 
 class ClientMixin:
+    # mixin need self.token & self.server
     def build_headers(self):
         headers = None
         if self.token:
             headers = {'Authorization': 'Bearer ' + self.token}
         return headers
+
+    def build_url(self, url_path):
+        return self.server + url_path
 
     def check_response(self, resp_json):
         if resp_json['status'] != 'OK':

@@ -78,3 +78,31 @@ CREATE TABLE `transfer_record` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+#@v0.1.0.1-begin@;
+ALTER TABLE `session_record` ADD filesize BIGINT UNSIGNED NULL;
+ALTER TABLE `session_record` CHANGE filesize filesize BIGINT UNSIGNED NULL AFTER filepath;
+
+CREATE TABLE `bookmark` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(36) NOT NULL,
+  `description` varchar(63) DEFAULT '',
+  `expression` varchar(512) NOT NULL,
+  `created_by` varchar(36) DEFAULT NULL,
+  `created_time` datetime DEFAULT NULL,
+  `updated_by` varchar(36) DEFAULT NULL,
+  `updated_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `bookmark_roles` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `bookmark_id` bigint(20) unsigned,
+  `type` varchar(36) NOT NULL,
+  `role` varchar(255) NOT null,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE terminal.bookmark_roles ADD CONSTRAINT fkey_bookmark_roles FOREIGN KEY (bookmark_id) REFERENCES terminal.bookmark(id) ON DELETE CASCADE;
+
+#@v0.1.0.1-end@;
