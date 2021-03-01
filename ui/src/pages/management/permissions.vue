@@ -222,6 +222,12 @@ export default {
     this.initTableData()
     this.initAssets()
     this.initRoles()
+    this.$root.JQ('#add_object_Modal').on('hidden.bs.modal', () => {
+      this.modelConfig.addRow.auth_upload = 1
+      this.modelConfig.addRow.auth_download = 1
+      this.modelConfig.addRow.auth_execute = 1
+      this.modelConfig.addRow.enabled = 1
+    })
   },
   methods: {
     async initAssets () {
@@ -255,6 +261,7 @@ export default {
       }
     },
     async add () {
+      this.modelConfig.isAdd = true
       const res = await getAssets()
       if (res.status === 'OK') {
         this.modelConfig.slotConfig.assertsOption = res.data.data
