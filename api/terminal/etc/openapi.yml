@@ -1,0 +1,1213 @@
+openapi: 3.0.0
+info:
+  title: terminal api
+  version: 0.2.0
+paths:
+  /terminal/v1/assets:
+    get:
+      description: List assets that you are authorized to execute
+      operationId: "List Assets"
+      tags:
+        - Asset
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Assets"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/view-assets:
+    get:
+      description: List assets that you are authorized to view
+      operationId: "List View-Only Assets"
+      tags:
+        - Asset
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Assets"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/assets/{id}/file:
+    get:
+      description: "Download File from an Asset"
+      operationId: "Download File from an Asset"
+      tags:
+        - Asset
+      security:
+        - bearer: []
+      parameters:
+        - name: path
+          in: query
+          description: file path
+          required: true
+          schema:
+            type: string
+            example: "/tmp/file"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Upload File to an Asset"
+      operationId: "Upload File to an Asset"
+      tags:
+        - Asset
+      security:
+        - bearer: []
+      parameters:
+        - name: path
+          in: query
+          description: file path
+          required: true
+          schema:
+            type: string
+            example: "/tmp/file"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/assets/{id}/permissions:
+    get:
+      description: List permissions of the {id} asset
+      operationId: "List Permissions of an Asset"
+      tags:
+        - Asset
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    items:
+                      type: string
+                      example:
+                        - "execute"
+                        - "download"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/transfer-records:
+    get:
+      description: "List File-transfer records"
+      operationId: "List File-transfer records"
+      tags:
+        - Audit
+      security:
+        - bearer: []
+      parameters:
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/FileTransfer"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/session-records:
+    get:
+      description: "List Session records"
+      operationId: "List Session records"
+      tags:
+        - Audit
+      security:
+        - bearer: []
+      parameters:
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/SessionRecord"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/session-records/{id}/file:
+    get:
+      description: "Get Session replay file"
+      operationId: "Get Session replay file"
+      tags:
+        - Audit
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/bookmarks:
+    get:
+      description: List Bookmarks
+      operationId: "List Bookmarks"
+      tags:
+        - Bookmark
+      security:
+        - bearer: []
+      parameters:
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Bookmarks"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Create Bookmarks"
+      operationId: "Create Bookmarks"
+      tags:
+        - Bookmark
+      security:
+        - bearer: []
+      requestBody:
+        description: Bookmarks to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Bookmarks"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Bookmarks"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update Bookmarks"
+      operationId: "Update Bookmarks"
+      tags:
+        - Bookmark
+      security:
+        - bearer: []
+      requestBody:
+        description: Bookmarks to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Bookmarks"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Bookmarks"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/bookmarks/{id}:
+    get:
+      description: "Get One Bookmark"
+      operationId: "Get One Bookmark"
+      tags:
+        - Bookmark
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/Bookmark"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    delete:
+      description: "Delete One Bookmark"
+      operationId: "Delete One Bookmark"
+      tags:
+        - Bookmark
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items deleted"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Bookmarks"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update One Bookmark"
+      operationId: "Update One Bookmark"
+      tags:
+        - Bookmark
+      security:
+        - bearer: []
+      requestBody:
+        description: Bookmarks to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Bookmarks"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Bookmark"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/permissions:
+    get:
+      description: List Permissions
+      operationId: "List Permissions"
+      tags:
+        - Permission
+      security:
+        - bearer: []
+      parameters:
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Permissions"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Create Permissions"
+      operationId: "Create Permissions"
+      tags:
+        - Permission
+      security:
+        - bearer: []
+      requestBody:
+        description: Permissions to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Permissions"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Permissions"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update Permissions"
+      operationId: "Update Permissions"
+      tags:
+        - Permission
+      security:
+        - bearer: []
+      requestBody:
+        description: Permissions to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Permissions"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Permissions"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/permissions/{id}:
+    get:
+      description: "Get One Permission"
+      operationId: "Get One Permission"
+      tags:
+        - Permission
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/Permission"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    delete:
+      description: "Delete One Permission"
+      operationId: "Delete One Permission"
+      tags:
+        - Permission
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items deleted"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Permissions"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update One Permission"
+      operationId: "Update One Permission"
+      tags:
+        - Permission
+      security:
+        - bearer: []
+      requestBody:
+        description: Permissions to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Permissions"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Permission"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+  /terminal/v1/ssh:
+    get:
+      description: Get SSH Connection(websocket)
+      operationId: "Get SSH Connection(websocket)"
+      tags:
+        - Tunnel
+      parameters:
+        - name: Connection
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Upgrade
+        - name: Upgrade
+          in: header
+          required: true
+          schema:
+            type: string
+            example: websocket
+      responses:
+        "101":
+          description: |
+            <br/>next use websocket message to communicate with server<br/><br/>
+
+            1. client send: {"type": "init/resize/console/listdir", "data": ""}<br/>
+              init: init shell & sftp<br/>
+                data: {token: "your jwt token", cols: 80, rows: 20, asset_id: "host000001"}<br/>
+              resize: resize shell cols & rows<br/>
+                data: {cols: 80, rows: 20}<br/>
+              console: send user input<br/>
+                data: xxxxxx<br/>
+              listdir: send list dir request<br/>
+                data: dirpath<br/><br/>
+            2. client recv: {"type": "console/listdir/warn/error", "data": ""}<br/>
+              console: recv console output<br/>
+                data: xxxx<br/>
+              listdir: recv file list<br/>
+                data: {pwd: xxx, filelist: [{...}]}<br/>
+              warn: recv warnning message, should be comfirm by user<br/>
+                data: message<br/>
+              error: error output<br/>
+                data: message<br/>
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    offset:
+      name: __offset
+      in: query
+      description: number of items to skip
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        example: 0
+    limit:
+      name: __limit
+      in: query
+      description: max items to return
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        example: 10
+    token:
+      name: authorization
+      in: header
+      description: access token
+      required: true
+      schema:
+        type: string
+        example: "Bearer jwt-token"
+    filter:
+      name: "name__icontains"
+      in: query
+      description: |
+        field to filter, eg. field__operator=value<br/>
+        field scope: fields in model<br/>
+        operator scope:  icontains/contains/istarts/starts/iends/ends/excludes/iexcludes/eq/ne/lt/lte/gt/gte/in/nin/null/nnull<br/>
+        or shortcut for eq: field=value, shortcut for in: field[]=value1&field[]=value2<br/><br/>
+        icontains/contains: field like '%value%', i means ignorecase<br/>
+        istarts/starts: field like 'value%', i means ignorecase<br/>
+        iends/ends: field like '%value', i means ignorecase<br/>
+        excludes/iexcludes: field not like '%value%', i means ignorecase<br/>
+        eq/ne/lt/lte/gt/gte: obviously, means '=' / '!=' / '<' / '<=' / '>' / '>='<br/>
+        in/nin: obviously<br/>
+        null/nnull: value is null/ not null, eg. field__null=
+
+      required: false
+      schema:
+        type: string
+        example: "test"
+
+  schemas:
+    ErrorLogin:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Unauthorized"
+        code:
+          type: integer
+          example: 401
+        status:
+          type: string
+          example: "ERROR"
+        data:
+          type: string
+          example: null
+        message:
+          type: string
+          example: "you are unauthenticated, login needed"
+    ErrorAuth:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Unauthorized"
+        code:
+          type: integer
+          example: 403
+        status:
+          type: string
+          example: "ERROR"
+        data:
+          type: null
+          example: null
+        message:
+          type: string
+          example: "you are not allowed to perform this action"
+    Assets:
+      description: "list of assets"
+      type: array
+      items:
+        type: object
+        $ref: "#/components/schemas/Asset"
+    Asset:
+      description: "One Asset"
+      type: object
+      properties:
+        id:
+          description: "id"
+          type: string
+          example: "host000001"
+        name:
+          description: "name"
+          type: string
+          example: "host-app-1"
+        display_name:
+          description: "display_name"
+          type: string
+          example: "subsys01-unit01-host-app-1"
+        ip_address:
+          description: "ssh ip address"
+          type: string
+          example: "127.0.0.1"
+        port:
+          description: "ssh port"
+          type: integer
+          example: 22
+        username:
+          description: "ssh user name"
+          type: string
+          example: "root"
+        description:
+          description: "description"
+          type: string
+          example: "app-1 of something"
+
+    FileTransfer:
+      description: "Record of File-transfer"
+      type: object
+      properties:
+        id:
+          description: "id"
+          type: integer
+          example: 1
+        asset_id:
+          description: "asset id"
+          type: string
+          example: "host000001"
+        filepath:
+          description: "file path"
+          type: string
+          example: "/tmp/file"
+        filesize:
+          description: "file size"
+          type: integer
+          example: 123456
+        user:
+          description: "operation user"
+          type: string
+          example: "admin"
+        operation_type:
+          description: "operation type"
+          type: string
+          example: "download"
+        started_time:
+          description: "time when transfer started"
+          type: string
+          example: "2021-01-01 00:00:00"
+        ended_time:
+          description: "time when transfer ended"
+          type: string
+          example: "2021-01-01 00:01:00"
+        status:
+          description: "transfer status"
+          type: string
+          example: "OK"
+        message:
+          description: "transfer error message"
+          type: string
+          example: ""
+        asset:
+          description: "asset object"
+          type: object
+          $ref: "#/components/schemas/Asset"
+
+    SessionRecord:
+      description: "Record of Session Operation"
+      type: object
+      properties:
+        id:
+          description: "id"
+          type: integer
+          example: 1
+        asset_id:
+          description: "asset id"
+          type: string
+          example: "host000001"
+        filepath:
+          description: "file path"
+          type: string
+          example: "s3://ip:port/bucket/object_key"
+        filesize:
+          description: "file size"
+          type: integer
+          example: 123456
+        user:
+          description: "operation user"
+          type: string
+          example: "admin"
+        started_time:
+          description: "time when transfer started"
+          type: string
+          example: "2021-01-01 00:00:00"
+        ended_time:
+          description: "time when transfer ended"
+          type: string
+          example: "2021-01-01 00:01:00"
+        asset:
+          description: "asset object"
+          type: object
+          $ref: "#/components/schemas/Asset"
+
+    Bookmarks:
+      description: "list of bookmarks"
+      type: array
+      items:
+        type: object
+        $ref: "#/components/schemas/Bookmark"
+    Bookmark:
+      description: "One Bookmark"
+      type: object
+      required:
+        - "name"
+        - "expression"
+        - "roles"
+      properties:
+        id:
+          description: "id"
+          type: integer
+          example: 1
+        name:
+          description: "name"
+          type: string
+          example: "sys01 hosts"
+        description:
+          description: "description"
+          type: string
+          example: "hosts of sys01 that created"
+        expression:
+          description: "expression of wecube"
+          type: string
+          example: "wecmdb:host_resource_instance"
+        roles:
+          description: "auth roles"
+          type: object
+          properties:
+            owner:
+              type: array
+              items:
+                type: string
+                example: "SUPER_ADMIN"
+            executor:
+              type: array
+              items:
+                type: string
+                example: "SUPER_ADMIN"
+
+    Permissions:
+      description: "list of permissions"
+      type: array
+      items:
+        type: object
+        $ref: "#/components/schemas/Permission"
+    Permission:
+      description: "One Permission"
+      type: object
+      required:
+        - name
+        - auth_upload
+        - auth_download
+        - auth_execute
+        - enabled
+      properties:
+        id:
+          description: "id"
+          type: integer
+          example: 1
+        name:
+          description: "name"
+          type: string
+          example: ""
+        description:
+          description: "description"
+          type: string
+          example: ""
+        auth_upload:
+          description: "upload enabled"
+          type: integer
+          example: 1
+        auth_download:
+          description: "download enabled"
+          type: integer
+          example: 1
+        auth_execute:
+          description: "execute enabled(ssh connection)"
+          type: integer
+          example: 1
+        enabled:
+          description: "enabled"
+          type: integer
+          example: 1
+        assets:
+          description: "auth assets"
+          type: array
+          items:
+            type: string
+            example: "host000001"
+        roles:
+          description: "auth roles"
+          type: array
+          items:
+            type: string
+            example: "SUPER_ADMIN"
