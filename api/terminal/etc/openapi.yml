@@ -211,7 +211,8 @@ paths:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
         - $ref: "#/components/parameters/limit"
-        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/orders"
+        - $ref: "#/components/parameters/fields"
       responses:
         "200":
           description: Successed
@@ -259,7 +260,8 @@ paths:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
         - $ref: "#/components/parameters/limit"
-        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/orders"
+        - $ref: "#/components/parameters/fields"
       responses:
         "200":
           description: Successed
@@ -331,7 +333,8 @@ paths:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
         - $ref: "#/components/parameters/limit"
-        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/orders"
+        - $ref: "#/components/parameters/fields"
       responses:
         "200":
           description: Successed
@@ -598,7 +601,8 @@ paths:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
         - $ref: "#/components/parameters/limit"
-        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/orders"
+        - $ref: "#/components/parameters/fields"
       responses:
         "200":
           description: Successed
@@ -923,7 +927,7 @@ components:
         format: int32
         minimum: 0
         example: 10
-    order:
+    orders:
       name: __orders
       in: query
       description: order by fields, eg. __orders=id,-created_time
@@ -931,6 +935,13 @@ components:
       schema:
         type: string
         example: "-id"
+    fields:
+      name: __fields
+      in: query
+      description: fields to return, eg. __fields=id,name
+      required: false
+      schema:
+        type: string
     token:
       name: authorization
       in: header
