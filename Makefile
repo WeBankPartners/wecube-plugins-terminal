@@ -18,6 +18,7 @@ image: build
 package: image
 	rm -rf package
 	mkdir -p package
+    echo "$(version)" > api/terminal/VERSION
 	cd package && sed 's/{{PLUGIN_VERSION}}/$(version)/' ../build/register.xml.tpl > ./register.xml
 	cd package && sed -i 's/{{IMAGENAME}}/$(project_name):$(version)/g' ./register.xml
 	cd package && sed -i 's/{{CONTAINERNAME}}/$(project_name)-$(version)/g' ./register.xml 
