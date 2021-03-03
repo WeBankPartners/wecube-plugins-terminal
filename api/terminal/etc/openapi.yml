@@ -211,6 +211,7 @@ paths:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
         - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/order"
       responses:
         "200":
           description: Successed
@@ -258,6 +259,7 @@ paths:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
         - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/order"
       responses:
         "200":
           description: Successed
@@ -329,6 +331,7 @@ paths:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
         - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/order"
       responses:
         "200":
           description: Successed
@@ -595,6 +598,7 @@ paths:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
         - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/order"
       responses:
         "200":
           description: Successed
@@ -919,6 +923,14 @@ components:
         format: int32
         minimum: 0
         example: 10
+    order:
+      name: __orders
+      in: query
+      description: order by fields, eg. __orders=id,-created_time
+      required: false
+      schema:
+        type: string
+        example: "-id"
     token:
       name: authorization
       in: header
