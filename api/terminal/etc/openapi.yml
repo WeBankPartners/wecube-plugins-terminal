@@ -985,29 +985,11 @@ components:
           type: string
           example: "ERROR"
         data:
-          type: string
+          type: object
           example: null
         message:
           type: string
           example: "you are unauthenticated, login needed"
-    ErrorAuth:
-      type: object
-      properties:
-        title:
-          type: string
-          example: "Unauthorized"
-        code:
-          type: integer
-          example: 403
-        status:
-          type: string
-          example: "ERROR"
-        data:
-          type: null
-          example: null
-        message:
-          type: string
-          example: "you are not allowed to perform this action"
     Assets:
       description: "list of assets"
       type: array
