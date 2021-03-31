@@ -14,3 +14,8 @@ class Language(object):
         prefer = _.client_prefers(req.get_header('Accept-Language', default=''))
         if prefer:
             _.change(prefer[0])
+        else:
+            # fallback to first available language
+            available_languages = _.available_languages
+            if available_languages:
+                _.change(available_languages[0])
