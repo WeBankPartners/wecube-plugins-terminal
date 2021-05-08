@@ -15,7 +15,7 @@
         <DatePicker
           type="datetimerange"
           @on-change="changeDate"
-          placeholder="Select date and time"
+          :placeholder="$t('t_select_datetime')"
           style="width: 300px"
         ></DatePicker>
       </div>

@@ -131,6 +131,8 @@
   "t_transfer_records": "Transfer Records",
   "t_permissions": "Permissions",
   "t_asset_id": "Server",
+  "t_select_datetime": "Select date and time",
+  "t_search_host": "Enter IP or name to filter",
   "t_started_time": "Started Time",
   "t_ended_time": "Ended Time",
   "t_filepath": "File Path",

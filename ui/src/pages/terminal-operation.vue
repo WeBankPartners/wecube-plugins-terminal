@@ -77,7 +77,7 @@
               <template v-if="hostInfo.length > 0">
                 <Input
                   v-model="searchHost"
-                  placeholder="Filter ip or name"
+                  :placeholder="$t('t_search_host')"
                   @on-change="filterHost"
                   style="width: 100%;margin-bottom:16px"
                 />
