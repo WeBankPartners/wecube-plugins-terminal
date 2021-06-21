@@ -17,12 +17,12 @@
 
     <!-- 4.系统参数 - 描述运行本插件包需要的系统参数 -->
     <systemParameters>
-        <systemParameter name="TERMINAL_ASSET_TYPE" scopeType="plugins" defaultValue="wecmdb:host_resource_instance" />
+        <systemParameter name="TERMINAL_ASSET_TYPE" scopeType="plugins" defaultValue="wecmdb:host_resource" />
         <systemParameter name="TERMINAL_FIELD_NAME" scopeType="plugins" defaultValue="name" />
         <systemParameter name="TERMINAL_FIELD_IP" scopeType="plugins" defaultValue="ip_address" />
         <systemParameter name="TERMINAL_FIELD_PORT" scopeType="plugins" defaultValue="login_port" />
-        <systemParameter name="TERMINAL_FIELD_USER" scopeType="plugins" defaultValue="user_name" />
-        <systemParameter name="TERMINAL_FIELD_PASSWORD" scopeType="plugins" defaultValue="user_password" />
+        <systemParameter name="TERMINAL_FIELD_USER" scopeType="plugins" defaultValue="root_user_name" />
+        <systemParameter name="TERMINAL_FIELD_PASSWORD" scopeType="plugins" defaultValue="root_user_password" />
         <systemParameter name="TERMINAL_FIELD_DESC" scopeType="plugins" defaultValue="description" />
         <systemParameter name="TERMINAL_BOXES" scopeType="plugins" defaultValue="all" />
         <systemParameter name="TERMINAL_SESSION_TIMEOUT" scopeType="plugins" defaultValue="1800" />
