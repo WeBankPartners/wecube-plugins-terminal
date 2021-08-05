@@ -30,7 +30,7 @@
           <label class="col-md-2 label-name">{{ $t('t_asset_id') }}:</label>
           <Select v-model="modelConfig.addRow.assets" multiple filterable style="width:340px">
             <Option v-for="item in modelConfig.slotConfig.assertsOption" :value="item.id" :key="item.id">
-              {{ item.ip_address }}
+              {{ item.ip_address + '(' + item.name + ')' }}
             </Option>
           </Select>
         </div>
@@ -80,7 +80,8 @@ let tableEle = [
   {
     title: 't_name',
     value: 'name',
-    display: true
+    display: true,
+    style: { width: '200px' }
   },
   {
     title: 't_asset_id',
@@ -92,6 +93,11 @@ let tableEle = [
       })
       return res.join('/')
     }
+  },
+  {
+    title: 't_auth_expression',
+    value: 'expression',
+    display: true
   },
   {
     title: 't_roles',
