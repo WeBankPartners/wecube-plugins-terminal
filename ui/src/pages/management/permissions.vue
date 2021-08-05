@@ -257,7 +257,6 @@ export default {
     async getAllDataModels () {
       let { data, status } = await getAllDataModels()
       if (status === 'OK') {
-        console.log(data)
         this.allEntityType = data
       }
     },
