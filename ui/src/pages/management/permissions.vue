@@ -10,7 +10,7 @@
           :placeholder="$t('t_asset_id')"
           style="width:340px"
         >
-          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{ item.ip_address }}</Option>
+          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{ item.ip_address + '(' + item.name + ')' }}</Option>
         </Select>
         <Select
           v-model="roles_id"
@@ -33,6 +33,15 @@
               {{ item.ip_address }}
             </Option>
           </Select>
+        </div>
+        <div class="marginbottom params-each">
+          <label class="col-md-2 label-name">{{ $t('t_auth_expression') }}:</label>
+          <span><FilterRules
+            style="width:340px;display:inline-block;vertical-align: middle;"
+            :needAttr="true"
+            v-model="modelConfig.addRow.expression"
+            :allDataModelsWithAttrs="allEntityType"
+          ></FilterRules></span>
         </div>
         <div class="marginbottom params-each">
           <label class="col-md-2 label-name">{{ $t('t_roles') }}:</label>
@@ -65,7 +74,8 @@
 </template>
 
 <script>
-import { getTableData, getAssets, getAllRoles, savePermission, editPermissions, deleteTableRow } from '@/api/server'
+import { getTableData, getAssets, getAllRoles, savePermission, editPermissions, deleteTableRow, getAllDataModels } from '@/api/server'
+import FilterRules from '../components/filter-rules.vue'
 let tableEle = [
   {
     title: 't_name',
@@ -196,6 +206,7 @@ export default {
           // [通用]-保存用户新增、编辑时数据
           name: null,
           assets: [],
+          expression: '',
           roles: [],
           auth_upload: 1,
           auth_download: 1,
@@ -215,7 +226,8 @@ export default {
       asset_id: '',
       assertsOption: [],
       roles_id: '',
-      rolesOption: []
+      rolesOption: [],
+      allEntityType: []
     }
   },
   mounted () {
@@ -240,6 +252,13 @@ export default {
       const { status, data } = await getAllRoles()
       if (status === 'OK') {
         this.rolesOption = data
+      }
+    },
+    async getAllDataModels () {
+      let { data, status } = await getAllDataModels()
+      if (status === 'OK') {
+        console.log(data)
+        this.allEntityType = data
       }
     },
     async initTableData () {
@@ -269,8 +288,9 @@ export default {
       const { status, data } = await getAllRoles()
       if (status === 'OK') {
         this.modelConfig.slotConfig.rolesOption = data
-        this.$root.JQ('#add_object_Modal').modal('show')
       }
+      await this.getAllDataModels()
+      this.$root.JQ('#add_object_Modal').modal('show')
     },
     async addPost () {
       const { status } = await savePermission([this.modelConfig.addRow])
@@ -298,6 +318,7 @@ export default {
       if (status === 'OK') {
         this.modelConfig.slotConfig.rolesOption = data
       }
+      await this.getAllDataModels()
       this.$root.JQ('#add_object_Modal').modal('show')
     },
     async editPost () {
@@ -329,7 +350,7 @@ export default {
       })
     }
   },
-  components: {}
+  components: {FilterRules}
 }
 </script>
 
