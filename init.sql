@@ -106,3 +106,9 @@ CREATE TABLE `bookmark_roles` (
 ALTER TABLE terminal.bookmark_roles ADD CONSTRAINT fkey_bookmark_roles FOREIGN KEY (bookmark_id) REFERENCES terminal.bookmark(id) ON DELETE CASCADE;
 
 #@v0.1.0.1-end@;
+
+#@v0.2.2.1-begin@;
+
+ALTER TABLE terminal.permission ADD expression TEXT NULL;
+
+#@v0.2.2.1-end@;

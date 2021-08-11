@@ -10,7 +10,7 @@
           :placeholder="$t('t_asset_id')"
           style="width:340px"
         >
-          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{ item.ip_address }}</Option>
+          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{ item.ip_address + '(' + item.name + ')' }}</Option>
         </Select>
         <DatePicker
           type="datetimerange"

@@ -144,6 +144,7 @@
   "t_auth_download": "下载",
   "t_auth_upload": "上传",
   "t_auth_execute": "执行",
+  "t_auth_expression": "表达式授权",
   "t_enabled": "启用",
   "t_name": "名称",
   "t_roles": "角色",
