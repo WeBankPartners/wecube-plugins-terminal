@@ -46,7 +46,7 @@ class Permission(MetaCRUD):
         crud.ColumnValidator(field='auth_download', rule_type='in', rule=[0, 1], validate_on=('create:M', 'update:O')),
         crud.ColumnValidator(field='auth_execute', rule_type='in', rule=[0, 1], validate_on=('create:M', 'update:O')),
         crud.ColumnValidator(field='expression',
-                             rule=my_validator.LengthValidator(1, 10240),
+                             rule=my_validator.LengthValidator(0, 10240),
                              validate_on=('create:O', 'update:O'),
                              nullable=True),
         crud.ColumnValidator(field='enabled', rule_type='in', rule=[0, 1], validate_on=('create:M', 'update:O')),
