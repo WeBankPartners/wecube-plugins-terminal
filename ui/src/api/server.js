@@ -33,7 +33,9 @@ export const editPermissions = (id, data) => req.patch(`/terminal/v1/permissions
 
 export const addCollection = data => req.post(`/terminal/v1/bookmarks`, data)
 export const getTargetOptions = (pkgName, entityName) =>
-  req.get(`/platform/v1/packages/${pkgName}/entities/${entityName}/retrieve`)
+  req.post(`/${pkgName}/entities/${entityName}/query`, {
+    additionalFilters: []
+  })
 export const getEntityRefsByPkgNameAndEntityName = (pkgName, entityName) =>
   req.get(`/platform/v1/models/package/${pkgName}/entity/${entityName}`)
 export const getAllDataModels = () => req.get(`/platform/v1/models`)
