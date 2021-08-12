@@ -554,7 +554,7 @@ class JumpServer(resource.JumpServer):
         def is_belong(cidr, ip):
             try:
                 cidr_network = ipaddress.IPv4Network(cidr)
-                return
+                return ip in cidr_network
             except Exception:
                 return False
 
