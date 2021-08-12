@@ -50,15 +50,16 @@ class SSHClient:
         self._shell_fileno = None
         self._sftp = None
         self._client = paramiko.SSHClient()
+        self._jump_client = paramiko.SSHClient()
 
     @property
     def sftp(self):
         return self._sftp
 
-    def connect(self, host, username, password, port=22):
-        self._client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    def _connect(self, client, host, username, password, port=22, sock=None):
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
-            self._client.connect(hostname=host, port=int(port), username=username, password=password, timeout=10.0)
+            client.connect(hostname=host, port=port, username=username, password=password, timeout=10.0, sock=sock)
         except paramiko.AuthenticationException as e:
             LOG.exception(e)
             raise exceptions.PluginError(message=_(
@@ -86,6 +87,18 @@ class SSHClient:
                 'host': host,
                 'port': port
             })
+
+    def connect(self, host, username, password, port=22, jump_server=None):
+        port = int(port)
+        jump_channel = None
+        if jump_server:
+            jump_host, jump_port, jump_username, jump_password = jump_server
+            dest_addr = (host, port)
+            jump_addr = (jump_host, jump_port)
+            self._connect(self._jump_client, jump_host, jump_username, jump_password, port=jump_port)
+            jump_transport = self._jump_client.get_transport()
+            jump_channel = jump_transport.open_channel("direct-tcpip", dest_addr, jump_addr)
+        self._connect(self._client, host, username, password, port=port, sock=jump_channel)
 
     def _load_private_key(self, key_content, key_password):
         return paramiko.RSAKey.from_private_key(io.StringIO(key_content), key_password)
@@ -181,6 +194,7 @@ class SSHClient:
         self.close_shell()
         self.close_sftp()
         self._client.close()
+        self._jump_client.close()
 
     @property
     def is_shell_closed(self):

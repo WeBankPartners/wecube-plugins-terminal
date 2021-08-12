@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 from talos.db.dictbase import DictBase
 from sqlalchemy import Column, DateTime, ForeignKey, String, text, Text
-from sqlalchemy.dialects.mysql import BIGINT, TINYINT
+from sqlalchemy.dialects.mysql import BIGINT, TINYINT, INTEGER
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -112,3 +112,19 @@ class BookmarkRole(Base, DictBase):
     role = Column(String(255), nullable=False)
 
     bookmark = relationship('Bookmark')
+
+
+class JumpServer(Base, DictBase):
+    __tablename__ = 'jump_server'
+
+    id = Column(BIGINT(20), primary_key=True)
+    name = Column(String(63), nullable=True)
+    scope = Column(String(512), nullable=True)
+    ip_address = Column(String(36), nullable=False)
+    port = Column(INTEGER(10), nullable=False)
+    username = Column(String(36), nullable=False)
+    password = Column(String(255), nullable=False)
+    created_by = Column(String(36))
+    created_time = Column(DateTime)
+    updated_by = Column(String(36))
+    updated_time = Column(DateTime)

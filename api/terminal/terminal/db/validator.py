@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import
 
+import re
+import ipaddress
 from talos.core import utils
 from talos.core.i18n import _
 from talos.db import validator
@@ -51,4 +53,24 @@ class RepeatableValidator(validator.NullValidator):
                 'choices': choices,
                 'type': type(value).__name__
             }
+        return True
+
+
+class ConcatCIDRValidator(validator.NullValidator):
+    def __init__(self, splitter=r',|\||;'):
+        self._splitter = splitter
+
+    def validate(self, value):
+        if not utils.is_string_type(value):
+            return _('expected string, not %(type)s ') % {'type': type(value).__name__}
+        cidrs = re.split(self._splitter, value)
+        cidrs = [x for x in cidrs if x]
+        errors = []
+        for cidr in cidrs:
+            try:
+                ipaddress.IPv4Network(cidr)
+            except Exception:
+                errors.append(_('invalid cidr: %(cidr)s') % {'cidr': cidr})
+        if errors:
+            return ','.join(errors)
         return True
