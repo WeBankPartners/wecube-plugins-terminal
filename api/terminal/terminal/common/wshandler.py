@@ -167,7 +167,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                 raise e
             try:
                 jump_server = asset_api.JumpServer().get_jump_server(asset['ip_address'])
-                if jump_server and jump_server[0] != asset['ip_address'] and str(jump_server[1]) != asset['port']:
+                if jump_server and (jump_server[0] != asset['ip_address'] or str(jump_server[1]) != str(asset['port'])):
                     jump_host, jump_port, jump_username, jump_password = jump_server
                     self.write_message(json.dumps({
                         'type':

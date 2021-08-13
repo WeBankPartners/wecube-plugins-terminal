@@ -91,7 +91,7 @@ class SSHClient:
     def connect(self, host, username, password, port=22, jump_server=None):
         port = int(port)
         jump_channel = None
-        if jump_server and jump_server[0] != host and str(jump_server[1]) != str(port):
+        if jump_server and (jump_server[0] != host or str(jump_server[1]) != str(port)):
             jump_host, jump_port, jump_username, jump_password = jump_server
             dest_addr = (host, port)
             jump_addr = (jump_host, jump_port)
