@@ -17,3 +17,5 @@ def add_routes(api):
     api.add_route('/terminal/v1/permissions/{rid}', controller.ItemPermission())
     api.add_route('/terminal/v1/bookmarks', controller.CollectionBookmarks())
     api.add_route('/terminal/v1/bookmarks/{rid}', controller.ItemBookmark())
+    api.add_route('/terminal/v1/jumpservers', controller.CollectionJumpServers())
+    api.add_route('/terminal/v1/jumpservers/{rid}', controller.ItemJumpServer())
