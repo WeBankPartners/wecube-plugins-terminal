@@ -211,7 +211,12 @@ class AssetFile(object):
         asset = Asset().get_connection_info(rid, auth_type='upload')
         fullpath = os.path.join(destpath, filename)
         client = ssh.SSHClient()
-        client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
+        jump_servers = JumpServer().get_jump_servers(asset['ip_address'])
+        client.connect(asset['ip_address'],
+                       asset['username'],
+                       asset['password'],
+                       port=asset['port'],
+                       jump_servers=jump_servers)
         sftp = client.create_sftp()
         record = TransferRecord().create({
             'asset_id': rid,
@@ -252,7 +257,12 @@ class AssetFile(object):
 
         asset = Asset().get_connection_info(rid, auth_type='download')
         client = ssh.SSHClient()
-        client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
+        jump_servers = JumpServer().get_jump_servers(asset['ip_address'])
+        client.connect(asset['ip_address'],
+                       asset['username'],
+                       asset['password'],
+                       port=asset['port'],
+                       jump_servers=jump_servers)
         sftp = client.create_sftp()
         record = TransferRecord().create({
             'asset_id': rid,
@@ -550,7 +560,7 @@ class Bookmark(resource.Bookmark):
 
 
 class JumpServer(resource.JumpServer):
-    def get_jump_server(self, dst_ip):
+    def get_jump_servers(self, dst_ip):
         def is_belong(cidr, ip):
             try:
                 cidr_network = ipaddress.IPv4Network(cidr)
@@ -563,6 +573,7 @@ class JumpServer(resource.JumpServer):
         except Exception:
             return None
 
+        rets = []
         servers = self.list()
         splitter = r',|\||;'
         for server in servers:
@@ -570,5 +581,5 @@ class JumpServer(resource.JumpServer):
             cidrs = [x for x in cidrs if x]
             for cidr in cidrs:
                 if is_belong(cidr, dst_ip):
-                    return (server['ip_address'], server['port'], server['username'], server['password'])
-        return None
+                    rets.append((server['ip_address'], server['port'], server['username'], server['password']))
+        return rets

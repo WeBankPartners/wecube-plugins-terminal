@@ -88,17 +88,38 @@ class SSHClient:
                 'port': port
             })
 
-    def connect(self, host, username, password, port=22, jump_server=None):
+    def connect(self, host, username, password, port=22, jump_servers=None):
+        '''connect to host via ssh
+
+        :param host: destination host(ip or domain)
+        :param username: destination host login username
+        :param password: destination host login password
+        :param port: ssh port, defaults to 22
+        :param jump_servers: list of jumpserver(host, port, user, passwd), defaults to None
+        '''
+        jump_servers = jump_servers or []
         port = int(port)
+        fail_msgs = []
+        final_jump_server = None
         jump_channel = None
-        if jump_server and (jump_server[0] != host or str(jump_server[1]) != str(port)):
-            jump_host, jump_port, jump_username, jump_password = jump_server
-            dest_addr = (host, port)
-            jump_addr = (jump_host, jump_port)
-            self._connect(self._jump_client, jump_host, jump_username, jump_password, port=jump_port)
-            jump_transport = self._jump_client.get_transport()
-            jump_channel = jump_transport.open_channel("direct-tcpip", dest_addr, jump_addr)
+        for jump_server in jump_servers:
+            if jump_server and (jump_server[0] != host or str(jump_server[1]) != str(port)):
+                jump_host, jump_port, jump_username, jump_password = jump_server
+                dest_addr = (host, port)
+                jump_addr = (jump_host, jump_port)
+                try:
+                    self._connect(self._jump_client, jump_host, jump_username, jump_password, port=jump_port)
+                except exceptions.PluginError as e:
+                    fail_msgs.append(str(e))
+                    continue
+                final_jump_server = jump_server
+                jump_transport = self._jump_client.get_transport()
+                jump_channel = jump_transport.open_channel("direct-tcpip", dest_addr, jump_addr)
+        if len(fail_msgs) > 0 and final_jump_server is None:
+            raise exceptions.PluginError(message=_("failed to establish connection with all jump_servers: %(reason)s") %
+                                         {'reason': '\n'.join(fail_msgs)})
         self._connect(self._client, host, username, password, port=port, sock=jump_channel)
+        return {'result': True, 'jump_server': final_jump_server}
 
     def _load_private_key(self, key_content, key_password):
         return paramiko.RSAKey.from_private_key(io.StringIO(key_content), key_password)
