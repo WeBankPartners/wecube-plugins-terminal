@@ -176,7 +176,7 @@ class SSHClient:
     def close_sftp(self):
         if self._sftp:
             self._sftp.close()
-            self._shell = None
+            self._sftp = None
 
     def resize_shell(self, cols, rows):
         if self._shell:
