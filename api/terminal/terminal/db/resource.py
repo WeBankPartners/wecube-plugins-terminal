@@ -114,7 +114,7 @@ class BookmarkRole(crud.ResourceBase):
 
 class JumpServer(MetaCRUD):
     orm_meta = models.JumpServer
-    _default_order = ['-id']
+    _default_order = ['-created_time']
     _encrypted_fields = ['password']
     _id_prefix = 'server-'
 
