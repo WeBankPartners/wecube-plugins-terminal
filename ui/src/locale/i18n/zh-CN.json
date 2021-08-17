@@ -164,6 +164,10 @@
   "t_to_be_favorites": "收藏",
   "t_no_data": "暂无数据",
   "t_send": "发送",
+  "t_cmd_tip1": "1、Alt + ↑，向上查找命令",
+  "t_cmd_tip2": "2、Alt + ↓，向下查找命令",
+  "t_cmd_tip3": "3、Enter, 发送命令",
+  "t_cmd_tip4": "4、Alt + Enter, 换行",
 
   "selected_role": "选中角色",
   "unselected_role": "未选中角色",

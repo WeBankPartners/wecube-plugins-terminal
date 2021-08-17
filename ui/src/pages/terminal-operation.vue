@@ -2,8 +2,8 @@
   <div>
     <Row>
       <Col span="6" v-if="showHostList">
-        <div v-if="showHideIcon" class="hide-icon-left">
-          <Icon type="ios-arrow-dropleft" @click="hideHost" size="20" />
+        <div class="hide-icon-left">
+          <Icon type="ios-arrow-dropleft" color="#2d8cf0" @click="hideHost" size="20" />
         </div>
         <div @mouseenter="mouseenter('showHideIcon')" @mouseleave="mouseleave('showHideIcon')">
           <Card>
@@ -82,8 +82,8 @@
                   style="width: 100%;margin-bottom:16px"
                 />
                 <Collapse>
-                  <template v-for="host in hostInfo">
-                    <Panel :name="host.ip_address" :key="host.ip_address">
+                  <template v-for="(host, hostIndex) in hostInfo">
+                    <Panel :name="host.ip_address" :key="host.ip_address + hostIndex">
                       <div class="diyTitle">
                         {{ host.ip_address }}<span style="color:#2d8cf0">[{{ host.username }}]</span>{{ host.name }}
                       </div>
@@ -132,8 +132,8 @@
           @mouseleave="mouseleave('showDisplayIcon')"
           style="width: 20px;background:#fafafa;display:inline-block;height:calc(100vh - 130px)"
         >
-          <div v-if="showDisplayIcon" class="hide-icon-right">
-            <Icon @click="showHost" type="ios-arrow-dropright" size="20" />
+          <div class="hide-icon-right">
+            <Icon @click="showHost" color="#2d8cf0" type="ios-arrow-dropright" size="20" />
           </div>
         </div>
         <div class="container-height" style="display:inline-block;vertical-align: top;">
@@ -168,6 +168,15 @@
               <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
                 $t('t_cancel_terminal_interaction')
               }}</Button>
+              <Tooltip content="Here is the prompt text">
+                <Icon type="ios-help-circle-outline" />
+                <div slot="content">
+                  <div>{{ $t('t_cmd_tip1') }}</div>
+                  <div>{{ $t('t_cmd_tip2') }}</div>
+                  <div>{{ $t('t_cmd_tip3') }}</div>
+                  <div>{{ $t('t_cmd_tip4') }}</div>
+                </div>
+              </Tooltip>
               <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600;">
                 ALL
               </Checkbox>
@@ -178,12 +187,25 @@
                   </Checkbox>
                 </template>
               </CheckboxGroup>
+              <Button
+                :disabled="!selectedCmd"
+                @click="sendHistoryCmd"
+                type="primary"
+                style="float:right;margin:0 16px"
+                >{{ $t('t_send') }}</Button
+              >
+              <Select v-model="selectedCmd" style="float:right; width:200px" placeholder="history cmd">
+                <Option v-for="item in historyCmd" :value="item.label" :key="item.value">{{ item.label }}</Option>
+              </Select>
             </div>
             <Input
               v-model="uniteCmd"
               type="textarea"
               :autosize="{ minRows: 5, maxRows: 16 }"
-              @on-enter="sendCmdValidate"
+              @keyup.enter.exact.native="sendCmd"
+              @keyup.alt.38.exact.native="upCmd"
+              @keyup.alt.enter.exact.native="warpCmd"
+              @keyup.alt.40.exact.native="downCmd"
               placeholder="Enter something..."
             />
           </div>
@@ -305,7 +327,13 @@ export default {
         }
       },
       favoriteId: '',
-      allEntityType: []
+      allEntityType: [],
+
+      selectedCmd: '',
+      isStartSelected: false,
+      altDirect: 'up',
+      selectedCmdIndex: -1,
+      historyCmd: []
     }
   },
   mounted () {
@@ -313,6 +341,35 @@ export default {
     this.getHostList()
   },
   methods: {
+    removeTab () {
+      console.log(this.terminalTabs)
+    },
+    warpCmd () {
+      this.uniteCmd = this.uniteCmd + '\n'
+      console.log(this.uniteCmd)
+    },
+    sendCmd () {
+      this.isStartSelected = false
+      this.sendCmdValidate()
+    },
+    upCmd () {
+      if (this.historyCmd.length === 0 || this.selectedCmdIndex === 0) return
+      if (this.selectedCmdIndex === -1) {
+        this.selectedCmdIndex = this.historyCmd.length - 1
+      } else {
+        this.selectedCmdIndex--
+      }
+      this.uniteCmd = this.historyCmd[this.selectedCmdIndex] && this.historyCmd[this.selectedCmdIndex].label
+      this.uniteCmd = this.uniteCmd.replace('\n', '')
+      console.log(this.uniteCmd)
+    },
+    downCmd () {
+      if (this.selectedCmdIndex > -1 && this.selectedCmdIndex <= this.historyCmd.length - 1) {
+        this.selectedCmdIndex++
+        this.uniteCmd = this.historyCmd[this.selectedCmdIndex] && this.historyCmd[this.selectedCmdIndex].label
+        this.uniteCmd = this.uniteCmd.replace('\n', '')
+      }
+    },
     async changeHostTabs (name) {
       this.showFilterRules = false
       this.currentHostTab = name
@@ -490,7 +547,7 @@ export default {
       this.initConsole()
       this.showCmd = false
       const tab = this.terminalTabs.find(item => item.showName === this.activeTab)
-      this.focusConsole(tab.uniqueCode)
+      tab && this.focusConsole(tab.uniqueCode)
     },
     sendForMulti () {
       const height = document.body.scrollHeight
@@ -532,6 +589,18 @@ export default {
       terminalW = Math.floor(terminalW)
       this.consoleConfig.cols = terminalW
     },
+    randomString (e) {
+      e = e || 32
+      const t = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+      const a = t.length
+      let n = ''
+      for (let i = 0; i < e; i++) n += t.charAt(Math.floor(Math.random() * a))
+      return n
+    },
+    sendHistoryCmd () {
+      this.uniteCmd = this.selectedCmd
+      this.sendCmdValidate()
+    },
     sendCmdValidate () {
       if (!this.sendHostSet.length) {
         this.$Notice.warning({
@@ -540,10 +609,14 @@ export default {
         })
         return
       }
+      console.log(this.uniteCmd)
+      this.historyCmd.push({ label: this.uniteCmd, value: this.randomString() })
       this.sendHostSet.forEach(item => {
         this.$refs[item][0].externalTrigger(this.uniteCmd)
       })
+      this.selectedCmdIndex = -1
       this.uniteCmd = ''
+      this.selectedCmd = ''
     },
     switchCheck () {
       this.sendForAll = false
@@ -627,6 +700,8 @@ export default {
         const lastTab = this.terminalTabs.slice(-1)[0]
         this.activeTab = lastTab.showName
         this.focusConsole(lastTab.uniqueCode)
+      } else {
+        this.cancelTerminalInteraction()
       }
     },
     clickTab (godTab) {
@@ -671,11 +746,11 @@ export default {
 
 .hide-icon-left {
   &:extend(.hide-icon);
-  right: -13px;
+  right: -2px;
 }
 .hide-icon-right {
   &:extend(.hide-icon);
-  left: 14px;
+  left: 2px;
 }
 
 .hide-icon-left:hover {
