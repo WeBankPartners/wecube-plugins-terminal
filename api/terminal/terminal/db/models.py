@@ -117,7 +117,7 @@ class BookmarkRole(Base, DictBase):
 class JumpServer(Base, DictBase):
     __tablename__ = 'jump_server'
 
-    id = Column(BIGINT(20), primary_key=True)
+    id = Column(String(36), primary_key=True)
     name = Column(String(63), nullable=True)
     scope = Column(String(512), nullable=True)
     ip_address = Column(String(36), nullable=False)

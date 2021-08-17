@@ -117,7 +117,7 @@ ALTER TABLE terminal.permission ADD expression TEXT NULL;
 #@v0.2.3.1-begin@;
 
 CREATE TABLE terminal.jump_server (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id` varchar(36) NOT NULL,
   `name` varchar(63) NULL,
   `scope` varchar(512) NULL,
   `ip_address` varchar(36) NOT NULL,

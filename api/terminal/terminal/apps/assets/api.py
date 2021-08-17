@@ -574,7 +574,7 @@ class JumpServer(resource.JumpServer):
             return None
 
         rets = []
-        servers = self.list()
+        servers = self.list_internal()
         splitter = r',|\||;'
         for server in servers:
             cidrs = re.split(splitter, server['scope'] or '')
