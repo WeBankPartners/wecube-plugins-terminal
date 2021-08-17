@@ -119,6 +119,8 @@ class SSHClient:
             raise exceptions.PluginError(message=_("failed to establish connection with all jump_servers: %(reason)s") %
                                          {'reason': '\n'.join(fail_msgs)})
         self._connect(self._client, host, username, password, port=port, sock=jump_channel)
+        if final_jump_server:
+            LOG.info('using jump server %s@%s:%s', final_jump_server[2], final_jump_server[0], final_jump_server[1])
         return {'result': True, 'jump_server': final_jump_server}
 
     def _load_private_key(self, key_content, key_password):
