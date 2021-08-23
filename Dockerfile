@@ -12,6 +12,8 @@ RUN apt update && apt-get -y install gcc python3-dev swig libssl-dev && \
     rm -rf /root/.cache && apt autoclean && \
     rm -rf /tmp/* /var/lib/apt/* /var/cache/* && \
     apt purge -y `cat /var/log/apt/history.log|grep 'Install: '|tail -1| sed 's/Install://'| sed 's/\ /\n/g' | sed '/(/d' | sed '/)/d' | sed ':l;N;s/\n/ /;b l'`
+RUN apt update && apt install openssh-client telnet && rm -rf /root/.cache && apt autoclean && \
+    rm -rf /tmp/* /var/lib/apt/* /var/cache/*
 # Use app:app to run gunicorn
 RUN mkdir -p /etc/terminal/
 RUN mkdir -p /var/log/terminal/
