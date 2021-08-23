@@ -1,16 +1,13 @@
 # coding=utf-8
 
 from __future__ import absolute_import
+
 import datetime
 
-from talos.core.i18n import _
-from talos.core import config
-from talos.db import crud
-from talos.core import utils
-from talos.db import validator
+from talos.core import config, utils
+from talos.db import crud, validator
 from talos.utils import scoped_globals
 
-from terminal.common import exceptions
 from terminal.common import utils as terminal_utils
 from terminal.db import models
 from terminal.db import validator as my_validator
@@ -59,10 +56,10 @@ class Permission(MetaCRUD):
                              validate_on=('create:O', 'update:O'),
                              nullable=True),
         crud.ColumnValidator(field='enabled', rule_type='in', rule=[0, 1], validate_on=('create:M', 'update:O')),
-        crud.ColumnValidator(field='created_by', validate_on=('create:O', 'update:O'), nullable=True),
-        crud.ColumnValidator(field='created_time', validate_on=('create:O', 'update:O'), nullable=True),
-        crud.ColumnValidator(field='updated_by', validate_on=('create:O', 'update:O'), nullable=True),
-        crud.ColumnValidator(field='updated_time', validate_on=('create:O', 'update:O'), nullable=True),
+        crud.ColumnValidator(field='created_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='created_time', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
         crud.ColumnValidator(field='assets',
                              rule=validator.TypeValidator(list),
                              validate_on=('create:O', 'update:O'),
@@ -100,10 +97,10 @@ class Bookmark(MetaCRUD):
         crud.ColumnValidator(field='expression',
                              rule=my_validator.LengthValidator(1, 512),
                              validate_on=('create:M', 'update:O')),
-        crud.ColumnValidator(field='created_by', validate_on=('create:O', 'update:O'), nullable=True),
-        crud.ColumnValidator(field='created_time', validate_on=('create:O', 'update:O'), nullable=True),
-        crud.ColumnValidator(field='updated_by', validate_on=('create:O', 'update:O'), nullable=True),
-        crud.ColumnValidator(field='updated_time', validate_on=('create:O', 'update:O'), nullable=True)
+        crud.ColumnValidator(field='created_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='created_time', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
     ]
 
 
@@ -116,7 +113,7 @@ class JumpServer(MetaCRUD):
     orm_meta = models.JumpServer
     _default_order = ['-created_time']
     _encrypted_fields = ['password']
-    _id_prefix = 'server-'
+    _id_prefix = 'jserver-'
 
     _validate = [
         crud.ColumnValidator(field='id', validate_on=('create:M', 'update:O')),
@@ -140,10 +137,10 @@ class JumpServer(MetaCRUD):
         crud.ColumnValidator(field='password',
                              rule=my_validator.LengthValidator(1, 255),
                              validate_on=('create:M', 'update:O')),
-        crud.ColumnValidator(field='created_by', validate_on=('create:O', 'update:O'), nullable=True),
-        crud.ColumnValidator(field='created_time', validate_on=('create:O', 'update:O'), nullable=True),
-        crud.ColumnValidator(field='updated_by', validate_on=('create:O', 'update:O'), nullable=True),
-        crud.ColumnValidator(field='updated_time', validate_on=('create:O', 'update:O'), nullable=True),
+        crud.ColumnValidator(field='created_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='created_time', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
     ]
 
     def _before_create(self, resource, validate):
@@ -165,3 +162,188 @@ class JumpServer(MetaCRUD):
             for field in self._encrypted_fields:
                 ref[field] = terminal_utils.platform_decrypt(ref[field], ref['id'], CONF.platform_encrypt_seed)
         return refs
+
+
+class Asset(MetaCRUD):
+    orm_meta = models.Asset
+    _default_order = ['-created_time']
+    _encrypted_fields = ['password']
+    _id_prefix = 'asset-'
+
+    _validate = [
+        crud.ColumnValidator(field='id', validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='name',
+                             rule=my_validator.LengthValidator(0, 63),
+                             validate_on=('create:O', 'update:O'),
+                             nullable=True),
+        crud.ColumnValidator(field='ip_address',
+                             rule=my_validator.validator.Ipv4Validator(),
+                             validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='port',
+                             rule=my_validator.validator.NumberValidator(int, range_min=1, range_max=65535),
+                             validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='username',
+                             rule=my_validator.LengthValidator(1, 36),
+                             validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='password',
+                             rule=my_validator.LengthValidator(1, 255),
+                             validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='created_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='created_time', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
+    ]
+
+    def _before_create(self, resource, validate):
+        super()._before_create(resource, validate)
+        for field in self._encrypted_fields:
+            if resource.get(field, None) is not None:
+                resource[field] = terminal_utils.platform_encrypt(resource[field], resource['id'],
+                                                                  CONF.platform_encrypt_seed)
+
+    def _before_update(self, rid, resource, validate):
+        super()._before_update(rid, resource, validate)
+        for field in self._encrypted_fields:
+            if resource.get(field, None) is not None:
+                resource[field] = terminal_utils.platform_encrypt(resource[field], rid, CONF.platform_encrypt_seed)
+
+    def list_internal(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
+        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        for ref in refs:
+            for field in self._encrypted_fields:
+                ref[field] = terminal_utils.platform_decrypt(ref[field], ref['id'], CONF.platform_encrypt_seed)
+        return refs
+
+
+class SysRoleMenu(MetaCRUD):
+    orm_meta = models.SysRoleMenu
+    _default_order = ['-created_time']
+
+
+class SysRoleUser(MetaCRUD):
+    orm_meta = models.SysRoleUser
+    _default_order = ['-created_time']
+
+
+class SysMenu(MetaCRUD):
+    orm_meta = models.SysMenu
+    _default_order = ['seq_no']
+    _id_prefix = 'menu-'
+
+    _validate = [
+        crud.ColumnValidator(field='id', validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='display_name',
+                             rule=my_validator.LengthValidator(1, 64),
+                             validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='url',
+                             rule=my_validator.LengthValidator(0, 255),
+                             validate_on=('create:O', 'update:O'),
+                             nullable=True),
+        crud.ColumnValidator(field='seq_no',
+                             rule=my_validator.validator.NumberValidator(int, range_min=0, range_max=65535),
+                             validate_on=('create:O', 'update:O')),
+        crud.ColumnValidator(field='parent',
+                             rule=my_validator.BackRefValidator(SysRoleMenu),
+                             validate_on=('create:O', 'update:O'),
+                             nullable=True),
+        crud.ColumnValidator(field='is_active',
+                             rule=my_validator.validator.InValidator(['yes', 'no']),
+                             validate_on=('create:O', 'update:O')),
+        crud.ColumnValidator(field='created_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='created_time', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
+    ]
+
+
+class SysRole(MetaCRUD):
+    orm_meta = models.SysRole
+    _default_order = ['-created_time']
+    _id_prefix = 'role-'
+
+    _validate = [
+        crud.ColumnValidator(field='id', validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='description',
+                             rule=my_validator.LengthValidator(1, 255),
+                             validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='role_type',
+                             rule=my_validator.LengthValidator(0, 32),
+                             validate_on=('create:O', 'update:O'),
+                             nullable=True),
+        crud.ColumnValidator(field='is_system',
+                             rule=my_validator.validator.InValidator(['yes', 'no']),
+                             validate_on=('create:O', 'update:O')),
+        crud.ColumnValidator(field='created_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='created_time', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
+    ]
+
+
+class SysUser(MetaCRUD):
+    orm_meta = models.SysUser
+    _default_order = ['-created_time']
+    _id_prefix = 'user-'
+
+    _validate = [
+        crud.ColumnValidator(field='id', validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='display_name',
+                             rule=my_validator.LengthValidator(1, 64),
+                             validate_on=('create:M', 'update:O')),
+        crud.ColumnValidator(field='password', rule=my_validator.LengthValidator(1, 128), validate_on=('create:M', )),
+        crud.ColumnValidator(field='salt', rule=my_validator.LengthValidator(1, 36), validate_on=('create:M', )),
+        crud.ColumnValidator(field='description',
+                             rule=my_validator.LengthValidator(0, 255),
+                             validate_on=('create:O', 'update:O'),
+                             nullable=True),
+        crud.ColumnValidator(field='is_system',
+                             rule=my_validator.validator.InValidator(['yes', 'no']),
+                             validate_on=('create:O', 'update:O')),
+        crud.ColumnValidator(field='created_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='created_time', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
+    ]
+
+    def create(self, resource, validate=True, detail=True):
+        resource['salt'] = utils.generate_salt(16)
+        password = utils.generate_salt(16)
+        resource['password'] = utils.encrypt_password(password, resource['salt'])
+        ref = super().create(resource, validate=validate, detail=detail)
+        ref['password'] = password
+        del ref['salt']
+        return ref
+
+    def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
+        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        for ref in refs:
+            del ref['password']
+            del ref['salt']
+        return refs
+
+    def update(self, rid, resource, filters=None, validate=True, detail=True):
+        before_update, after_update = super().update(rid, resource, filters=filters, validate=validate, detail=detail)
+        if before_update:
+            del before_update['password']
+            del before_update['salt']
+        if after_update:
+            del after_update['password']
+            del after_update['salt']
+        return (before_update, after_update)
+
+    def delete(self, rid, filters=None, detail=True):
+        num_ref, refs = super().delete(rid, filters=filters, detail=detail)
+        for ref in refs:
+            del ref['password']
+            del ref['salt']
+        return (num_ref, refs)
+
+    def delete_all(self, filters=None):
+        num_ref, refs = super().delete_all(filters=filters)
+        for ref in refs:
+            del ref['password']
+            del ref['salt']
+        return (num_ref, refs)
+
+    def list_internal(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
+        return super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
