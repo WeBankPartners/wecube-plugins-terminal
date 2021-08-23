@@ -135,6 +135,8 @@ class Asset(Base, DictBase):
 
     id = Column(String(36), primary_key=True)
     name = Column(String(63))
+    display_name = Column(String(63))
+    description = Column(String(255))
     ip_address = Column(String(36), nullable=False)
     port = Column(INTEGER(10), nullable=False)
     username = Column(String(36), nullable=False)

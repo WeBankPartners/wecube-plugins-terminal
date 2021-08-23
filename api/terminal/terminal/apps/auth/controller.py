@@ -122,8 +122,10 @@ class RoleItemUser(Controller):
 class Menu(Collection):
     name = 'auth.menus'
     resource = auth_api.SysMenu
+    allow_methods = ('GET', )
 
 
 class MenuItem(Item):
     name = 'auth.menus'
     resource = auth_api.SysMenu
+    allow_methods = ('GET', )

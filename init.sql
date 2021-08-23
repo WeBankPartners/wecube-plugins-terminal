@@ -136,6 +136,8 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `asset` (
   `id` varchar(36) NOT NULL,
   `name` varchar(63) NULL,
+  `display_name` varchar(63) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `ip_address` varchar(36) NOT NULL,
   `port` int unsigned NOT null,
   `username` varchar(36) NOT NULL,
