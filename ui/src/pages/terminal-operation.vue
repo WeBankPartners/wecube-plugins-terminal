@@ -175,6 +175,8 @@
                   <div>{{ $t('t_cmd_tip2') }}</div>
                   <div>{{ $t('t_cmd_tip3') }}</div>
                   <div>{{ $t('t_cmd_tip4') }}</div>
+                  <div>{{ $t('t_cmd_tip5') }}</div>
+                  <div>{{ $t('t_cmd_tip6') }}</div>
                 </div>
               </Tooltip>
               <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600;">
@@ -198,7 +200,7 @@
                 <Option v-for="item in historyCmd" :value="item.label" :key="item.value">{{ item.label }}</Option>
               </Select>
             </div>
-            <Input
+            <!-- <Input
               v-model="uniteCmd"
               type="textarea"
               :autosize="{ minRows: 5, maxRows: 16 }"
@@ -206,6 +208,16 @@
               @keyup.alt.38.exact.native="upCmd"
               @keyup.alt.enter.exact.native="warpCmd"
               @keyup.alt.40.exact.native="downCmd"
+              placeholder="Enter something..."
+            /> -->
+            <Input
+              v-model="uniteCmd"
+              type="textarea"
+              :autosize="{ minRows: 5, maxRows: 16 }"
+              @keyup.enter.exact.native.prevent="sendCmd"
+              @keyup.38.exact.native="upCmd"
+              @keyup.40.exact.native="downCmd"
+              @keyup.alt.enter.exact.native="warpCmd"
               placeholder="Enter something..."
             />
           </div>
@@ -341,12 +353,8 @@ export default {
     this.getHostList()
   },
   methods: {
-    removeTab () {
-      console.log(this.terminalTabs)
-    },
     warpCmd () {
       this.uniteCmd = this.uniteCmd + '\n'
-      console.log(this.uniteCmd)
     },
     sendCmd () {
       this.isStartSelected = false
@@ -359,15 +367,12 @@ export default {
       } else {
         this.selectedCmdIndex--
       }
-      this.uniteCmd = this.historyCmd[this.selectedCmdIndex] && this.historyCmd[this.selectedCmdIndex].label
-      this.uniteCmd = this.uniteCmd.replace('\n', '')
-      console.log(this.uniteCmd)
+      this.uniteCmd = this.historyCmd[this.selectedCmdIndex] && this.historyCmd[this.selectedCmdIndex].label + ''
     },
     downCmd () {
       if (this.selectedCmdIndex > -1 && this.selectedCmdIndex <= this.historyCmd.length - 1) {
         this.selectedCmdIndex++
-        this.uniteCmd = this.historyCmd[this.selectedCmdIndex] && this.historyCmd[this.selectedCmdIndex].label
-        this.uniteCmd = this.uniteCmd.replace('\n', '')
+        this.uniteCmd = this.historyCmd[this.selectedCmdIndex] && this.historyCmd[this.selectedCmdIndex].label + ''
       }
     },
     async changeHostTabs (name) {
@@ -609,8 +614,10 @@ export default {
         })
         return
       }
-      console.log(this.uniteCmd)
-      this.historyCmd.push({ label: this.uniteCmd, value: this.randomString() })
+      const tmp = this.uniteCmd.replaceAll('\n', '@#%^&')
+      const cacheCmd = tmp.substring(0, tmp.length - 5)
+      const finalCmd = cacheCmd.replaceAll('@#%^&', '\n')
+      this.historyCmd.push({ label: finalCmd, value: this.randomString() })
       this.sendHostSet.forEach(item => {
         this.$refs[item][0].externalTrigger(this.uniteCmd)
       })
