@@ -23,4 +23,4 @@ def add_routes(api):
     api.add_route('/terminal/v1/roles/{rid}/menus', controller.RoleItemMenu())
     api.add_route('/terminal/v1/roles/{rid}/users', controller.RoleItemUser())
     api.add_route('/terminal/v1/menus', controller.Menu())
-    api.add_route('/terminal/v1/menus/{rid}', controller.MenuItem())
+    # api.add_route('/terminal/v1/menus/{rid}', controller.MenuItem())

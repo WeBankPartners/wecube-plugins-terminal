@@ -3,6 +3,83 @@ info:
   title: terminal api
   version: 0.2.0
 paths:
+  /terminal/v1/login:
+    post:
+      description: "Login"
+      operationId: "Login"
+      tags:
+        - Login
+      requestBody:
+        description: "login with username & password"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/UserPassword"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Tokens"
+        "401":
+          description: Login Deny
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorUserPass"
+
+  /terminal/v1/refresh-token:
+    get:
+      description: "Refresh Login"
+      operationId: "Refresh Login"
+      tags:
+        - Login
+      security:
+        - refresh: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Tokens"
+        "401":
+          description: Login Deny
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
   /terminal/v1/assets:
     get:
       description: List assets that you are authorized to execute
@@ -10,7 +87,7 @@ paths:
       tags:
         - Asset
       security:
-        - bearer: []
+        - access: []
       responses:
         "200":
           description: Successed
@@ -53,7 +130,7 @@ paths:
       tags:
         - Asset
       security:
-        - bearer: []
+        - access: []
       responses:
         "200":
           description: Successed
@@ -96,7 +173,7 @@ paths:
       tags:
         - Asset
       security:
-        - bearer: []
+        - access: []
       parameters:
         - name: path
           in: query
@@ -126,7 +203,7 @@ paths:
       tags:
         - Asset
       security:
-        - bearer: []
+        - access: []
       parameters:
         - name: path
           in: query
@@ -166,7 +243,7 @@ paths:
       tags:
         - Asset
       security:
-        - bearer: []
+        - access: []
       responses:
         "200":
           description: Successed
@@ -206,7 +283,7 @@ paths:
       tags:
         - Audit
       security:
-        - bearer: []
+        - access: []
       parameters:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
@@ -239,7 +316,8 @@ paths:
                         example: 1
                       data:
                         type: array
-                        $ref: "#/components/schemas/FileTransfer"
+                        items:
+                          $ref: "#/components/schemas/FileTransfer"
         "401":
           description: Token Invalid
           content:
@@ -255,7 +333,7 @@ paths:
       tags:
         - Audit
       security:
-        - bearer: []
+        - access: []
       parameters:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
@@ -288,7 +366,8 @@ paths:
                         example: 1
                       data:
                         type: array
-                        $ref: "#/components/schemas/SessionRecord"
+                        items:
+                          $ref: "#/components/schemas/SessionRecord"
         "401":
           description: Token Invalid
           content:
@@ -304,7 +383,7 @@ paths:
       tags:
         - Audit
       security:
-        - bearer: []
+        - access: []
       responses:
         "200":
           description: Successed
@@ -328,7 +407,7 @@ paths:
       tags:
         - Bookmark
       security:
-        - bearer: []
+        - access: []
       parameters:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
@@ -375,7 +454,7 @@ paths:
       tags:
         - Bookmark
       security:
-        - bearer: []
+        - access: []
       requestBody:
         description: Bookmarks to add to the store
         required: true
@@ -425,7 +504,7 @@ paths:
       tags:
         - Bookmark
       security:
-        - bearer: []
+        - access: []
       requestBody:
         description: Bookmarks to update
         required: true
@@ -476,7 +555,7 @@ paths:
       tags:
         - Bookmark
       security:
-        - bearer: []
+        - access: []
       responses:
         "200":
           description: Successed
@@ -510,7 +589,7 @@ paths:
       tags:
         - Bookmark
       security:
-        - bearer: []
+        - access: []
       responses:
         "200":
           description: Successed
@@ -552,15 +631,15 @@ paths:
       tags:
         - Bookmark
       security:
-        - bearer: []
+        - access: []
       requestBody:
-        description: Bookmarks to update
+        description: Bookmark to update
         required: true
         content:
           application/json:
             schema:
-              type: array
-              $ref: "#/components/schemas/Bookmarks"
+              type: object
+              $ref: "#/components/schemas/Bookmark"
       responses:
         "200":
           description: Successed
@@ -579,7 +658,7 @@ paths:
                     type: string
                     example: "successed"
                   data:
-                    type: array
+                    type: object
                     $ref: "#/components/schemas/Bookmark"
         "401":
           description: Token Invalid
@@ -596,7 +675,7 @@ paths:
       tags:
         - Permission
       security:
-        - bearer: []
+        - access: []
       parameters:
         - $ref: "#/components/parameters/filter"
         - $ref: "#/components/parameters/offset"
@@ -643,7 +722,7 @@ paths:
       tags:
         - Permission
       security:
-        - bearer: []
+        - access: []
       requestBody:
         description: Permissions to add to the store
         required: true
@@ -693,7 +772,7 @@ paths:
       tags:
         - Permission
       security:
-        - bearer: []
+        - access: []
       requestBody:
         description: Permissions to update
         required: true
@@ -744,7 +823,7 @@ paths:
       tags:
         - Permission
       security:
-        - bearer: []
+        - access: []
       responses:
         "200":
           description: Successed
@@ -778,7 +857,7 @@ paths:
       tags:
         - Permission
       security:
-        - bearer: []
+        - access: []
       responses:
         "200":
           description: Successed
@@ -820,15 +899,15 @@ paths:
       tags:
         - Permission
       security:
-        - bearer: []
+        - access: []
       requestBody:
         description: Permissions to update
         required: true
         content:
           application/json:
             schema:
-              type: array
-              $ref: "#/components/schemas/Permissions"
+              type: object
+              $ref: "#/components/schemas/Permission"
       responses:
         "200":
           description: Successed
@@ -898,10 +977,999 @@ paths:
                 data: message<br/>
               error: error output<br/>
                 data: message<br/>
+  /terminal/v1/users:
+    get:
+      description: "List Users"
+      operationId: "List Users"
+      tags:
+        - User
+      security:
+        - access: []
+      parameters:
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/orders"
+        - $ref: "#/components/parameters/fields"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Users"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Create Users"
+      operationId: "Create Users"
+      tags:
+        - User
+      security:
+        - access: []
+      requestBody:
+        description: Users to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Users"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Users"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update Users"
+      operationId: "Update Users"
+      tags:
+        - User
+      security:
+        - access: []
+      requestBody:
+        description: Users to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Users"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Users"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/users/{id}:
+    get:
+      description: "Get One User"
+      operationId: "Get One User"
+      tags:
+        - User
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    delete:
+      description: "Delete One User"
+      operationId: "Delete One User"
+      tags:
+        - User
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items deleted"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Users"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update One User"
+      operationId: "Update One User"
+      tags:
+        - User
+      security:
+        - access: []
+      requestBody:
+        description: User to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/user-password:
+    post:
+      description: "Update My Password"
+      operationId: "Update My Password"
+      tags:
+        - User
+      security:
+        - access: []
+      requestBody:
+        description: "update your own password"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/UpdatePassword"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/users/{id}/reset-password:
+    post:
+      description: "Reset User Password"
+      operationId: "Reset User Password"
+      tags:
+        - User
+      security:
+        - access: []
+      requestBody:
+        description: "password to reset, random password will be use if not specific"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/ResetPassword"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/users/{id}/menus:
+    get:
+      description: "Get User Menus"
+      operationId: "Get User Menus"
+      tags:
+        - User
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Menus"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/users/{id}/roles:
+    get:
+      description: "Get User Roles"
+      operationId: "Get User Roles"
+      tags:
+        - User
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Roles"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Set User Roles"
+      operationId: "Set User Roles"
+      tags:
+        - User
+      security:
+        - access: []
+      requestBody:
+        description: Roles to set
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/UserRole"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Roles"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/roles:
+    get:
+      description: "List Roles"
+      operationId: "List Roles"
+      tags:
+        - Role
+      security:
+        - access: []
+      parameters:
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/orders"
+        - $ref: "#/components/parameters/fields"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Roles"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Create Roles"
+      operationId: "Create Roles"
+      tags:
+        - Role
+      security:
+        - access: []
+      requestBody:
+        description: Roles to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Roles"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Roles"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update Roles"
+      operationId: "Update Roles"
+      tags:
+        - Role
+      security:
+        - access: []
+      requestBody:
+        description: Roles to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Roles"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Roles"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/roles/{id}:
+    get:
+      description: "Get One Role"
+      operationId: "Get One Role"
+      tags:
+        - Role
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/Role"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    delete:
+      description: "Delete One Role"
+      operationId: "Delete One Role"
+      tags:
+        - Role
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items deleted"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Roles"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update One Role"
+      operationId: "Update One Role"
+      tags:
+        - Role
+      security:
+        - access: []
+      requestBody:
+        description: Role to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Role"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/Role"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/roles/{id}/menus:
+    get:
+      description: "Get Role Menus"
+      operationId: "Get Role Menus"
+      tags:
+        - Role
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Menus"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Set Role Menus"
+      operationId: "Set Role Menus"
+      tags:
+        - Role
+      security:
+        - access: []
+      requestBody:
+        description: Menus to set
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/RoleMenu"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Menus"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/roles/{id}/users:
+    get:
+      description: "Get Role Users"
+      operationId: "Get Role Users"
+      tags:
+        - Role
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Users"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Set Role Users"
+      operationId: "Set Role Users"
+      tags:
+        - Role
+      security:
+        - access: []
+      requestBody:
+        description: Users to set
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/RoleUser"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: array
+                    $ref: "#/components/schemas/Users"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/menus:
+    get:
+      description: "List Menus"
+      operationId: "List Menus"
+      tags:
+        - Menu
+      security:
+        - access: []
+      parameters:
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/orders"
+        - $ref: "#/components/parameters/fields"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Menus"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/user-menus:
+    get:
+      description: "List My Menus"
+      operationId: "List My Menus"
+      tags:
+        - Menu
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Menus"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
 
 components:
   securitySchemes:
-    bearer:
+    access:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    refresh:
       type: http
       scheme: bearer
       bearerFormat: JWT
@@ -990,6 +2058,24 @@ components:
         message:
           type: string
           example: "you are unauthenticated, login needed"
+    ErrorUserPass:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Unauthorized"
+        code:
+          type: integer
+          example: 401
+        status:
+          type: string
+          example: "ERROR"
+        data:
+          type: object
+          example: null
+        message:
+          type: string
+          example: "ops, username or password error, login deny"
     Assets:
       description: "list of assets"
       type: array
@@ -999,6 +2085,12 @@ components:
     Asset:
       description: "One Asset"
       type: object
+      required:
+        - name
+        - ip_address
+        - port
+        - username
+        - password
       properties:
         id:
           description: "id"
@@ -1024,6 +2116,10 @@ components:
           description: "ssh user name"
           type: string
           example: "root"
+        password:
+          description: "ssh user password"
+          type: string
+          example: "password"
         description:
           description: "description"
           type: string
@@ -1216,3 +2312,224 @@ components:
           items:
             type: string
             example: "SUPER_ADMIN"
+
+    JumpServers:
+      description: "list of jump servers"
+      type: array
+      items:
+        type: object
+        $ref: "#/components/schemas/JumpServer"
+    JumpServer:
+      description: "One JumpServer"
+      type: object
+      required:
+        - name
+        - scope
+        - ip_address
+        - port
+        - username
+        - password
+      properties:
+        id:
+          description: "id"
+          type: string
+          example: "jserver-01"
+        name:
+          description: "name"
+          type: string
+          example: "j-dev01"
+        scope:
+          description: "list of cidrs"
+          type: string
+          example: "10.0.0.0/16;10.1.0.0/16"
+        ip_address:
+          description: "ssh ip address"
+          type: string
+          example: "127.0.0.1"
+        port:
+          description: "ssh port"
+          type: integer
+          example: 22
+        username:
+          description: "ssh user name"
+          type: string
+          example: "root"
+        password:
+          description: "ssh user password"
+          type: string
+          example: "password"
+
+    Menus:
+      description: "list of menus"
+      type: array
+      items:
+        type: object
+        $ref: "#/components/schemas/Menu"
+    Menu:
+      description: "One Menu"
+      type: object
+      properties:
+        id:
+          description: "id"
+          type: string
+          example: "menu-02"
+        display_name:
+          description: "display name"
+          type: string
+          example: "menu of asset"
+        url:
+          description: "url of menu"
+          type: string
+          example: "/assets"
+        seq_no:
+          description: "order of menu"
+          type: integer
+          example: 1
+        parent:
+          description: "parent of menu"
+          type: string
+          example: "menu-01"
+        is_active:
+          description: "is active [yes or no]"
+          type: string
+          example: "yes"
+
+    Roles:
+      description: "list of roles"
+      type: array
+      items:
+        type: object
+        $ref: "#/components/schemas/Role"
+    Role:
+      description: "One Role"
+      type: object
+      required:
+        - id
+        - description
+        - is_system
+      properties:
+        id:
+          description: "id"
+          type: string
+          example: "config_manager"
+        description:
+          description: "description"
+          type: string
+          example: "role of config manager"
+        is_system:
+          description: "is system [yes or no]"
+          type: string
+          example: "yes"
+
+    Users:
+      description: "list of users"
+      type: array
+      items:
+        type: object
+        $ref: "#/components/schemas/User"
+    User:
+      description: "One User"
+      type: object
+      required:
+        - id
+        - display_name
+        - password
+      properties:
+        id:
+          description: "id"
+          type: string
+          example: "test01"
+        display_name:
+          description: "name"
+          type: string
+          example: "test user 01"
+        password:
+          description: "password"
+          type: string
+          example: "password"
+        description:
+          description: "description"
+          type: string
+          example: "description"
+        is_system:
+          description: "is system [yes or no]"
+          type: string
+          example: "yes"
+    ResetPassword:
+      description: "Reset Password"
+      type: object
+      properties:
+        password:
+          description: "password"
+          type: string
+          example: "password"
+    UserRole:
+      description: "Bind Role of User"
+      type: array
+      items:
+        type: string
+        example: "config_manager"
+    RoleMenu:
+      description: "Bind Menu of Role"
+      type: array
+      items:
+        type: string
+        example: "menu02"
+    RoleUser:
+      description: "Bind User of Role"
+      type: array
+      items:
+        type: string
+        example: "test01"
+    Tokens:
+      description: "List of token"
+      type: array
+      items:
+        type: object
+        $ref: "#/components/schemas/Token"
+    Token:
+      description: "Token"
+      type: object
+      properties:
+        expiration:
+          description: "unix time of expiration"
+          type: string
+          example: "1629700000"
+        token:
+          description: "token"
+          type: string
+          example: "jwt token here"
+        tokenType:
+          description: "tokenType[accessToken or refreshToken]"
+          type: string
+          example: "accessToken"
+    UpdatePassword:
+      description: "Reset Password"
+      type: object
+      required:
+        - newPassword
+        - oldPassword
+      properties:
+        newPassword:
+          description: "newPassword"
+          type: string
+          example: "newPassword"
+        oldPassword:
+          description: "oldPassword"
+          type: string
+          example: "oldPassword"
+    UserPassword:
+      description: "User Password"
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          description: "username"
+          type: string
+          example: "username"
+        password:
+          description: "password"
+          type: string
+          example: "password"

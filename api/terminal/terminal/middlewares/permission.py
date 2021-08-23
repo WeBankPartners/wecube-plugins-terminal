@@ -34,9 +34,12 @@ class Permission(object):
             if not (req.auth_user == 'SYS_PLATFORM' and 'SUB_SYSTEM' in req.auth_permissions):
                 raise base_ex.ForbiddenError()
 
-    def process_response(self, req, resp, resource, *args, **kwargs):
-        response_data = getattr(resp, 'json', None)
-        request_ended = datetime.datetime.now()
-        timepass = request_ended - self._request_started
-        LOG.info('response [%s] "%s %s" %s %s', req.auth_user, req.method, req.relative_uri, response_data,
-                 str(timepass))
+    def process_response(self, req, resp, resource, req_succeeded, **kwargs):
+        if req_succeeded:
+            response_data = getattr(resp, 'json', None)
+            request_ended = datetime.datetime.now()
+            request_started = getattr(self, '_request_started', None)
+            if request_started:
+                timepass = request_ended - request_started
+                LOG.info('response [%s] "%s %s" %s %s', req.auth_user, req.method, req.relative_uri, response_data,
+                         str(timepass))
