@@ -58,7 +58,7 @@ class UserItem(Item):
 
 
 class UserItemMenu(Item):
-    name = 'auth.users.menus'
+    name = 'auth.users'
     resource = auth_api.SysUser
     allow_methods = ('GET', )
 
@@ -77,7 +77,7 @@ class UserItemResetPassword(Controller):
 
 
 class UserItemRole(Item):
-    name = 'auth.users.roles'
+    name = 'auth.users'
     resource = auth_api.SysUser
     allow_methods = ('GET', )
 
@@ -96,7 +96,7 @@ class RoleItem(Item):
 
 
 class RoleItemMenu(Controller):
-    name = 'auth.roles.menus'
+    name = 'auth.roles'
     resource = auth_api.SysRole
     allow_methods = ('GET', 'POST')
 
@@ -108,7 +108,7 @@ class RoleItemMenu(Controller):
 
 
 class RoleItemUser(Controller):
-    name = 'auth.roles.users'
+    name = 'auth.roles'
     resource = auth_api.SysRole
     allow_methods = ('GET', 'POST')
 

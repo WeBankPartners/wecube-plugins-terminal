@@ -583,3 +583,7 @@ class JumpServer(resource.JumpServer):
                 if is_belong(cidr, dst_ip):
                     rets.append((server['ip_address'], server['port'], server['username'], server['password']))
         return rets
+
+
+class AssetMgmt(resource.Asset):
+    pass
