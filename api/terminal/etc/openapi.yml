@@ -80,6 +80,7 @@ paths:
               schema:
                 type: object
                 $ref: "#/components/schemas/ErrorLogin"
+
   /terminal/v1/assets:
     get:
       description: List assets that you are authorized to execute
@@ -276,12 +277,12 @@ paths:
                 type: object
                 $ref: "#/components/schemas/ErrorLogin"
 
-  /terminal/v1/transfer-records:
+  /terminal/v1/mgmt-assets:
     get:
-      description: "List File-transfer records"
-      operationId: "List File-transfer records"
+      description: "List All Asset"
+      operationId: "List All Asset"
       tags:
-        - Audit
+        - Asset
       security:
         - access: []
       parameters:
@@ -316,8 +317,56 @@ paths:
                         example: 1
                       data:
                         type: array
-                        items:
-                          $ref: "#/components/schemas/FileTransfer"
+                        $ref: "#/components/schemas/Assets"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Create Asset"
+      operationId: "Create Asset"
+      tags:
+        - Asset
+      security:
+        - access: []
+      requestBody:
+        description: Assets to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Assets"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Assets"
         "401":
           description: Token Invalid
           content:
@@ -326,12 +375,182 @@ paths:
                 type: object
                 $ref: "#/components/schemas/ErrorLogin"
 
-  /terminal/v1/session-records:
-    get:
-      description: "List Session records"
-      operationId: "List Session records"
+    patch:
+      description: "Update Assets"
+      operationId: "Update Assets"
       tags:
-        - Audit
+        - Asset
+      security:
+        - access: []
+      requestBody:
+        description: Assets to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/Assets"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Assets"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/mgmt-assets/{id}:
+    get:
+      description: "Get One Asset"
+      operationId: "Get One Asset"
+      tags:
+        - Asset
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/Asset"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    delete:
+      description: "Delete One Asset"
+      operationId: "Delete One Asset"
+      tags:
+        - Asset
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items deleted"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/Assets"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update One Asset"
+      operationId: "Update One Asset"
+      tags:
+        - Asset
+      security:
+        - access: []
+      requestBody:
+        description: Asset to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/Asset"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/Asset"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/jumpservers:
+    get:
+      description: "List JumpServers"
+      operationId: "List JumpServers"
+      tags:
+        - JumpServer
       security:
         - access: []
       parameters:
@@ -366,8 +585,56 @@ paths:
                         example: 1
                       data:
                         type: array
-                        items:
-                          $ref: "#/components/schemas/SessionRecord"
+                        $ref: "#/components/schemas/JumpServers"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    post:
+      description: "Create JumpServers"
+      operationId: "Create JumpServers"
+      tags:
+        - JumpServer
+      security:
+        - access: []
+      requestBody:
+        description: JumpServers to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/JumpServers"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/JumpServers"
         "401":
           description: Token Invalid
           content:
@@ -376,22 +643,168 @@ paths:
                 type: object
                 $ref: "#/components/schemas/ErrorLogin"
 
-  /terminal/v1/session-records/{id}/file:
-    get:
-      description: "Get Session replay file"
-      operationId: "Get Session replay file"
+    patch:
+      description: "Update JumpServers"
+      operationId: "Update JumpServers"
       tags:
-        - Audit
+        - JumpServer
+      security:
+        - access: []
+      requestBody:
+        description: JumpServers to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: "#/components/schemas/JumpServers"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/JumpServers"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/jumpservers/{id}:
+    get:
+      description: "Get One JumpServer"
+      operationId: "Get One JumpServer"
+      tags:
+        - JumpServer
       security:
         - access: []
       responses:
         "200":
           description: Successed
           content:
-            application/octet-stream:
+            application/json:
               schema:
-                type: string
-                format: binary
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/JumpServer"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+    delete:
+      description: "Delete One JumpServer"
+      operationId: "Delete One JumpServer"
+      tags:
+        - JumpServer
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items deleted"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        $ref: "#/components/schemas/JumpServers"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+    patch:
+      description: "Update One JumpServer"
+      operationId: "Update One JumpServer"
+      tags:
+        - JumpServer
+      security:
+        - access: []
+      requestBody:
+        description: JumpServer to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/JumpServer"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    $ref: "#/components/schemas/JumpServer"
         "401":
           description: Token Invalid
           content:
@@ -668,6 +1081,130 @@ paths:
                 type: object
                 $ref: "#/components/schemas/ErrorLogin"
 
+  /terminal/v1/transfer-records:
+    get:
+      description: "List File-transfer records"
+      operationId: "List File-transfer records"
+      tags:
+        - Audit
+      security:
+        - access: []
+      parameters:
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/orders"
+        - $ref: "#/components/parameters/fields"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/FileTransfer"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/session-records:
+    get:
+      description: "List Session records"
+      operationId: "List Session records"
+      tags:
+        - Audit
+      security:
+        - access: []
+      parameters:
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/orders"
+        - $ref: "#/components/parameters/fields"
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "successed"
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        description: "number of items found"
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/SessionRecord"
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
+  /terminal/v1/session-records/{id}/file:
+    get:
+      description: "Get Session replay file"
+      operationId: "Get Session replay file"
+      tags:
+        - Audit
+      security:
+        - access: []
+      responses:
+        "200":
+          description: Successed
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Token Invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ErrorLogin"
+
   /terminal/v1/permissions:
     get:
       description: List Permissions
@@ -935,12 +1472,13 @@ paths:
               schema:
                 type: object
                 $ref: "#/components/schemas/ErrorLogin"
+
   /terminal/v1/ssh:
     get:
       description: Get SSH Connection(websocket)
       operationId: "Get SSH Connection(websocket)"
       tags:
-        - Tunnel
+        - Console
       parameters:
         - name: Connection
           in: header
@@ -977,6 +1515,7 @@ paths:
                 data: message<br/>
               error: error output<br/>
                 data: message<br/>
+
   /terminal/v1/users:
     get:
       description: "List Users"
