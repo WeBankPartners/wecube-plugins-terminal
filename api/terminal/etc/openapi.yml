@@ -183,6 +183,13 @@ paths:
       security:
         - access: []
       parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "1"
         - name: path
           in: query
           description: file path
@@ -252,6 +259,14 @@ paths:
         - Asset
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "1"
       responses:
         "200":
           description: Successed
@@ -440,6 +455,14 @@ paths:
         - Asset
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "1"
       responses:
         "200":
           description: Successed
@@ -708,6 +731,14 @@ paths:
         - JumpServer
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "1"
       responses:
         "200":
           description: Successed
@@ -976,6 +1007,14 @@ paths:
         - Bookmark
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "1"
       responses:
         "200":
           description: Successed
@@ -1196,6 +1235,14 @@ paths:
         - Audit
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "1"
       responses:
         "200":
           description: Successed
@@ -1368,6 +1415,14 @@ paths:
         - Permission
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "1"
       responses:
         "200":
           description: Successed
@@ -1679,6 +1734,14 @@ paths:
         - User
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "admin"
       responses:
         "200":
           description: Successed
@@ -1843,6 +1906,14 @@ paths:
         - User
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "admin"
       requestBody:
         description: "password to reset, random password will be use if not specific"
         required: true
@@ -1887,6 +1958,14 @@ paths:
         - User
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "admin"
       responses:
         "200":
           description: Successed
@@ -1923,6 +2002,14 @@ paths:
         - User
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "admin"
       responses:
         "200":
           description: Successed
@@ -2149,6 +2236,14 @@ paths:
         - Role
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "SUPER_ADMIN"
       responses:
         "200":
           description: Successed
@@ -2269,6 +2364,14 @@ paths:
         - Role
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "SUPER_ADMIN"
       responses:
         "200":
           description: Successed
@@ -2347,6 +2450,14 @@ paths:
         - Role
       security:
         - access: []
+      parameters:
+        - name: id
+          in: path
+          description: object id
+          required: true
+          schema:
+            type: string
+            example: "SUPER_ADMIN"
       responses:
         "200":
           description: Successed
