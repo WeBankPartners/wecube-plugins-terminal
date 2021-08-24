@@ -1,7 +1,14 @@
 openapi: 3.0.0
 info:
-  title: terminal api
-  version: 0.2.0
+  title: WeCube Terminal API
+  version: 0.3.0
+  contact:
+    name: Support
+    email: fintech@webank.com
+    url: https://github.com/WeBankPartners/wecube-plugins-terminal
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 paths:
   /terminal/v1/login:
     post:
@@ -333,7 +340,7 @@ paths:
       security:
         - access: []
       requestBody:
-        description: Assets to add to the store
+        description: Assets to add
         required: true
         content:
           application/json:
@@ -601,7 +608,7 @@ paths:
       security:
         - access: []
       requestBody:
-        description: JumpServers to add to the store
+        description: JumpServers to add
         required: true
         content:
           application/json:
@@ -869,7 +876,7 @@ paths:
       security:
         - access: []
       requestBody:
-        description: Bookmarks to add to the store
+        description: Bookmarks to add
         required: true
         content:
           application/json:
@@ -1261,7 +1268,7 @@ paths:
       security:
         - access: []
       requestBody:
-        description: Permissions to add to the store
+        description: Permissions to add
         required: true
         content:
           application/json:
@@ -1572,7 +1579,7 @@ paths:
       security:
         - access: []
       requestBody:
-        description: Users to add to the store
+        description: Users to add
         required: true
         content:
           application/json:
@@ -2042,7 +2049,7 @@ paths:
       security:
         - access: []
       requestBody:
-        description: Roles to add to the store
+        description: Roles to add
         required: true
         content:
           application/json:

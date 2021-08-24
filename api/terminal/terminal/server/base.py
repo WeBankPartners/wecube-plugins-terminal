@@ -32,7 +32,7 @@ def decrypt_rsa(secret_key, encrypt_text):
                   'asset_field_name', 'asset_field_ip', 'asset_field_user', 'asset_field_password', 'asset_field_port',
                   'asset_field_desc', 'jwt_signing_key', 'boxes_check', 'sub_system_code', 'sub_system_key',
                   'websocket_url', 'session_timeout', 'platform_timezone', 'check_itsdangerous', 'download_max_size',
-                  'platform_encrypt_seed', 's3_server_url', 's3_access_key', 's3_secret_key', 's3_bucket')
+                  'platform_encrypt_seed', 's3_server_url', 's3_access_key', 's3_secret_key', 's3_bucket', 'mode')
 def get_env_value(value, origin_value):
     prefix = 'ENV@'
     encrypt_prefix = 'RSA@'

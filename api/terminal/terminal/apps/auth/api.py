@@ -17,8 +17,6 @@ from terminal.db import resource as db_resource
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
-ACCESS_TOKEN_EXPIRES = 20 * 60
-REFRESH_TOKEN_EXPIRES = 40 * 60
 
 
 class SysUser(db_resource.SysUser):
@@ -26,8 +24,8 @@ class SysUser(db_resource.SysUser):
         roles = self.get_roles(rid)
         tokens = []
         access_token_iat = int(time.time())
-        access_token_exp = access_token_iat + ACCESS_TOKEN_EXPIRES
-        refresh_token_exp = access_token_iat + REFRESH_TOKEN_EXPIRES
+        access_token_exp = access_token_iat + CONF.access_token_exipres
+        refresh_token_exp = access_token_iat + CONF.refresh_token_exipres
         decoded_secret = terminal_utils.b64decode_key(CONF.jwt_signing_key)
         tokens.append({
             "expiration":
@@ -94,7 +92,7 @@ class SysUser(db_resource.SysUser):
             exists = {}
             roles = self.get_roles(rid)
             for role in roles:
-                for menu in SysRole(session=session).get_menus(role['id']):
+                for menu in role['menus']:
                     if menu['id'] not in exists:
                         menus.append(menu)
                         exists[menu['id']] = True

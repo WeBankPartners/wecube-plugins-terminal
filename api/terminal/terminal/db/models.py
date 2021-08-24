@@ -170,7 +170,8 @@ class SysMenu(Base, DictBase):
 class SysRole(Base, DictBase):
     __tablename__ = 'sys_role'
     attributes = [
-        'id', 'description', 'role_type', 'is_system', 'created_by', 'created_time', 'updated_by', 'updated_time'
+        'id', 'description', 'role_type', 'is_system', 'created_by', 'created_time', 'updated_by', 'updated_time',
+        'menus'
     ]
     summary_attributes = ['id', 'description', 'role_type', 'is_system']
     detail_attributes = [
