@@ -104,6 +104,14 @@ class SysUser(db_resource.SysUser):
             return ref['roles']
         return []
 
+    def create(self, resource, validate=True, detail=True):
+        resource['salt'] = utils.generate_salt(16)
+        password = utils.generate_salt(16)
+        resource['password'] = utils.encrypt_password(password, resource['salt'])
+        ref = super().create(resource, validate=validate, detail=detail)
+        ref['password'] = password
+        return ref
+
     def reset_password(self, rid, password=None):
         resource = {}
         resource['salt'] = utils.generate_salt(16)

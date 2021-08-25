@@ -17,16 +17,73 @@ CONF = config.CONF
 
 class MetaCRUD(crud.ResourceBase):
     _id_prefix = ''
+    _remove_fields = []
+    _encrypted_fields = []
 
     def _before_create(self, resource, validate):
         if 'id' not in resource and self._id_prefix:
             resource['id'] = utils.generate_prefix_uuid(self._id_prefix)
         resource['created_by'] = scoped_globals.GLOBALS.request.auth_user or None
         resource['created_time'] = datetime.datetime.now()
+        for field in self._encrypted_fields:
+            if resource.get(field, None) is not None:
+                resource[field] = terminal_utils.platform_encrypt(resource[field], resource['id'],
+                                                                  CONF.platform_encrypt_seed)
 
     def _before_update(self, rid, resource, validate):
         resource['updated_by'] = scoped_globals.GLOBALS.request.auth_user or None
         resource['updated_time'] = datetime.datetime.now()
+        for field in self._encrypted_fields:
+            if resource.get(field, None) is not None:
+                resource[field] = terminal_utils.platform_encrypt(resource[field], rid, CONF.platform_encrypt_seed)
+
+    def create(self, resource, validate=True, detail=True):
+        ref = super().create(resource, validate=validate, detail=detail)
+        if ref and self._remove_fields:
+            for field in self._remove_fields:
+                del ref[field]
+        return ref
+
+    def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
+        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        if self._remove_fields:
+            for ref in refs:
+                for field in self._remove_fields:
+                    del ref[field]
+        return refs
+
+    def get(self, rid):
+        ref = super().get(rid)
+        if ref and self._remove_fields:
+            for field in self._remove_fields:
+                del ref[field]
+        return ref
+
+    def update(self, rid, resource, filters=None, validate=True, detail=True):
+        before_update, after_update = super().update(rid, resource, filters=filters, validate=validate, detail=detail)
+        if before_update and self._remove_fields:
+            for field in self._remove_fields:
+                del before_update[field]
+        if after_update and self._remove_fields:
+            for field in self._remove_fields:
+                del after_update[field]
+        return (before_update, after_update)
+
+    def delete(self, rid, filters=None, detail=True):
+        num_ref, refs = super().delete(rid, filters=filters, detail=detail)
+        for ref in refs:
+            if self._remove_fields:
+                for field in self._remove_fields:
+                    del ref[field]
+        return (num_ref, refs)
+
+    def delete_all(self, filters=None):
+        num_ref, refs = super().delete_all(filters=filters)
+        for ref in refs:
+            if self._remove_fields:
+                for field in self._remove_fields:
+                    del ref[field]
+        return (num_ref, refs)
 
 
 class PermissionAsset(crud.ResourceBase):
@@ -113,6 +170,7 @@ class JumpServer(MetaCRUD):
     orm_meta = models.JumpServer
     _default_order = ['-created_time']
     _encrypted_fields = ['password']
+    _remove_fields = ['password']
     _id_prefix = 'jserver-'
 
     _validate = [
@@ -141,19 +199,6 @@ class JumpServer(MetaCRUD):
         crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
     ]
 
-    def _before_create(self, resource, validate):
-        super()._before_create(resource, validate)
-        for field in self._encrypted_fields:
-            if resource.get(field, None) is not None:
-                resource[field] = terminal_utils.platform_encrypt(resource[field], resource['id'],
-                                                                  CONF.platform_encrypt_seed)
-
-    def _before_update(self, rid, resource, validate):
-        super()._before_update(rid, resource, validate)
-        for field in self._encrypted_fields:
-            if resource.get(field, None) is not None:
-                resource[field] = terminal_utils.platform_encrypt(resource[field], rid, CONF.platform_encrypt_seed)
-
     def list_internal(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
         refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
         for ref in refs:
@@ -166,6 +211,7 @@ class Asset(MetaCRUD):
     orm_meta = models.Asset
     _default_order = ['-created_time']
     _encrypted_fields = ['password']
+    _remove_fields = ['password']
     _id_prefix = 'asset-'
 
     _validate = [
@@ -198,19 +244,6 @@ class Asset(MetaCRUD):
         crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
         crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
     ]
-
-    def _before_create(self, resource, validate):
-        super()._before_create(resource, validate)
-        for field in self._encrypted_fields:
-            if resource.get(field, None) is not None:
-                resource[field] = terminal_utils.platform_encrypt(resource[field], resource['id'],
-                                                                  CONF.platform_encrypt_seed)
-
-    def _before_update(self, rid, resource, validate):
-        super()._before_update(rid, resource, validate)
-        for field in self._encrypted_fields:
-            if resource.get(field, None) is not None:
-                resource[field] = terminal_utils.platform_encrypt(resource[field], rid, CONF.platform_encrypt_seed)
 
     def list_internal(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
         refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
@@ -288,6 +321,7 @@ class SysRole(MetaCRUD):
 class SysUser(MetaCRUD):
     orm_meta = models.SysUser
     _default_order = ['-created_time']
+    _remove_fields = ['password', 'salt']
     _id_prefix = 'user-'
 
     _validate = [
@@ -309,46 +343,6 @@ class SysUser(MetaCRUD):
         crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
         crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
     ]
-
-    def create(self, resource, validate=True, detail=True):
-        resource['salt'] = utils.generate_salt(16)
-        password = utils.generate_salt(16)
-        resource['password'] = utils.encrypt_password(password, resource['salt'])
-        ref = super().create(resource, validate=validate, detail=detail)
-        ref['password'] = password
-        del ref['salt']
-        return ref
-
-    def list(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
-        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
-        for ref in refs:
-            del ref['password']
-            del ref['salt']
-        return refs
-
-    def update(self, rid, resource, filters=None, validate=True, detail=True):
-        before_update, after_update = super().update(rid, resource, filters=filters, validate=validate, detail=detail)
-        if before_update:
-            del before_update['password']
-            del before_update['salt']
-        if after_update:
-            del after_update['password']
-            del after_update['salt']
-        return (before_update, after_update)
-
-    def delete(self, rid, filters=None, detail=True):
-        num_ref, refs = super().delete(rid, filters=filters, detail=detail)
-        for ref in refs:
-            del ref['password']
-            del ref['salt']
-        return (num_ref, refs)
-
-    def delete_all(self, filters=None):
-        num_ref, refs = super().delete_all(filters=filters)
-        for ref in refs:
-            del ref['password']
-            del ref['salt']
-        return (num_ref, refs)
 
     def list_internal(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
         return super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
