@@ -200,7 +200,7 @@ class JumpServer(MetaCRUD):
     ]
 
     def list_internal(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
-        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        refs = super(crud.ResourceBase).list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
         for ref in refs:
             for field in self._encrypted_fields:
                 ref[field] = terminal_utils.platform_decrypt(ref[field], ref['id'], CONF.platform_encrypt_seed)
@@ -245,8 +245,11 @@ class Asset(MetaCRUD):
         crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
     ]
 
+    def list_origin(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
+        return super(MetaCRUD, self).list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+
     def list_internal(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
-        refs = super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        refs = super(MetaCRUD, self).list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
         for ref in refs:
             for field in self._encrypted_fields:
                 ref[field] = terminal_utils.platform_decrypt(ref[field], ref['id'], CONF.platform_encrypt_seed)
@@ -345,4 +348,4 @@ class SysUser(MetaCRUD):
     ]
 
     def list_internal(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
-        return super().list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        return super(MetaCRUD, self).list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
