@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 
 import logging
-from terminal.db.models import SysRoleUser
 import time
 
 import jwt
@@ -87,16 +86,15 @@ class SysUser(db_resource.SysUser):
                 raise core_ex.AuthError()
 
     def get_menus(self, rid):
-        with self.get_session() as session:
-            menus = []
-            exists = {}
-            roles = self.get_roles(rid)
-            for role in roles:
-                for menu in role['menus']:
-                    if menu['id'] not in exists:
-                        menus.append(menu)
-                        exists[menu['id']] = True
-            return menus
+        menus = []
+        exists = {}
+        roles = self.get_roles(rid)
+        for role in roles:
+            for menu in role['menus']:
+                if menu['is_active'] == 'yes' and menu['id'] not in exists:
+                    menus.append(menu)
+                    exists[menu['id']] = True
+        return menus
 
     def get_roles(self, rid):
         ref = self.get(rid)
@@ -139,6 +137,12 @@ class SysUser(db_resource.SysUser):
         else:
             raise exceptions.PluginError(message=_('faild to set new password: incorrect origin password'))
 
+    def delete(self, rid, filters=None, detail=True):
+        refs = self.list({'id': rid})
+        if refs and refs[0]['is_system'] == 'yes':
+            raise exceptions.PluginError(message=_('unable to delete system user'))
+        return super().delete(rid, filters=filters, detail=detail)
+
 
 class SysRole(db_resource.SysRole):
     def get_users(self, rid):
@@ -168,18 +172,27 @@ class SysRole(db_resource.SysRole):
     def set_users(self, rid, users):
         with self.transaction() as session:
             self._update_intersect_refs(rid, 'role_id', 'user_id', db_resource.SysRoleUser, users, session)
-            return self.get_users()
+            return self.get_users(rid)
 
-    def get_menus(self, rid):
+    def get_menus(self, rid, is_active=True):
         ref = self.get(rid)
         if ref:
-            return ref['menus']
+            if is_active:
+                return [menu for menu in ref['menus'] if menu['is_active'] == 'yes']
+            else:
+                return ref['menus']
         return []
 
     def set_menus(self, rid, menus):
         with self.transaction() as session:
             self._update_intersect_refs(rid, 'role_id', 'menu_id', db_resource.SysRoleMenu, menus, session)
-            return self.get_menus()
+            return self.get_menus(rid, is_active=False)
+
+    def delete(self, rid, filters=None, detail=True):
+        refs = self.list({'id': rid})
+        if refs and refs[0]['is_system'] == 'yes':
+            raise exceptions.PluginError(message=_('unable to delete system role'))
+        return super().delete(rid, filters=filters, detail=detail)
 
 
 class SysMenu(db_resource.SysMenu):
