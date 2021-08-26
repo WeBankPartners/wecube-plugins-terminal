@@ -200,7 +200,7 @@ class JumpServer(MetaCRUD):
     ]
 
     def list_internal(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
-        refs = super(crud.ResourceBase).list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
+        refs = super(MetaCRUD, self).list(filters=filters, orders=orders, offset=offset, limit=limit, hooks=hooks)
         for ref in refs:
             for field in self._encrypted_fields:
                 ref[field] = terminal_utils.platform_decrypt(ref[field], ref['id'], CONF.platform_encrypt_seed)
