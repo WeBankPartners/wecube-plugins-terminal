@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 
 from talos.db.dictbase import DictBase
-from sqlalchemy import Column, DateTime, ForeignKey, String, text
+from sqlalchemy import Column, DateTime, ForeignKey, String, text, Text
 from sqlalchemy.dialects.mysql import BIGINT, TINYINT
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -15,8 +15,8 @@ metadata = Base.metadata
 class Permission(Base, DictBase):
     __tablename__ = 'permission'
     attributes = [
-        'id', 'name', 'description', 'enabled', 'auth_upload', 'auth_download', 'auth_execute', 'created_by',
-        'created_time', 'updated_by', 'updated_time', 'assets', 'roles'
+        'id', 'name', 'description', 'enabled', 'auth_upload', 'auth_download', 'auth_execute', 'expression',
+        'created_by', 'created_time', 'updated_by', 'updated_time', 'assets', 'roles'
     ]
 
     id = Column(BIGINT(20), primary_key=True)
@@ -26,6 +26,7 @@ class Permission(Base, DictBase):
     auth_upload = Column(TINYINT(4), nullable=False)
     auth_download = Column(TINYINT(4), nullable=False)
     auth_execute = Column(TINYINT(4), nullable=False)
+    expression = Column(Text())
     created_by = Column(String(36))
     created_time = Column(DateTime)
     updated_by = Column(String(36))

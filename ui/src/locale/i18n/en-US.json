@@ -144,6 +144,7 @@
   "t_auth_download": "Auth Download",
   "t_auth_upload": "Auth Upload",
   "t_auth_execute": "Auth Execute",
+  "t_auth_expression": "Auth Expression",
   "t_enabled": "Enabled",
   "t_name": "Name",
   "t_roles": "Roles",

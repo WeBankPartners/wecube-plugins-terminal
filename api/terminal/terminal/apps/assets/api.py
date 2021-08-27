@@ -119,9 +119,6 @@ class Asset(object):
         permission_filters['auth_' + auth_type] = 1
         permissions = resource.Permission().list(permission_filters)
         auth_asset_ids = []
-        for permission in permissions:
-            auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
-        auth_asset_ids = set(auth_asset_ids)
         fields = {
             'id': 'id',
             CONF.asset.asset_field_name: 'name',
@@ -132,6 +129,12 @@ class Asset(object):
             CONF.asset.asset_field_password: 'password',
             CONF.asset.asset_field_desc: 'description'
         }
+        for permission in permissions:
+            expression_assets = self.list_asset_by_expression(permission['expression'], fields)
+            auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
+            auth_asset_ids.extend([asset['id'] for asset in expression_assets])
+        auth_asset_ids = set(auth_asset_ids)
+        
         datas = []
         filters = filters or {}
         # expression search
@@ -187,6 +190,19 @@ class Asset(object):
                 origin_password = utils.aes_cbc_pkcs7_decrypt(origin_password, key, key)
                 item['password'] = origin_password.decode()
         return datas
+
+    def list_asset_by_expression(self, expression, field_mapping):
+        if expression:
+            wecube_client = wecube.WeCubeClient(CONF.wecube.base_url, None)
+            wecube_client.token = self._token
+            resp = wecube_client.post(
+                wecube_client.build_url('/platform/v1/data-model/dme/integrated-query'), {
+                    'dataModelExpression': expression,
+                    'filters': []
+                })
+            assets = resp['data'] or []
+            return self._transform_field(assets, field_mapping)
+        return []
 
 
 class AssetFile(object):
