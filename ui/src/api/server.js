@@ -25,7 +25,12 @@ export const deleteTableRow = (url, id) => req.delete(`${url}/${id}`)
 export const getHost = () => req.get(`/terminal/v1/assets`)
 
 export const getAssets = () => req.get(`/terminal/v1/view-assets`)
-export const getAssetsByExpression = data => req.get(`/terminal/v1/assets?expression=${data}`)
+export const getAssetsByExpression = data => {
+  const params = {
+    expression: data
+  }
+  return req.get(`/terminal/v1/assets`, { params })
+}
 export const getFileManagementPermission = id => req.get(`/terminal/v1/assets/${id}/permissions`)
 
 export const savePermission = data => req.post(`/terminal/v1/permissions`, data)
