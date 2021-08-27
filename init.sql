@@ -114,7 +114,7 @@ ALTER TABLE terminal.permission ADD expression TEXT NULL;
 #@v0.2.2.1-end@;
 
 
-#@v0.2.3.1-begin@;
+#@v0.2.3.5-begin@;
 
 CREATE TABLE `jump_server` (
   `id` varchar(36) NOT NULL,
@@ -252,5 +252,5 @@ INSERT INTO sys_role_menu (role_id,menu_id,created_by,created_time,updated_by,up
 	 ('CONFIG_ADMIN','system_permission','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('CONSOLE_USER','terminal_console','admin','2021-08-26 00:00:00.0',NULL,NULL);
 
-#@v0.2.3.1-end@;
+#@v0.2.3.5-end@;
 
