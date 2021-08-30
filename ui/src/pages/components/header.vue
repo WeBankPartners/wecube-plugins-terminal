@@ -4,10 +4,10 @@
       <Menu mode="horizontal" theme="dark">
         <Submenu v-for="menu in menus" :name="menu.code" :key="menu.code">
           <template slot="title">
-            {{ menu.title }}
+            {{ getTitle(menu) }}
           </template>
           <router-link v-for="submenu in menu.submenus" :key="submenu.code" :to="submenu.link || ''">
-            <MenuItem :name="submenu.code" :disabled="!submenu.link">{{ submenu.title }}</MenuItem>
+            <MenuItem :name="submenu.code" :disabled="!submenu.link">{{ getTitle(submenu) }}</MenuItem>
           </router-link>
         </Submenu>
       </Menu>
@@ -42,10 +42,54 @@ export default {
         'zh-CN': '简体中文',
         'en-US': 'English'
       },
-      menus: []
+      menus: [
+        {
+          code: 'system',
+          cnName: '系统',
+          enName: 'SYSTEM',
+          seqNo: 1,
+          parent: '',
+          isActive: 'yes',
+          submenus: [
+            {
+              code: 'terminal_asset',
+              cnName: '终端管理',
+              link: '/terminalManagement'
+            },
+            {
+              code: 'terminal_authorization',
+              cnName: '系统授权',
+              link: '/systemAuthorization'
+            },
+            {
+              code: 'terminal_permission',
+              cnName: '终端授权',
+              link: '/terminalPermission'
+            }
+          ]
+        },
+        {
+          code: 'terminal',
+          cnName: '终端',
+          enName: 'TERMINAL',
+          seqNo: 2,
+          parent: '',
+          isActive: 'yes',
+          submenus: [
+            {
+              code: 'terminal_console',
+              cnName: '终端连接',
+              link: '/terminalOperation'
+            }
+          ]
+        }
+      ]
     }
   },
   methods: {
+    getTitle (menu) {
+      return localStorage.getItem('lang') === 'zh-CN' ? menu.cnName : menu.enName
+    },
     changeLanguage (key) {
       Vue.config.lang = key
       this.currentLanguage = this.language[key]

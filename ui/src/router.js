@@ -47,6 +47,16 @@ export default new Router({
           component: () => import('@/pages/management/transfer-records')
         }
       ]
+    },
+    {
+      path: '/terminalPermission',
+      name: '/terminalPermission',
+      component: () => import('@/pages/terminal-permission')
+    },
+    {
+      path: '/systemAuthorization',
+      name: '/systemAuthorization',
+      component: () => import('@/pages/system-authorization')
     }
   ]
 })
