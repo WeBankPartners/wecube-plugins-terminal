@@ -171,6 +171,7 @@
   "t_cmd_tip5": "5、Alt + ↑，上移",
   "t_cmd_tip6": "6、Alt + ↓，下移",
   "t_created_time": "创建时间",
+  "t_scope": "范围",
 
   "selected_role": "选中角色",
   "unselected_role": "未选中角色",

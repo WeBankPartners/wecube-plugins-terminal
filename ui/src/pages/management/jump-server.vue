@@ -5,16 +5,11 @@
   </div>
 </template>
 <script>
-import { getTableData, addMgmtAssets, deleteMgmtAssets, editMgmtAssets } from '@/api/server'
+import { getTableData, addJumpServers, deleteJumpServers, editJumpServers } from '@/api/server'
 let tableEle = [
   {
     title: 't_name',
     value: 'name',
-    display: true
-  },
-  {
-    title: 'field.displayName',
-    value: 'display_name',
     display: true
   },
   {
@@ -28,8 +23,13 @@ let tableEle = [
     display: true
   },
   {
-    title: 'description',
-    value: 'description',
+    title: 'button.username',
+    value: 'username',
+    display: true
+  },
+  {
+    title: 't_scope',
+    value: 'scope',
     display: true
   },
   {
@@ -47,16 +47,15 @@ export default {
   data () {
     return {
       pageConfig: {
-        CRUD: '/terminal/v1/mgmt-assets',
+        CRUD: '/terminal/v1/jumpservers',
         researchConfig: {
           input_conditions: [
             {
               value: 'name__icontains',
               type: 'input',
-              placeholder: 'name',
+              placeholder: 't_name',
               style: ''
-            },
-            { name: 'transmitExtraSearch', type: 'slot' }
+            }
           ],
           btn_group: [
             {
@@ -99,14 +98,6 @@ export default {
             type: 'text'
           },
           {
-            label: 'field.displayName',
-            value: 'display_name',
-            placeholder: 'tips.required',
-            v_validate: 'required:true|min:2|max:60',
-            disabled: false,
-            type: 'text'
-          },
-          {
             label: 'field.ip',
             value: 'ip_address',
             placeholder: 'tips.required',
@@ -125,6 +116,14 @@ export default {
             type: 'inputNumber'
           },
           {
+            label: 't_scope',
+            value: 'scope',
+            placeholder: 'tips.required',
+            v_validate: 'required:true',
+            disabled: false,
+            type: 'text'
+          },
+          {
             label: 'button.username',
             value: 'username',
             placeholder: 'tips.required',
@@ -139,17 +138,15 @@ export default {
             v_validate: 'required:true|min:2|max:60',
             disabled: false,
             type: 'text'
-          },
-          { label: 'description', value: 'description', placeholder: '', v_validate: '', disabled: false, type: 'text' }
+          }
         ],
         addRow: {
           name: '',
-          display_name: '',
           ip_address: '',
           port: 22,
+          scope: '',
           username: '',
-          password: '',
-          description: ''
+          password: ''
         }
       },
       id: null,
@@ -176,7 +173,7 @@ export default {
       this.$root.JQ('#add_edit_Modal').modal('show')
     },
     async addPost () {
-      const { status, message } = await addMgmtAssets([this.modelConfig.addRow])
+      const { status, message } = await addJumpServers([this.modelConfig.addRow])
       if (status === 'OK') {
         this.$root.JQ('#add_edit_Modal').modal('hide')
         this.$Notice.success({
@@ -197,7 +194,7 @@ export default {
       if (this.modelConfig.addRow.password === '') {
         delete this.modelConfig.addRow.password
       }
-      const { status, message } = await editMgmtAssets(this.id, this.modelConfig.addRow)
+      const { status, message } = await editJumpServers(this.id, this.modelConfig.addRow)
       if (status === 'OK') {
         this.$root.JQ('#add_edit_Modal').modal('hide')
         this.$Notice.success({
@@ -212,7 +209,7 @@ export default {
         title: this.$t('confirm_to_delete'),
         'z-index': 1000000,
         onOk: async () => {
-          const { status, message } = await deleteMgmtAssets(rowData.id)
+          const { status, message } = await deleteJumpServers(rowData.id)
           if (status === 'OK') {
             this.$Notice.success({
               title: 'Success',

@@ -30,28 +30,45 @@ export default new Router({
           name: 'permissions',
           title: '文件传输权限',
           meta: {},
-          component: () => import('@/pages/management/permissions')
+          component: () => import('@/pages/authorization/permissions')
         },
         {
           path: 'sessionRecords',
           name: 'sessionRecords',
           title: '访问记录',
           meta: {},
-          component: () => import('@/pages/management/session-records')
+          component: () => import('@/pages/authorization/session-records')
         },
         {
           path: 'transferRecords',
           name: 'transferRecords',
           title: '文件传输列表',
           meta: {},
-          component: () => import('@/pages/management/transfer-records')
+          component: () => import('@/pages/authorization/transfer-records')
         }
       ]
     },
     {
-      path: '/terminalAsset',
-      name: '/terminalAsset',
-      component: () => import('@/pages/terminal-asset')
+      path: '/terminalManagement',
+      name: 'terminalManagement',
+      redirect: '/terminalManagement/hosts',
+      component: () => import('@/pages/terminal-management'),
+      children: [
+        {
+          path: 'hosts',
+          name: 'hosts',
+          title: '终端',
+          meta: {},
+          component: () => import('@/pages/management/hosts')
+        },
+        {
+          path: 'jumpServer',
+          name: 'jumpServer',
+          title: '跳板机',
+          meta: {},
+          component: () => import('@/pages/management/jump-server')
+        }
+      ]
     },
     {
       path: '/systemAuthorization',

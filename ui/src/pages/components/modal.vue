@@ -90,8 +90,8 @@
                   v-if="item.type === 'inputNumber' && isHide(item.hide)"
                   :disabled="modelConfig.isAdd ? false : item.disabled"
                   class="col-md-7 v-selectss"
-                  :max="modelConfig.addRow[item.max] || 10"
-                  :min="modelConfig.addRow[item.min] || 0"
+                  :max="item.max || 10"
+                  :min="item.min || 0"
                   v-model="modelConfig.addRow[item.value]"
                 >
                 </InputNumber>

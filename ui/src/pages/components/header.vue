@@ -54,12 +54,12 @@ export default {
             {
               code: 'terminal_asset',
               cnName: '终端管理',
-              link: '/terminalAsset'
+              link: '/terminalManagement'
             },
             {
               code: 'terminal_authorization',
               cnName: '系统授权',
-              link: '/systemAuthorization'
+              link: ''
             },
             {
               code: 'terminal_permission',

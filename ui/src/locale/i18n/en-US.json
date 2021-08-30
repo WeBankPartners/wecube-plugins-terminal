@@ -169,6 +169,7 @@
   "t_cmd_tip5": "5、Alt + ↑，Move Up",
   "t_cmd_tip6": "6、Alt + ↓，Move Down",
   "t_created_time": "Created Time",
+  "t_scope": "Scope",
 
   "selected_role": "Selected Role",
   "unselected_role": "Unselected Role",
