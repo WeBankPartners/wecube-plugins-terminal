@@ -168,6 +168,7 @@
   "t_cmd_tip4": "4、Alt + Enter, Wrap",
   "t_cmd_tip5": "5、Alt + ↑，Move Up",
   "t_cmd_tip6": "6、Alt + ↓，Move Down",
+  "t_created_time": "Created Time",
 
   "selected_role": "Selected Role",
   "unselected_role": "Unselected Role",

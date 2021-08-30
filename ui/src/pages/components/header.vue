@@ -54,7 +54,7 @@ export default {
             {
               code: 'terminal_asset',
               cnName: '终端管理',
-              link: '/terminalManagement'
+              link: '/terminalAsset'
             },
             {
               code: 'terminal_authorization',
@@ -64,7 +64,7 @@ export default {
             {
               code: 'terminal_permission',
               cnName: '终端授权',
-              link: '/terminalPermission'
+              link: '/terminalAuthorization'
             }
           ]
         },

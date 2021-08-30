@@ -1,12 +1,25 @@
 <template>
   <div>
+    <div class="header">
+      <Header @allMenus="allMenus" />
+    </div>
     <div class="app-content-container">
       <BackTop :height="100" :bottom="100" />
       <router-view :key="$route.path" />
     </div>
   </div>
 </template>
-
+<script>
+import Header from './pages/components/header'
+export default {
+  components: { Header },
+  data () {
+    return {
+      allMenus: []
+    }
+  }
+}
+</script>
 <style lang="scss">
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;

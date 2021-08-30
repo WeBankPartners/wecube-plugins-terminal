@@ -164,7 +164,6 @@ export default {
   },
   methods: {
     async initTableData () {
-      console.log(this.pageConfig)
       const params = this.$TerminalCommonUtil.managementUrl(this)
       const { status, data } = await getTableData(params)
       if (status === 'OK') {

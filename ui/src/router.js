@@ -20,10 +20,10 @@ export default new Router({
       ]
     },
     {
-      path: '/terminalManagement',
-      name: 'terminalManagement',
-      redirect: '/terminalManagement/sessionRecords',
-      component: () => import('@/pages/terminal-management'),
+      path: '/terminalAuthorization',
+      name: 'terminalAuthorization',
+      redirect: '/terminalAuthorization/sessionRecords',
+      component: () => import('@/pages/terminal-authorization'),
       children: [
         {
           path: 'permissions',
@@ -49,9 +49,9 @@ export default new Router({
       ]
     },
     {
-      path: '/terminalPermission',
-      name: '/terminalPermission',
-      component: () => import('@/pages/terminal-permission')
+      path: '/terminalAsset',
+      name: '/terminalAsset',
+      component: () => import('@/pages/terminal-asset')
     },
     {
       path: '/systemAuthorization',

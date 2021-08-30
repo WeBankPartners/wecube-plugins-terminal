@@ -2,6 +2,8 @@
   <div class="modal-component">
     <div
       class="modal fade"
+      aria-hidden="false"
+      data-backdrop="static"
       :id="modelConfig.modalId ? modelConfig.modalId : 'add_edit_Modal'"
       role="dialog"
       aria-labelledby="myModalLabel"
@@ -17,13 +19,13 @@
               </template>
             </h4>
             <h4 class="modal-title" v-if="!modelConfig.modalTitle">
-              {{ $t(modelConfig.modalTitle) + ':' }}
+              {{ $t(modelConfig.modalTitle) }}
               <label v-if="modelConfig.isAdd">
                 <span>{{ $t('button.add') }}</span>
               </label>
               <label v-else>
                 <span>{{ $t('button.edit') }}</span>
-                <span style="color: red;"> {{ interceptParams() }} </span>】
+                <span style="color: red;">【{{ interceptParams() }}】</span>
               </label>
             </h4>
             <Icon type="close-round" data-dismiss="modal"></Icon>

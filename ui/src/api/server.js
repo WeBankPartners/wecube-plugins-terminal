@@ -48,3 +48,8 @@ export const getAllDataModels = () => req.get(`/platform/v1/models`)
 export const getFavoritesList = () => req.get(`/terminal/v1/bookmarks`)
 export const deleteFavorites = id => req.delete(`/terminal/v1/bookmarks/${id}`)
 export const editCollection = (id, data) => req.patch(`/terminal/v1/bookmarks/${id}`, data)
+
+export const getMgmtAssets = () => req.get(`/terminal/v1/mgmt-assets`)
+export const addMgmtAssets = data => req.post(`/terminal/v1/mgmt-assets`, data)
+export const deleteMgmtAssets = id => req.delete(`/terminal/v1/mgmt-assets/${id}`)
+export const editMgmtAssets = (id, data) => req.patch(`/terminal/v1/mgmt-assets/${id}`, data)

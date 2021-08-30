@@ -10,7 +10,9 @@
           :placeholder="$t('t_asset_id')"
           style="width:340px"
         >
-          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{ item.ip_address + '(' + item.name + ')' }}</Option>
+          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{
+            item.ip_address + '(' + item.name + ')'
+          }}</Option>
         </Select>
         <Select
           v-model="roles_id"
@@ -36,12 +38,14 @@
         </div>
         <div class="marginbottom params-each">
           <label class="col-md-2 label-name">{{ $t('t_auth_expression') }}:</label>
-          <span><FilterRules
-            style="width:340px;display:inline-block;vertical-align: middle;"
-            :needAttr="true"
-            v-model="modelConfig.addRow.expression"
-            :allDataModelsWithAttrs="allEntityType"
-          ></FilterRules></span>
+          <span
+            ><FilterRules
+              style="width:340px;display:inline-block;vertical-align: middle;"
+              :needAttr="true"
+              v-model="modelConfig.addRow.expression"
+              :allDataModelsWithAttrs="allEntityType"
+            ></FilterRules
+          ></span>
         </div>
         <div class="marginbottom params-each">
           <label class="col-md-2 label-name">{{ $t('t_roles') }}:</label>
@@ -74,7 +78,15 @@
 </template>
 
 <script>
-import { getTableData, getAssets, getAllRoles, savePermission, editPermissions, deleteTableRow, getAllDataModels } from '@/api/server'
+import {
+  getTableData,
+  getAssets,
+  getAllRoles,
+  savePermission,
+  editPermissions,
+  deleteTableRow,
+  getAllDataModels
+} from '@/api/server'
 import FilterRules from '../components/filter-rules.vue'
 let tableEle = [
   {
@@ -195,7 +207,6 @@ export default {
       },
       modelConfig: {
         modalId: 'add_object_Modal',
-        modalTitle: 'button.add',
         isAdd: true,
         config: [
           {
@@ -355,7 +366,7 @@ export default {
       })
     }
   },
-  components: {FilterRules}
+  components: { FilterRules }
 }
 </script>
 
