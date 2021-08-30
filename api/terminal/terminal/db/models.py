@@ -166,6 +166,8 @@ class SysMenu(Base, DictBase):
     updated_by = Column(String(36))
     updated_time = Column(DateTime)
 
+    roles = relationship("SysRole", secondary="sys_role_menu", back_populates="menus", uselist=True, viewonly=True)
+
 
 class SysRole(Base, DictBase):
     __tablename__ = 'sys_role'
@@ -188,8 +190,8 @@ class SysRole(Base, DictBase):
     updated_by = Column(String(36))
     updated_time = Column(DateTime)
 
-    users = relationship("SysUser", secondary="sys_role_user", back_populates="roles", uselist=True)
-    menus = relationship("SysMenu", secondary="sys_role_menu", uselist=True)
+    users = relationship("SysUser", secondary="sys_role_user", back_populates="roles", uselist=True, viewonly=True)
+    menus = relationship("SysMenu", secondary="sys_role_menu", back_populates="roles", uselist=True, viewonly=True)
 
 
 class SysUser(Base, DictBase):
@@ -215,7 +217,7 @@ class SysUser(Base, DictBase):
     updated_by = Column(String(36))
     updated_time = Column(DateTime)
 
-    roles = relationship("SysRole", secondary="sys_role_user", back_populates="users", uselist=True)
+    roles = relationship("SysRole", secondary="sys_role_user", back_populates="users", uselist=True, viewonly=True)
 
 
 class SysRoleMenu(Base, DictBase):

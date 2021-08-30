@@ -52,5 +52,5 @@ class Permission(object):
             request_started = getattr(self, '_request_started', None)
             if request_started:
                 timepass = request_ended - request_started
-                LOG.info('response [%s] "%s %s" %s %s', req.auth_user, req.method, req.relative_uri, response_data,
-                         str(timepass))
+                LOG.debug('response [%s] "%s %s" %s %s', req.auth_user, req.method, req.relative_uri, response_data,
+                          str(timepass))

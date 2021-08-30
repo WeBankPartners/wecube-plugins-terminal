@@ -301,6 +301,7 @@ class SysRole(MetaCRUD):
     orm_meta = models.SysRole
     _default_order = ['-created_time']
     _id_prefix = 'role-'
+    _detail_relationship_as_summary = True
 
     _validate = [
         crud.ColumnValidator(field='id', validate_on=('create:M', 'update:O')),
