@@ -36,7 +36,7 @@
             </Option>
           </Select>
         </div>
-        <div class="marginbottom params-each">
+        <div class="marginbottom params-each" v-if="showRegular()">
           <label class="col-md-2 label-name">{{ $t('t_auth_expression') }}:</label>
           <span
             ><FilterRules
@@ -248,6 +248,10 @@ export default {
     }
   },
   mounted () {
+    const removeRegular = this.showRegular()
+    if (!removeRegular) {
+      tableEle.splice(2, 1)
+    }
     this.initTableData()
     this.initAssets()
     this.initRoles()
@@ -259,6 +263,9 @@ export default {
     })
   },
   methods: {
+    showRegular () {
+      return !!window.request
+    },
     async initAssets () {
       const { status, data } = await getAssets()
       if (status === 'OK') {

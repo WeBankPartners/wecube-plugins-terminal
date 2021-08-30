@@ -56,7 +56,7 @@
                     </FormItem>
                   </Form>
                 </TabPane>
-                <TabPane :label="$t('t_regular_expression')" name="regular_expression">
+                <TabPane v-if="showRegular()" :label="$t('t_regular_expression')" name="regular_expression">
                   <span v-if="showFilterRules">
                     <FilterRules
                       style="display:inline-block;vertical-align: middle;padding:0"
@@ -201,16 +201,6 @@
                 <Option v-for="item in historyCmd" :value="item.label" :key="item.value">{{ item.label }}</Option>
               </Select>
             </div>
-            <!-- <Input
-              v-model="uniteCmd"
-              type="textarea"
-              :autosize="{ minRows: 5, maxRows: 16 }"
-              @keyup.enter.exact.native="sendCmd"
-              @keyup.alt.38.exact.native="upCmd"
-              @keyup.alt.enter.exact.native="warpCmd"
-              @keyup.alt.40.exact.native="downCmd"
-              placeholder="Enter something..."
-            /> -->
             <Input
               v-model="uniteCmd"
               type="textarea"
@@ -354,6 +344,9 @@ export default {
     this.getHostList()
   },
   methods: {
+    showRegular () {
+      return !!window.request
+    },
     warpCmd () {
       this.uniteCmd = this.uniteCmd + '\n'
     },
