@@ -2,10 +2,12 @@
 
 from __future__ import absolute_import
 
+from talos.core.config import CONF
 from terminal.apps.assets import controller
 
 
 def add_routes(api):
+    api.add_static_route('/', CONF.ui, fallback_filename='index.html')
     api.add_route('/terminal/v1/assets', controller.CollectionAssets())
     api.add_route('/terminal/v1/view-assets', controller.CollectionViewAssets())
     api.add_route('/terminal/v1/assets/{rid}/file', controller.ItemAssetFile())

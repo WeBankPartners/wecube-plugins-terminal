@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 
+import os
 import jwt
 import jwt.exceptions
 from talos.core import config
@@ -21,6 +22,13 @@ class JWTAuth(object):
         # 忽略token的接口必须是不需要token信息
         if req.path in CONF.login_passthrough:
             return
+        if req.path == '/':
+            return
+        extensions = req.path.rsplit('.', 1)
+        if len(extensions) > 1:
+            extension = extensions[1]
+            if extension in ['css', 'woff', 'woff2', 'tff', 'svg', 'jpg', 'jpeg', 'png', 'ico', 'js', 'map', 'html']:
+                return
         token_header = req.headers.get('Authorization'.upper(), None)
         token_cookie = req.get_cookie_values('accessToken')
         if token_cookie:
