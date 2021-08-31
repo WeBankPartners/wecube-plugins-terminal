@@ -44,6 +44,21 @@ export default {
       },
       menus: [
         {
+          code: 'terminal',
+          cnName: '终端',
+          enName: 'TERMINAL',
+          seqNo: 2,
+          parent: '',
+          isActive: 'yes',
+          submenus: [
+            {
+              code: 'terminal_console',
+              cnName: '终端连接',
+              link: '/terminalOperation'
+            }
+          ]
+        },
+        {
           code: 'system',
           cnName: '系统',
           enName: 'SYSTEM',
@@ -59,27 +74,12 @@ export default {
             {
               code: 'terminal_authorization',
               cnName: '系统授权',
-              link: ''
+              link: '/systemAuthorization'
             },
             {
               code: 'terminal_permission',
               cnName: '终端授权',
               link: '/terminalAuthorization'
-            }
-          ]
-        },
-        {
-          code: 'terminal',
-          cnName: '终端',
-          enName: 'TERMINAL',
-          seqNo: 2,
-          parent: '',
-          isActive: 'yes',
-          submenus: [
-            {
-              code: 'terminal_console',
-              cnName: '终端连接',
-              link: '/terminalOperation'
             }
           ]
         }

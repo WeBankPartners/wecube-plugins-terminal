@@ -81,7 +81,7 @@
 import {
   getTableData,
   getAssets,
-  getAllRoles,
+  getAllRolesPlatform,
   savePermission,
   editPermissions,
   deleteTableRow,
@@ -273,7 +273,7 @@ export default {
       }
     },
     async initRoles () {
-      const { status, data } = await getAllRoles()
+      const { status, data } = await getAllRolesPlatform()
       if (status === 'OK') {
         this.rolesOption = data
       }
@@ -308,7 +308,7 @@ export default {
       if (res.status === 'OK') {
         this.modelConfig.slotConfig.assertsOption = res.data.data
       }
-      const { status, data } = await getAllRoles()
+      const { status, data } = await getAllRolesPlatform()
       if (status === 'OK') {
         this.modelConfig.slotConfig.rolesOption = data
       }
@@ -337,7 +337,7 @@ export default {
       if (res.status === 'OK') {
         this.modelConfig.slotConfig.assertsOption = res.data.data
       }
-      const { status, data } = await getAllRoles()
+      const { status, data } = await getAllRolesPlatform()
       if (status === 'OK') {
         this.modelConfig.slotConfig.rolesOption = data
       }
