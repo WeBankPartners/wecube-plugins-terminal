@@ -4,12 +4,16 @@
       <div class="menus">
         <Menu mode="horizontal" theme="dark">
           <Submenu v-for="menu in menus" :name="menu.code" :key="menu.code">
-            <template slot="title">
-              {{ getTitle(menu) }}
+            <template>
+              <template slot="title">
+                {{ getTitle(menu) }}
+              </template>
+              <router-link v-for="submenu in menu.submenus" :key="submenu.code" :to="submenu.link || ''">
+                <MenuItem v-if="submenu.isActive" :name="submenu.code" :disabled="!submenu.link">{{
+                  getTitle(submenu)
+                }}</MenuItem>
+              </router-link>
             </template>
-            <router-link v-for="submenu in menu.submenus" :key="submenu.code" :to="submenu.link || ''">
-              <MenuItem :name="submenu.code" :disabled="!submenu.link">{{ getTitle(submenu) }}</MenuItem>
-            </router-link>
           </Submenu>
         </Menu>
       </div>
@@ -86,8 +90,9 @@
 </template>
 <script>
 import Vue from 'vue'
-import { changePassword } from '@/api/server.js'
+import { changePassword, getUserMenus } from '@/api/server.js'
 import { clearAllCookie } from '../util/cookie'
+import { MENUS } from '@/const/menus.js'
 export default {
   data () {
     return {
@@ -97,48 +102,7 @@ export default {
         'zh-CN': '简体中文',
         'en-US': 'English'
       },
-      menus: [
-        {
-          code: 'terminal',
-          cnName: '终端',
-          enName: 'TERMINAL',
-          seqNo: 2,
-          parent: '',
-          isActive: 'yes',
-          submenus: [
-            {
-              code: 'terminal_console',
-              cnName: '终端连接',
-              link: '/terminal/terminalOperation'
-            }
-          ]
-        },
-        {
-          code: 'system',
-          cnName: '系统',
-          enName: 'SYSTEM',
-          seqNo: 1,
-          parent: '',
-          isActive: 'yes',
-          submenus: [
-            {
-              code: 'terminal_asset',
-              cnName: '终端管理',
-              link: '/terminal/terminalManagement'
-            },
-            {
-              code: 'terminal_authorization',
-              cnName: '系统授权',
-              link: '/terminal/systemAuthorization'
-            },
-            {
-              code: 'terminal_permission',
-              cnName: '终端授权',
-              link: '/terminal/terminalAuthorization'
-            }
-          ]
-        }
-      ],
+      menus: [],
       changePassword: false,
       formValidate: {
         newPassword: '',
@@ -153,6 +117,20 @@ export default {
     }
   },
   methods: {
+    async getMenus () {
+      this.menus = JSON.parse(JSON.stringify(MENUS))
+      const { status, data } = await getUserMenus()
+      if (status === 'OK') {
+        data.forEach(_ => {
+          let findSubmenus = this.menus.find(menu => menu.code === _.parent).submenus
+          console.log(_, findSubmenus)
+          let findMenu = findSubmenus.find(m => m.code === _.id)
+          console.log(findMenu)
+          findMenu.isActive = true
+        })
+        console.log(this.menus)
+      }
+    },
     showChangePassword () {
       this.formValidate = {
         newPassword: '',
@@ -197,7 +175,8 @@ export default {
       window.location.href = window.location.origin + window.location.pathname + '#/login'
     },
     getTitle (menu) {
-      return localStorage.getItem('lang') === 'zh-CN' ? menu.cnName : menu.enName
+      const lang = localStorage.getItem('lang') || 'zh-CN'
+      return lang === 'zh-CN' ? menu.cnName : menu.enName
     },
     changeLanguage (key) {
       Vue.config.lang = key
@@ -217,6 +196,9 @@ export default {
     $lang: function (lang) {
       window.location.reload()
     }
+  },
+  mounted () {
+    this.getMenus()
   }
 }
 </script>

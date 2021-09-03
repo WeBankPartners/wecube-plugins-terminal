@@ -5,50 +5,46 @@ export const MENUS = [
     enName: 'TERMINAL',
     seqNo: 2,
     parent: '',
-    isActive: 'yes'
+    isActive: false,
+    submenus: [
+      {
+        code: 'terminal_console',
+        cnName: '终端连接',
+        enName: 'TERMINAL CONSOLE',
+        isActive: false,
+        link: '/terminal/terminalOperation'
+      }
+    ]
   },
   {
     code: 'system',
     cnName: '系统',
     enName: 'SYSTEM',
-    seqNo: 2,
+    seqNo: 1,
     parent: '',
-    isActive: 'yes'
-  },
-  {
-    code: 'terminal_console',
-    cnName: '终端连接',
-    enName: 'TERMINAL CONSOLE',
-    seqNo: 1,
-    parent: 'TERMINAL',
-    isActive: 'yes',
-    link: '/terminal/terminalOperation'
-  },
-  {
-    code: 'terminal_asset',
-    cnName: '终端管理',
-    enName: 'TERMINAL ASSET',
-    seqNo: 1,
-    parent: 'system',
-    isActive: 'yes',
-    link: '/terminal/terminalManagement'
-  },
-  {
-    code: 'terminal_authorization',
-    cnName: '系统授权',
-    enName: 'TERMINAL AUTHORIZATION',
-    seqNo: 2,
-    parent: 'system',
-    isActive: 'yes',
-    link: '/terminal/systemAuthorization'
-  },
-  {
-    code: 'terminal_permission',
-    cnName: '终端授权',
-    enName: 'TERMINAL PERMISSION',
-    seqNo: 3,
-    parent: 'system',
-    isActive: 'yes',
-    link: '/terminal/terminalAuthorization'
+    isActive: false,
+    submenus: [
+      {
+        code: 'system_asset',
+        cnName: '终端管理',
+        enName: 'TERMINAL ASSET',
+        isActive: false,
+        link: '/terminal/terminalManagement'
+      },
+      {
+        code: 'system_authorization',
+        cnName: '系统授权',
+        enName: 'TERMINAL AUTHORIZATION',
+        isActive: false,
+        link: '/terminal/systemAuthorization'
+      },
+      {
+        code: 'system_permission',
+        cnName: '终端授权',
+        enName: 'TERMINAL PERMISSION',
+        isActive: false,
+        link: '/terminal/terminalAuthorization'
+      }
+    ]
   }
 ]

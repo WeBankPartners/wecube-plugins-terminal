@@ -75,3 +75,4 @@ export const getPermissionsByUser = user => req.get(`/terminal/v1/users/${user}/
 export const addMenusToRole = (roleName, data) => req.post(`/terminal/v1/roles/${roleName}/menus`, data)
 
 export const changePassword = data => req.post(`/terminal/v1/user-password`, data)
+export const getUserMenus = () => req.get(`/terminal/v1/user-menus`)
