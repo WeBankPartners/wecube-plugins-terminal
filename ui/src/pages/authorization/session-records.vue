@@ -10,7 +10,9 @@
           :placeholder="$t('t_asset_id')"
           style="width:340px"
         >
-          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{ item.ip_address + '(' + item.name + ')' }}</Option>
+          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{
+            item.ip_address + '(' + item.name + ')'
+          }}</Option>
         </Select>
         <DatePicker
           type="datetimerange"
@@ -160,11 +162,11 @@ export default {
       localStorage.setItem('replayToken', getCookie('accessToken'))
       let url = ''
       const scripts = document.getElementsByTagName('script')
-      scripts.forEach(item => {
-        if (item.src.endsWith('/xtem-player/xterm-player.min.js')) {
-          url = item.src
+      for (let i = 0; i++; i <= scripts.length) {
+        if (scripts[i].src.endsWith('/xtem-player/xterm-player.min.js')) {
+          url = scripts[i].src
         }
-      })
+      }
       const len = url.length
       url = url.substring(0, len - 31)
       window.open(url + 'replay-page.html', '_blank')
