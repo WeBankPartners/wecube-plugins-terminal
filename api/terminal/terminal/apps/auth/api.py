@@ -127,6 +127,8 @@ class SysUser(db_resource.SysUser):
         return False
 
     def update_password(self, rid, password, origin_password):
+        if not password:
+            raise exceptions.PluginError(message=_('unabled to set empty password'))
         if self.check_password(rid, origin_password):
             resource = {}
             resource['salt'] = utils.generate_salt(16)
