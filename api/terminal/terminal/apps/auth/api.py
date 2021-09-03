@@ -141,7 +141,9 @@ class SysUser(db_resource.SysUser):
         refs = self.list({'id': rid})
         if refs and refs[0]['is_system'] == 'yes':
             raise exceptions.PluginError(message=_('unable to delete system user'))
-        return super().delete(rid, filters=filters, detail=detail)
+        with self.transaction() as session:
+            db_resource.SysRoleUser(transaction=session).delete_all({'user_id': rid})
+            return super().delete(rid, filters=filters, detail=detail)
 
 
 class SysRole(db_resource.SysRole):
@@ -192,7 +194,12 @@ class SysRole(db_resource.SysRole):
         refs = self.list({'id': rid})
         if refs and refs[0]['is_system'] == 'yes':
             raise exceptions.PluginError(message=_('unable to delete system role'))
-        return super().delete(rid, filters=filters, detail=detail)
+        with self.transaction() as session:
+            bindings = db_resource.SysRoleUser(transaction=session).list({'role_id': rid})
+            if len(bindings) > 0:
+                users = ','.join([bind['user_id'] for bind in bindings])
+                raise exceptions.PluginError(message=_('role binds with %(users)s') % {'users': users})
+            return super().delete(rid, filters=filters, detail=detail)
 
 
 class SysMenu(db_resource.SysMenu):

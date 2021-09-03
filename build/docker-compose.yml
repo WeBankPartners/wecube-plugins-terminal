@@ -46,3 +46,4 @@ services:
       - ENCRYPT_SEED=wecube
     ports:
       - 80:9001
+      - 8081:9002
