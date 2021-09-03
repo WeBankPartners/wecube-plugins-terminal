@@ -161,20 +161,19 @@ req.interceptors.response.use(
         window.location.href = window.location.origin + window.location.pathname + '#/login'
       }
     }
-    // const { response } = error
-    // Vue.prototype.$Notice.error({
-    //   title: 'error',
-    //   duration: 10,
-    //   desc:
-    //     (response.data &&
-    //       'status:' +
-    //         response.data.status +
-    //         '<br/> error:' +
-    //         response.data.error +
-    //         '<br/> message:' +
-    //         response.data.message) ||
-    //     'error'
-    // })
+    Vue.prototype.$Notice.error({
+      title: 'error',
+      duration: 10,
+      desc:
+        (response.data &&
+          'status:' +
+            response.data.status +
+            '<br/> error:' +
+            response.data.error +
+            '<br/> message:' +
+            response.data.message) ||
+        'error'
+    })
     return new Promise((resolve, reject) => {
       resolve({
         data: throwError(error)
