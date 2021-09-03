@@ -1,5 +1,8 @@
 <template>
   <div>
+    <!-- <div class="header">
+      <Header @allMenus="allMenus" />
+    </div> -->
     <div>
       <transition name="fade" mode="out-in">
         <router-view class="pages"></router-view>
@@ -9,13 +12,16 @@
 </template>
 
 <script>
+import Header from '@/pages/components/header'
 export default {
+  components: { Header },
   data () {
     return {
       isShowBreadcrum: true,
       allMenusAry: [],
       parentBreadcrumb: '',
-      childBreadcrumb: ''
+      childBreadcrumb: '',
+      allMenus: []
     }
   },
   methods: {},

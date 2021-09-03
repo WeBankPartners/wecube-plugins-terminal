@@ -1,38 +1,93 @@
 <template>
-  <Header>
-    <div class="menus">
-      <Menu mode="horizontal" theme="dark">
-        <Submenu v-for="menu in menus" :name="menu.code" :key="menu.code">
-          <template slot="title">
-            {{ getTitle(menu) }}
-          </template>
-          <router-link v-for="submenu in menu.submenus" :key="submenu.code" :to="submenu.link || ''">
-            <MenuItem :name="submenu.code" :disabled="!submenu.link">{{ getTitle(submenu) }}</MenuItem>
-          </router-link>
-        </Submenu>
-      </Menu>
-    </div>
-    <div class="header-right_container">
-      <div class="language">
-        <Dropdown>
-          <a href="javascript:void(0)">
-            <Icon size="16" type="ios-globe" style="margin-right:5px; cursor: pointer" />
-            {{ currentLanguage }}
-            <Icon type="ios-arrow-down"></Icon>
-          </a>
-          <DropdownMenu slot="list">
-            <DropdownItem v-for="(item, key) in language" :key="item.id" @click.native="changeLanguage(key)">{{
-              item
-            }}</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+  <div>
+    <Header>
+      <div class="menus">
+        <Menu mode="horizontal" theme="dark">
+          <Submenu v-for="menu in menus" :name="menu.code" :key="menu.code">
+            <template slot="title">
+              {{ getTitle(menu) }}
+            </template>
+            <router-link v-for="submenu in menu.submenus" :key="submenu.code" :to="submenu.link || ''">
+              <MenuItem :name="submenu.code" :disabled="!submenu.link">{{ getTitle(submenu) }}</MenuItem>
+            </router-link>
+          </Submenu>
+        </Menu>
       </div>
-    </div>
-  </Header>
+      <div class="header-right_container">
+        <div class="profile">
+          <Dropdown>
+            <span style="color: white">{{ getUserName() }}</span>
+            <Icon :size="18" type="md-arrow-dropdown"></Icon>
+            <DropdownMenu slot="list">
+              <DropdownItem name="logout">
+                <a @click="logout" style="width: 100%; display: block">
+                  {{ $t('logout') }}
+                </a>
+              </DropdownItem>
+              <DropdownItem name="changePassword">
+                <a @click="showChangePassword" style="width: 100%; display: block">
+                  {{ $t('change_password') }}
+                </a>
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </div>
+        <div class="language">
+          <Dropdown>
+            <a href="javascript:void(0)">
+              <Icon size="16" type="ios-globe" style="margin-right:5px; cursor: pointer" />
+              {{ currentLanguage }}
+              <Icon type="ios-arrow-down"></Icon>
+            </a>
+            <DropdownMenu slot="list">
+              <DropdownItem v-for="(item, key) in language" :key="item.id" @click.native="changeLanguage(key)">{{
+                item
+              }}</DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </div>
+      </div>
+    </Header>
+    <Modal
+      v-model="changePassword"
+      :title="$t('change_password')"
+      :mask-closable="false"
+      @on-visible-change="cancelChangePassword"
+    >
+      <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+        <FormItem :label="$t('old_password')" prop="oldPassword">
+          <Input
+            v-model="formValidate.oldPassword"
+            type="password"
+            :placeholder="$t('old_password_input_placeholder')"
+          ></Input>
+        </FormItem>
+        <FormItem :label="$t('new_password')" prop="password">
+          <Input
+            v-model="formValidate.newPassword"
+            type="password"
+            :placeholder="$t('new_password_input_placeholder')"
+          ></Input>
+        </FormItem>
+        <FormItem :label="$t('confirm_password')" prop="confirmPassword">
+          <Input
+            v-model="formValidate.confirmPassword"
+            type="password"
+            :placeholder="$t('confirm_password_input_placeholder')"
+          ></Input>
+        </FormItem>
+      </Form>
+      <div slot="footer">
+        <Button @click="cancelChangePassword(false)">{{ $t('cancel') }}</Button>
+        <Button type="primary" @click="okChangePassword">{{ $t('confirm') }}</Button>
+      </div>
+    </Modal>
+  </div>
 </template>
 <script>
 import Vue from 'vue'
-
+import { changePassword } from '@/api/server.js'
+import { clearAllCookie } from '../util/cookie'
 export default {
   data () {
     return {
@@ -54,7 +109,7 @@ export default {
             {
               code: 'terminal_console',
               cnName: '终端连接',
-              link: '/terminalOperation'
+              link: '/terminal/terminalOperation'
             }
           ]
         },
@@ -69,24 +124,78 @@ export default {
             {
               code: 'terminal_asset',
               cnName: '终端管理',
-              link: '/terminalManagement'
+              link: '/terminal/terminalManagement'
             },
             {
               code: 'terminal_authorization',
               cnName: '系统授权',
-              link: '/systemAuthorization'
+              link: '/terminal/systemAuthorization'
             },
             {
               code: 'terminal_permission',
               cnName: '终端授权',
-              link: '/terminalAuthorization'
+              link: '/terminal/terminalAuthorization'
             }
           ]
         }
-      ]
+      ],
+      changePassword: false,
+      formValidate: {
+        newPassword: '',
+        oldPassword: '',
+        confirmPassword: ''
+      },
+      ruleValidate: {
+        newPassword: [{ required: true, message: 'New Password cannot be empty', trigger: 'blur' }],
+        oldPassword: [{ required: true, message: 'Old Password cannot be empty', trigger: 'blur' }],
+        confirmPassword: [{ required: true, message: 'Confirm Password cannot be empty', trigger: 'blur' }]
+      }
     }
   },
   methods: {
+    showChangePassword () {
+      this.formValidate = {
+        newPassword: '',
+        oldPassword: '',
+        confirmPassword: ''
+      }
+      this.changePassword = true
+    },
+    okChangePassword () {
+      this.$refs['formValidate'].validate(async valid => {
+        if (valid) {
+          if (this.formValidate.newPassword === this.formValidate.confirmPassword) {
+            const params = {
+              // username: this.user,
+              oldPassword: this.formValidate.oldPassword,
+              newPassword: this.formValidate.newPassword
+            }
+            const { status } = await changePassword(params)
+            if (status === 'OK') {
+              this.$Message.success('Success !')
+              this.changePassword = false
+            }
+          } else {
+            this.$Message.warning(this.$t('confirm_password_error'))
+          }
+        }
+      })
+    },
+    cancelChangePassword (flag = false) {
+      if (!flag) {
+        this.$refs['formValidate'].resetFields()
+        this.changePassword = false
+      }
+    },
+    getUserName () {
+      this.user = localStorage.getItem('username')
+      return this.user
+    },
+    logout () {
+      localStorage.clear()
+      clearAllCookie()
+      window.location.href = window.location.origin + window.location.pathname + '#/login'
+    },
     getTitle (menu) {
       return localStorage.getItem('lang') === 'zh-CN' ? menu.cnName : menu.enName
     },

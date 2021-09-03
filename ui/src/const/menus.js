@@ -22,7 +22,7 @@ export const MENUS = [
     seqNo: 1,
     parent: 'TERMINAL',
     isActive: 'yes',
-    link: '/terminalOperation'
+    link: '/terminal/terminalOperation'
   },
   {
     code: 'terminal_asset',
@@ -31,7 +31,7 @@ export const MENUS = [
     seqNo: 1,
     parent: 'system',
     isActive: 'yes',
-    link: '/terminalManagement'
+    link: '/terminal/terminalManagement'
   },
   {
     code: 'terminal_authorization',
@@ -40,7 +40,7 @@ export const MENUS = [
     seqNo: 2,
     parent: 'system',
     isActive: 'yes',
-    link: '/systemAuthorization'
+    link: '/terminal/systemAuthorization'
   },
   {
     code: 'terminal_permission',
@@ -49,6 +49,6 @@ export const MENUS = [
     seqNo: 3,
     parent: 'system',
     isActive: 'yes',
-    link: '/terminalAuthorization'
+    link: '/terminal/terminalAuthorization'
   }
 ]

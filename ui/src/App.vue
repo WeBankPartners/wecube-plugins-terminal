@@ -1,23 +1,39 @@
 <template>
-  <div>
-    <div class="header">
+  <div id="app">
+    <div v-if="showMenus" class="header">
       <Header @allMenus="allMenus" />
     </div>
     <div class="app-content-container">
       <BackTop :height="100" :bottom="100" />
-      <router-view :key="$route.path" />
+      <router-view />
     </div>
   </div>
 </template>
 <script>
-import Header from './pages/components/header'
+import Header from '@/pages/components/header'
 export default {
   components: { Header },
   data () {
     return {
+      showMenus: true,
+      isShowBreadcrum: true,
+      allMenusAry: [],
+      parentBreadcrumb: '',
+      childBreadcrumb: '',
       allMenus: []
     }
-  }
+  },
+  watch: {
+    $route (to) {
+      if (to.path === '/login') {
+        this.showMenus = false
+      } else {
+        this.showMenus = true
+      }
+    }
+  },
+  methods: {},
+  mounted () {}
 }
 </script>
 <style lang="scss">

@@ -204,5 +204,20 @@
   "permission_management_unselected_user": "Unselected User",
   "permission_management_selected_user": "Seleted User",
   "reset_password": "Reset Password",
-  "copy_password": "Please save initial password"
+  "copy_password": "Please save initial password",
+  "logout": "Logout",
+  "no_password_set": "No Password Set",
+  "change_password": "Change Password",
+  "original_password": "Old Password",
+  "new_password": "New Password",
+  "confirm_password": "Confirm Password",
+  "original_password_input_placeholder": "Please input old password",
+  "new_password_input_placeholder": "Please input new password",
+  "confirm_password_input_placeholder": "Please enter the new password again",
+  "confirm_password_error": "Password confirmation error",
+  "password_edit": "Change Password",
+  "old_password": "Old Password",
+  "old_password_input_placeholder": "Please input old password",
+  "confirm": "Confirm",
+  "cancel": "Cancel"
 }

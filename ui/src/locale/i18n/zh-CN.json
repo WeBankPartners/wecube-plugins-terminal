@@ -206,5 +206,20 @@
   "permission_management_unselected_user": "未选中用户",
   "permission_management_selected_user": "选中用户",
   "reset_password": "重置密码",
-  "copy_password": "请保存初始密码"
+  "copy_password": "请保存初始密码",
+  "logout": "注销",
+  "no_password_set": "未设置密码",
+  "change_password": "修改密码",
+  "original_password": "旧密码",
+  "new_password": "新密码",
+  "confirm_password": "确认密码",
+  "original_password_input_placeholder": "请输入原密码",
+  "new_password_input_placeholder": "请输入新密码",
+  "confirm_password_input_placeholder": "请再次输入新密码",
+  "confirm_password_error": "密码二次确认错误",
+  "password_edit": "修改密码",
+  "old_password": "旧密码",
+  "old_password_input_placeholder": "请输入原密码",
+  "confirm": "确定",
+  "cancel": "取消"
 }

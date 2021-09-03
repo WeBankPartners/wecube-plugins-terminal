@@ -11,6 +11,8 @@ if (window.request) {
   }
 }
 
+export const login = data => req.post('/terminal/v1/login', data)
+
 export const getRoleList = () => req.get(`/platform/v1/roles/retrieve`)
 export const getRolesByCurrentUser = () => req.get(`/platform/v1/users/roles`)
 
@@ -71,3 +73,5 @@ export const getRolesByUser = username => req.get(`/terminal/v1/users/${username
 export const getPermissionsByRole = roleName => req.get(`/terminal/v1/roles/${roleName}/menus`)
 export const getPermissionsByUser = user => req.get(`/terminal/v1/users/${user}/menus`)
 export const addMenusToRole = (roleName, data) => req.post(`/terminal/v1/roles/${roleName}/menus`, data)
+
+export const changePassword = data => req.post(`/terminal/v1/user-password`, data)
