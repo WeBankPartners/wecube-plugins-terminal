@@ -170,6 +170,7 @@ export default {
     },
     add () {
       this.modelConfig.isAdd = true
+      this.modelConfig.addRow.port = 22
       this.$root.JQ('#add_edit_Modal').modal('show')
     },
     async addPost () {
@@ -187,7 +188,7 @@ export default {
       this.modelConfig.isAdd = false
       this.modelTip.value = rowData[this.modelTip.key]
       this.id = rowData.id
-      this.modelConfig.addRow = rowData
+      this.modelConfig.addRow = this.$TerminalCommonUtil.manageEditParams(this.modelConfig.addRow, rowData)
       this.$root.JQ('#add_edit_Modal').modal('show')
     },
     async editPost () {

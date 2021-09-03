@@ -123,12 +123,9 @@ export default {
       if (status === 'OK') {
         data.forEach(_ => {
           let findSubmenus = this.menus.find(menu => menu.code === _.parent).submenus
-          console.log(_, findSubmenus)
           let findMenu = findSubmenus.find(m => m.code === _.id)
-          console.log(findMenu)
           findMenu.isActive = true
         })
-        console.log(this.menus)
       }
     },
     showChangePassword () {
