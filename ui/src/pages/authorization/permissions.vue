@@ -10,7 +10,9 @@
           :placeholder="$t('t_asset_id')"
           style="width:340px"
         >
-          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{ item.ip_address + '(' + item.name + ')' }}</Option>
+          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{
+            item.ip_address + '(' + item.name + ')'
+          }}</Option>
         </Select>
         <Select
           v-model="roles_id"
@@ -34,14 +36,16 @@
             </Option>
           </Select>
         </div>
-        <div class="marginbottom params-each">
+        <div class="marginbottom params-each" v-if="showRegular()">
           <label class="col-md-2 label-name">{{ $t('t_auth_expression') }}:</label>
-          <span><FilterRules
-            style="width:340px;display:inline-block;vertical-align: middle;"
-            :needAttr="true"
-            v-model="modelConfig.addRow.expression"
-            :allDataModelsWithAttrs="allEntityType"
-          ></FilterRules></span>
+          <span
+            ><FilterRules
+              style="width:340px;display:inline-block;vertical-align: middle;"
+              :needAttr="true"
+              v-model="modelConfig.addRow.expression"
+              :allDataModelsWithAttrs="allEntityType"
+            ></FilterRules
+          ></span>
         </div>
         <div class="marginbottom params-each">
           <label class="col-md-2 label-name">{{ $t('t_roles') }}:</label>
@@ -74,7 +78,15 @@
 </template>
 
 <script>
-import { getTableData, getAssets, getAllRoles, savePermission, editPermissions, deleteTableRow, getAllDataModels } from '@/api/server'
+import {
+  getTableData,
+  getAssets,
+  getAllRolesPlatform,
+  savePermission,
+  editPermissions,
+  deleteTableRow,
+  getAllDataModels
+} from '@/api/server'
 import FilterRules from '../components/filter-rules.vue'
 let tableEle = [
   {
@@ -195,7 +207,6 @@ export default {
       },
       modelConfig: {
         modalId: 'add_object_Modal',
-        modalTitle: 'button.add',
         isAdd: true,
         config: [
           {
@@ -237,6 +248,10 @@ export default {
     }
   },
   mounted () {
+    const removeRegular = this.showRegular()
+    if (!removeRegular) {
+      tableEle.splice(2, 1)
+    }
     this.initTableData()
     this.initAssets()
     this.initRoles()
@@ -248,6 +263,9 @@ export default {
     })
   },
   methods: {
+    showRegular () {
+      return !!window.request
+    },
     async initAssets () {
       const { status, data } = await getAssets()
       if (status === 'OK') {
@@ -255,7 +273,7 @@ export default {
       }
     },
     async initRoles () {
-      const { status, data } = await getAllRoles()
+      const { status, data } = await getAllRolesPlatform()
       if (status === 'OK') {
         this.rolesOption = data
       }
@@ -290,7 +308,7 @@ export default {
       if (res.status === 'OK') {
         this.modelConfig.slotConfig.assertsOption = res.data.data
       }
-      const { status, data } = await getAllRoles()
+      const { status, data } = await getAllRolesPlatform()
       if (status === 'OK') {
         this.modelConfig.slotConfig.rolesOption = data
       }
@@ -319,7 +337,7 @@ export default {
       if (res.status === 'OK') {
         this.modelConfig.slotConfig.assertsOption = res.data.data
       }
-      const { status, data } = await getAllRoles()
+      const { status, data } = await getAllRolesPlatform()
       if (status === 'OK') {
         this.modelConfig.slotConfig.rolesOption = data
       }
@@ -355,7 +373,7 @@ export default {
       })
     }
   },
-  components: {FilterRules}
+  components: { FilterRules }
 }
 </script>
 

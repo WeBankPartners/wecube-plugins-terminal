@@ -1,4 +1,4 @@
-import { setCookie, getCookie } from '@/pages/util/cookie'
+import { setCookie, getCookie, clearCookie } from '@/pages/util/cookie'
 import Vue from 'vue'
 import axios from 'axios'
 export const baseURL = ''
@@ -13,10 +13,10 @@ req.interceptors.request.use(
     return new Promise((resolve, reject) => {
       const currentTime = new Date().getTime()
       const accessToken = getCookie('accessToken')
-      if (accessToken && config.url !== '/auth/v1/api/login') {
+      if (accessToken && config.url !== '/terminal/v1/login') {
         const expiration = getCookie('accessTokenExpirationTime') * 1 - currentTime
         if (expiration < 1 * 60 * 1000 && !refreshRequest) {
-          refreshRequest = axios.get('/auth/v1/api/token', {
+          refreshRequest = axios.get('/terminal/v1/refresh-token', {
             headers: {
               Authorization: 'Bearer ' + getCookie('refreshToken')
             }
@@ -90,6 +90,77 @@ req.interceptors.response.use(
   },
   error => {
     const { response } = error
+    if (response.status === 401 && error.config.url !== '/terminal/api/v1/login') {
+      let refreshToken = getCookie('refreshToken')
+      if (refreshToken.length > 0) {
+        let refreshRequest = axios.get('/terminal/v1/refresh-token', {
+          headers: {
+            Authorization: 'Bearer ' + refreshToken
+          }
+        })
+        return refreshRequest.then(
+          resRefresh => {
+            setCookie(resRefresh.data.data)
+            // replace token with new one and replay request
+            error.config.headers.Authorization = 'Bearer ' + getCookie('accessToken')
+            error.config.url = error.config.url.replace('/terminal/api/v1', '')
+            let retryRequest = axios(error.config)
+            return retryRequest.then(
+              res => {
+                if (res.status === 200) {
+                  // do request success again
+                  if (res.data.status === 'ERROR') {
+                    const errorMes = Array.isArray(res.data.data)
+                      ? res.data.data.map(_ => _.message || _.errorMessage).join('<br/>')
+                      : res.data.message
+                    Vue.prototype.$Notice.warning({
+                      title: 'Error',
+                      desc: errorMes,
+                      duration: 10
+                    })
+                  }
+                  // if (
+                  //   res.headers['content-type'] === 'application/octet-stream' &&
+                  //   res.request.responseURL.includes('/platform/')
+                  // ) {
+                  //   exportFile(res)
+                  //   Vue.prototype.$Notice.info({
+                  //     title: 'Success',
+                  //     desc: '',
+                  //     duration: 10
+                  //   })
+                  //   return
+                  // }
+                  return res.data instanceof Array ? res.data : { ...res.data }
+                } else {
+                  return {
+                    data: throwError(res)
+                  }
+                }
+              },
+              err => {
+                const { response } = err
+                return new Promise((resolve, reject) => {
+                  resolve({
+                    data: throwError(response)
+                  })
+                })
+              }
+            )
+          },
+          // eslint-disable-next-line handle-callback-err
+          errRefresh => {
+            clearCookie('refreshToken')
+            window.location.href = window.location.origin + window.location.pathname + '#/login'
+            return {
+              data: {} // throwError(errRefresh.response)
+            }
+          }
+        )
+      } else {
+        window.location.href = window.location.origin + window.location.pathname + '#/login'
+      }
+    }
     Vue.prototype.$Notice.error({
       title: 'error',
       duration: 10,

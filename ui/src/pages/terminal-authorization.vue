@@ -1,5 +1,8 @@
 <template>
   <div>
+    <!-- <div class="header">
+      <Header />
+    </div> -->
     <section>
       <Tabs :value="activeTab" @on-click="changeTab">
         <template v-for="(tabItem, tabIndex) in tabs">
@@ -12,14 +15,16 @@
 </template>
 
 <script>
+// import Header from './components/header'
 export default {
   name: '',
   data () {
     return {
-      activeTab: '/terminal/terminalManagement/hosts',
+      activeTab: '/terminal/terminalAuthorization/sessionRecords',
       tabs: [
-        { label: '终端', path: '/terminal/terminalManagement/hosts' },
-        { label: '跳板机', path: '/terminal/terminalManagement/jumpServer' }
+        { label: 't_session_records', path: '/terminal/terminalAuthorization/sessionRecords' },
+        { label: 't_transfer_records', path: '/terminal/terminalAuthorization/transferRecords' },
+        { label: 't_permissions', path: '/terminal/terminalAuthorization/permissions' }
       ]
     }
   },
@@ -32,6 +37,9 @@ export default {
       if (this.$route.path === path) return
       this.$router.push({ path: path })
     }
+  },
+  components: {
+    // Header
   }
 }
 </script>

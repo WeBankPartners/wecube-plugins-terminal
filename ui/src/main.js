@@ -12,11 +12,12 @@ import { commonUtil } from '@/pages/util/common-util.js'
 import '@/assets/css/local.bootstrap.css'
 import 'bootstrap/dist/js/bootstrap.min.js'
 import 'font-awesome/css/font-awesome.css'
+import VeeValidate from '@/assets/veeValidate/VeeValidate'
 import jquery from 'jquery'
 
 import TerminalPageTable from '@/pages/components/table-page/page'
 import ModalComponent from '@/pages/components/modal'
-
+Vue.use(VeeValidate)
 Vue.prototype.$validate = validate
 Vue.prototype.$TerminalCommonUtil = commonUtil
 Vue.prototype.JQ = jquery
