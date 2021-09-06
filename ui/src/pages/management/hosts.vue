@@ -1,7 +1,20 @@
 <template>
   <div class=" ">
     <TerminalPageTable :pageConfig="pageConfig"> </TerminalPageTable>
-    <ModalComponent :modelConfig="modelConfig"></ModalComponent>
+    <ModalComponent :modelConfig="modelConfig">
+      <div slot="passwordSlot">
+        <div class="marginbottom params-each">
+          <label class="col-md-2 label-name">{{ $t('button.password') }}:</label>
+          <Input v-model="modelConfig.addRow.password" style="width:70%" type="password"></Input>
+          <label v-if="modelConfig.isAdd" class="required-tip">*</label>
+        </div>
+        <div class="marginbottom params-each">
+          <label class="col-md-2 label-name">{{ $t('button.rePassword') }}:</label>
+          <Input v-model="modelConfig.addRow.confirmPassword" style="width:70%" type="password"></Input>
+          <label v-if="modelConfig.isAdd" class="required-tip">*</label>
+        </div>
+      </div>
+    </ModalComponent>
   </div>
 </template>
 <script>
@@ -138,12 +151,8 @@ export default {
             type: 'text'
           },
           {
-            label: 'button.password',
-            value: 'password',
-            placeholder: 'tips.required',
-            v_validate: 'required:true|min:2|max:60',
-            disabled: false,
-            type: 'text'
+            name: 'passwordSlot',
+            type: 'slot'
           },
           { label: 'description', value: 'description', placeholder: '', v_validate: '', disabled: false, type: 'text' }
         ],
@@ -154,6 +163,7 @@ export default {
           port: 22,
           username: '',
           password: '',
+          confirmPassword: '',
           description: ''
         }
       },
@@ -182,6 +192,20 @@ export default {
       this.$root.JQ('#add_edit_Modal').modal('show')
     },
     async addPost () {
+      if (this.modelConfig.addRow.password === '' || this.modelConfig.addRow.confirmPassword === '') {
+        this.$Notice.warning({
+          title: 'Warning',
+          desc: this.$t('password_warning')
+        })
+        return
+      }
+      if (this.modelConfig.addRow.confirmPassword !== this.modelConfig.addRow.password) {
+        this.$Notice.warning({
+          title: 'Warning',
+          desc: this.$t('confirm_password_error')
+        })
+        return
+      }
       const { status, message } = await addMgmtAssets([this.modelConfig.addRow])
       if (status === 'OK') {
         this.$root.JQ('#add_edit_Modal').modal('hide')
@@ -202,6 +226,14 @@ export default {
     async editPost () {
       if (this.modelConfig.addRow.password === '') {
         delete this.modelConfig.addRow.password
+      } else {
+        if (this.modelConfig.addRow.confirmPassword === '') {
+          this.$Notice.warning({
+            title: 'Warning',
+            desc: this.$('password_warning')
+          })
+          return
+        }
       }
       const { status, message } = await editMgmtAssets(this.id, this.modelConfig.addRow)
       if (status === 'OK') {

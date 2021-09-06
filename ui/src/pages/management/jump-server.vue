@@ -148,14 +148,6 @@ export default {
             name: 'passwordSlot',
             type: 'slot'
           }
-          // {
-          //   label: 'button.password',
-          //   value: 'password',
-          //   placeholder: 'tips.required',
-          //   v_validate: 'required:true|min:2|max:60',
-          //   disabled: false,
-          //   type: 'text'
-          // }
         ],
         addRow: {
           name: '',
