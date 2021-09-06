@@ -39,11 +39,11 @@ services:
       - TERMINAL_DB_SCHEMA=terminal
       - JWT_SIGNING_KEY=V2VjdWJlQDEyMzQ1Ng
       - TERMINAL_SESSION_TIMEOUT=1800
-      - TERMINAL_WEBSOCKET_URL=ws://{{publicip}}:8081
+      - TERMINAL_WEBSOCKET_URL=ws://{{publicip}}:9002
       - TERMINAL_COMMAND_CHECK=OFF
       - TERMINAL_FILE_DOWNLOAD_MAX_BYTES=104857600
       - TZ=Asia/Shanghai
       - ENCRYPT_SEED=wecube
     ports:
-      - 80:9001
-      - 8081:9002
+      - 9001:9001
+      - 9002:9002
