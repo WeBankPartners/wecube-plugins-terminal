@@ -224,5 +224,7 @@
   "password_warning": "请填写密码与确认密码",
   "confirm": "确定",
   "cancel": "取消",
-  "header_title": "Terminal"
+  "header_title": "Terminal",
+  "asset": "终端",
+  "jump_server": "跳板机"
 }
