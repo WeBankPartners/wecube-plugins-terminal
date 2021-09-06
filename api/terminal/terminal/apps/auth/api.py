@@ -22,7 +22,7 @@ class SysUser(db_resource.SysUser):
     def generate_tokens(self, rid):
         roles = self.get_roles(rid)
         tokens = []
-        access_token_iat = int(time.time())
+        access_token_iat = int(time.time() * 1000)
         access_token_exp = access_token_iat + CONF.access_token_exipres
         refresh_token_exp = access_token_iat + CONF.refresh_token_exipres
         decoded_secret = terminal_utils.b64decode_key(CONF.jwt_signing_key)
