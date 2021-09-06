@@ -34,7 +34,7 @@ services:
       - TERMINAL_MODE=standalone
       - TERMINAL_DB_USERNAME=root
       - TERMINAL_DB_PASSWORD={{db_password}}
-      - TERMINAL_DB_HOSTIP=127.0.0.1
+      - TERMINAL_DB_HOSTIP={{hostip}}
       - TERMINAL_DB_HOSTPORT=3309
       - TERMINAL_DB_SCHEMA=terminal
       - JWT_SIGNING_KEY=V2VjdWJlQDEyMzQ1Ng
