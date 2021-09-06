@@ -18,25 +18,25 @@ const router = [
   {
     path: '/terminal/terminalAuthorization',
     name: 'terminalAuthorization',
-    redirect: '/terminal/terminalAuthorization/sessionRecords',
+    redirect: 'sessionRecords',
     component: terminalAuthorization,
     children: [
       {
-        path: '/terminal/terminalAuthorization/permissions',
+        path: 'permissions',
         name: 'permissions',
         title: '文件传输权限',
         meta: {},
         component: permissions
       },
       {
-        path: '/terminal/terminalAuthorization/sessionRecords',
+        path: 'sessionRecords',
         name: 'sessionRecords',
         title: '访问记录',
         meta: {},
         component: sessionRecords
       },
       {
-        path: '/terminal/terminalAuthorization/transferRecords',
+        path: 'transferRecords',
         name: 'transferRecords',
         title: '文件传输列表',
         meta: {},
@@ -47,18 +47,18 @@ const router = [
   {
     path: '/terminal/terminalManagement',
     name: 'terminalManagement',
-    redirect: '/terminal/terminalManagement/hosts',
+    redirect: 'hosts',
     component: terminalManagement,
     children: [
       {
-        path: '/terminal/terminalManagement/hosts',
+        path: 'hosts',
         name: 'hosts',
         title: '终端',
         meta: {},
         component: hosts
       },
       {
-        path: '/terminal/terminalManagement/jumpServer',
+        path: 'jumpServer',
         name: 'jumpServer',
         title: '跳板机',
         meta: {},
