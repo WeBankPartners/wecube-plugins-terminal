@@ -18,8 +18,8 @@ export default {
     return {
       activeTab: '/terminal/terminalManagement/hosts',
       tabs: [
-        { label: '终端', path: '/terminal/terminalManagement/hosts' },
-        { label: '跳板机', path: '/terminal/terminalManagement/jumpServer' }
+        { label: 'asset', path: '/terminal/terminalManagement/hosts' },
+        { label: 'jump_server', path: '/terminal/terminalManagement/jumpServer' }
       ]
     }
   },

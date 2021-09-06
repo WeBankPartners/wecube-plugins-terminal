@@ -253,7 +253,7 @@ export default {
     this.isPlugin = window.request
     const removeRegular = this.showRegular()
     if (!removeRegular) {
-      tableEle.splice(2, 1)
+      tableEle[2].display = false
     }
     this.initTableData()
     this.initAssets()

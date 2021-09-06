@@ -222,5 +222,7 @@
   "password_warning": "Please check password",
   "confirm": "Confirm",
   "cancel": "Cancel",
-  "header_title": "Terminal"
+  "header_title": "Terminal",
+  "asset": "Asset",
+  "jump_server": "Jump Server"
 }
