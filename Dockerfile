@@ -19,6 +19,9 @@ RUN apt update && apt -y install openssh-client telnet && rm -rf /root/.cache &&
 RUN mkdir -p /etc/terminal/
 RUN mkdir -p /var/log/terminal/
 RUN mkdir -p /data/terminal/records
+# compatible with standalone
+RUN mkdir -p /data/terminal/ui
+RUN echo "It works" > /data/terminal/ui/index.html
 COPY api/terminal/etc /etc/terminal
 # RUN adduser --disabled-password app
 # RUN chown -R app:app /etc/terminal/
