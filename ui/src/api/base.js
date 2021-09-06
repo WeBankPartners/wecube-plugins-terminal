@@ -119,18 +119,6 @@ req.interceptors.response.use(
                       duration: 10
                     })
                   }
-                  // if (
-                  //   res.headers['content-type'] === 'application/octet-stream' &&
-                  //   res.request.responseURL.includes('/platform/')
-                  // ) {
-                  //   exportFile(res)
-                  //   Vue.prototype.$Notice.info({
-                  //     title: 'Success',
-                  //     desc: '',
-                  //     duration: 10
-                  //   })
-                  //   return
-                  // }
                   return res.data instanceof Array ? res.data : { ...res.data }
                 } else {
                   return {
@@ -169,7 +157,7 @@ req.interceptors.response.use(
           'status:' +
             response.data.status +
             '<br/> error:' +
-            response.data.error +
+            response.data.title +
             '<br/> message:' +
             response.data.message) ||
         'error'
