@@ -61,7 +61,7 @@ package_standalone: image_standalone
 	cd package && cp ../init.sql ./init.sql
 	cd package && cp ../build/docker-compose.yml ./docker-compose.yml
 	cd package && cp ../build/standalone_readme ./README
-    cd package && sed -i 's/{{version}}/$(version)/' ./docker-compose.yml
+	cd package && sed -i 's/{{version}}/$(version)/' ./docker-compose.yml
 	cd package && zip -9 $(project_name)-$(version).zip image.tar init.sql docker-compose.yml README
 	cd package && rm -f image.tar init.sql docker-compose.yml README
 	docker rmi $(project_name):$(version)
