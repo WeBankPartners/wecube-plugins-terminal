@@ -22,7 +22,7 @@
                     style="width: 100%;margin-bottom:16px"
                   />
                 </TabPane>
-                <TabPane :label="$t('t_favorites')" name="favorites">
+                <TabPane v-if="showRegular()" :label="$t('t_favorites')" name="favorites">
                   <Form :label-width="80">
                     <FormItem :label="$t('t_favorites')">
                       <Select
