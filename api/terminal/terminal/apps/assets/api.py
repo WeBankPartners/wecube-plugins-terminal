@@ -47,8 +47,10 @@ class Asset(object):
                 'action': auth_type
             })
         asset = datas[0]
-        if asset['port'].isnumeric():
+        if isinstance(asset['port'], str) and asset['port'].isnumeric():
             asset['port'] = int(asset['port']) or 22
+        elif isinstance(asset['port'], int):
+            pass
         else:
             asset['port'] = 22
         return asset
@@ -129,7 +131,7 @@ class Asset(object):
                 auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
             auth_asset_ids = set(auth_asset_ids)
             if auth_asset_ids:
-                assets = AssetMgmt().list(filters={'id': auth_asset_ids})
+                assets = AssetMgmt().list_internal(filters={'id': auth_asset_ids})
                 for item in assets:
                     item['connnection_url'] = CONF.websocket_url
                 return assets
@@ -381,14 +383,14 @@ class SessionRecord(resource.SessionRecord):
     def download(self, rid):
         ref = self.get(rid)
         if ref:
-            if CONF.s3.server not in ref['filepath']:
+            if CONF.s3.server and CONF.s3.server in ref['filepath']:
+                client = s3.S3Client(CONF.s3.server, CONF.s3.access_key, CONF.s3.secret_key)
+                return client.download_stream(ref['filepath'])
+            else:
                 fullpath = os.path.join(CONF.session.record_path, ref['filepath'])
                 if not os.path.exists(fullpath):
                     raise exceptions.NotFoundError(resource='File of SessionRecord[%s]' % rid)
                 return open(fullpath, 'rb'), os.path.getsize(fullpath)
-            else:
-                client = s3.S3Client(CONF.s3.server, CONF.s3.access_key, CONF.s3.secret_key)
-                return client.download_stream(ref['filepath'])
         else:
             raise exceptions.NotFoundError(resource='SessionRecord[%s]' % rid)
 
