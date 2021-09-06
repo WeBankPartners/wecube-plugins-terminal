@@ -171,7 +171,8 @@
   "t_cmd_tip5": "5、Alt + ↑，上移",
   "t_cmd_tip6": "6、Alt + ↓，下移",
   "t_created_time": "创建时间",
-  "t_scope": "范围",
+  "t_scope": "CIDR范围",
+  "t_scope_tip": "多个CIDR以分号;进行连接",
 
   "selected_role": "选中角色",
   "unselected_role": "未选中角色",
@@ -220,6 +221,8 @@
   "password_edit": "修改密码",
   "old_password": "旧密码",
   "old_password_input_placeholder": "请输入原密码",
+  "password_warning": "请填写密码与确认密码",
   "confirm": "确定",
-  "cancel": "取消"
+  "cancel": "取消",
+  "header_title": "Terminal (功能演示版)"
 }

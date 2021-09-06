@@ -1,7 +1,20 @@
 <template>
   <div class=" ">
     <TerminalPageTable :pageConfig="pageConfig"> </TerminalPageTable>
-    <ModalComponent :modelConfig="modelConfig"></ModalComponent>
+    <ModalComponent :modelConfig="modelConfig">
+      <div slot="passwordSlot">
+        <div class="marginbottom params-each">
+          <label class="col-md-2 label-name">{{ $t('button.password') }}:</label>
+          <Input v-model="modelConfig.addRow.password" style="width:70%" type="password"></Input>
+          <label v-if="modelConfig.isAdd" class="required-tip">*</label>
+        </div>
+        <div class="marginbottom params-each">
+          <label class="col-md-2 label-name">{{ $t('button.rePassword') }}:</label>
+          <Input v-model="modelConfig.addRow.confirmPassword" style="width:70%" type="password"></Input>
+          <label v-if="modelConfig.isAdd" class="required-tip">*</label>
+        </div>
+      </div>
+    </ModalComponent>
   </div>
 </template>
 <script>
@@ -13,6 +26,11 @@ let tableEle = [
     display: true
   },
   {
+    title: 'button.username',
+    value: 'username',
+    display: true
+  },
+  {
     title: 'field.ip',
     value: 'ip_address', //
     display: true
@@ -20,11 +38,6 @@ let tableEle = [
   {
     title: 'field.port',
     value: 'port',
-    display: true
-  },
-  {
-    title: 'button.username',
-    value: 'username',
     display: true
   },
   {
@@ -118,7 +131,7 @@ export default {
           {
             label: 't_scope',
             value: 'scope',
-            placeholder: 'tips.required',
+            placeholder: 't_scope_tip',
             v_validate: 'required:true',
             disabled: false,
             type: 'text'
@@ -132,13 +145,17 @@ export default {
             type: 'text'
           },
           {
-            label: 'button.password',
-            value: 'password',
-            placeholder: 'tips.required',
-            v_validate: 'required:true|min:2|max:60',
-            disabled: false,
-            type: 'text'
+            name: 'passwordSlot',
+            type: 'slot'
           }
+          // {
+          //   label: 'button.password',
+          //   value: 'password',
+          //   placeholder: 'tips.required',
+          //   v_validate: 'required:true|min:2|max:60',
+          //   disabled: false,
+          //   type: 'text'
+          // }
         ],
         addRow: {
           name: '',
@@ -146,7 +163,8 @@ export default {
           port: 22,
           scope: '',
           username: '',
-          password: ''
+          password: '',
+          confirmPassword: ''
         }
       },
       id: null,
@@ -174,6 +192,20 @@ export default {
       this.$root.JQ('#add_edit_Modal').modal('show')
     },
     async addPost () {
+      if (this.modelConfig.addRow.password === '' || this.modelConfig.addRow.confirmPassword === '') {
+        this.$Notice.warning({
+          title: 'Warning',
+          desc: this.$t('password_warning')
+        })
+        return
+      }
+      if (this.modelConfig.addRow.confirmPassword !== this.modelConfig.addRow.password) {
+        this.$Notice.warning({
+          title: 'Warning',
+          desc: this.$t('confirm_password_error')
+        })
+        return
+      }
       const { status, message } = await addJumpServers([this.modelConfig.addRow])
       if (status === 'OK') {
         this.$root.JQ('#add_edit_Modal').modal('hide')
@@ -194,6 +226,21 @@ export default {
     async editPost () {
       if (this.modelConfig.addRow.password === '') {
         delete this.modelConfig.addRow.password
+      } else {
+        if (this.modelConfig.addRow.confirmPassword === '') {
+          this.$Notice.warning({
+            title: 'Warning',
+            desc: this.$('password_warning')
+          })
+          return
+        }
+        if (this.modelConfig.addRow.confirmPassword !== this.modelConfig.addRow.password) {
+          this.$Notice.warning({
+            title: 'Warning',
+            desc: this.$t('confirm_password_error')
+          })
+          return
+        }
       }
       const { status, message } = await editJumpServers(this.id, this.modelConfig.addRow)
       if (status === 'OK') {
