@@ -1,0 +1,10 @@
+1. 准备init sql
+mkdir -p /data/terminal/init
+cp init.sql /data/terminal/init/
+
+2. 修改docker-compose
+sed -i "s/{{db_password}}/your_password/g" docker-compose.yml
+sed -i "s/{{publicip}}/your_host_ip/g" docker-compose.yml
+
+3. 启动服务
+docker-compose -f docker-compose.yml up -d
