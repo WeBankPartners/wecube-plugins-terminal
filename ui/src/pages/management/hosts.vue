@@ -8,13 +8,18 @@
 import { getTableData, addMgmtAssets, deleteMgmtAssets, editMgmtAssets } from '@/api/server'
 let tableEle = [
   {
+    title: 'field.displayName',
+    value: 'display_name',
+    display: true
+  },
+  {
     title: 't_name',
     value: 'name',
     display: true
   },
   {
-    title: 'field.displayName',
-    value: 'display_name',
+    title: 'button.username',
+    value: 'username',
     display: true
   },
   {
@@ -30,11 +35,6 @@ let tableEle = [
   {
     title: 'description',
     value: 'description',
-    display: true
-  },
-  {
-    title: 'button.username',
-    value: 'username',
     display: true
   },
   {

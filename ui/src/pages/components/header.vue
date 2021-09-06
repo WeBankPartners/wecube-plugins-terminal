@@ -1,6 +1,7 @@
 <template>
   <div>
     <Header>
+      <span class="header-title">{{ $t('header_title') }}</span>
       <div class="menus">
         <Menu mode="horizontal" theme="dark">
           <Submenu v-for="menu in menus" :name="menu.code" :key="menu.code">

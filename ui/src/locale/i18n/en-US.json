@@ -169,7 +169,8 @@
   "t_cmd_tip5": "5、Alt + ↑，Move Up",
   "t_cmd_tip6": "6、Alt + ↓，Move Down",
   "t_created_time": "Created Time",
-  "t_scope": "Scope",
+  "t_scope": "CIDR Scope",
+  "t_scope_tip": "Multiple CIDRs with a semicolon; connect",
 
   "selected_role": "Selected Role",
   "unselected_role": "Unselected Role",
@@ -218,6 +219,8 @@
   "password_edit": "Change Password",
   "old_password": "Old Password",
   "old_password_input_placeholder": "Please input old password",
+  "password_warning": "Please check password",
   "confirm": "Confirm",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "header_title": "Terminal (Demo)"
 }
