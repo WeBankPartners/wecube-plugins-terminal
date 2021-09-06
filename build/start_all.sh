@@ -1,4 +1,7 @@
 #!/bin/sh
+# compatible with standalone
+mkdir -p /data/terminal/ui
+echo "It works" > /data/terminal/ui/index.html
 # log rotate
 nohup terminal_scheduler > /dev/null 2>&1 &
 # websocket tunnel
