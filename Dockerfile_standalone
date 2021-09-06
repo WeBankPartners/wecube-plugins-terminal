@@ -21,7 +21,7 @@ RUN mkdir -p /var/log/terminal/
 RUN mkdir -p /data/terminal/records
 RUN mkdir -p /data/terminal/ui
 COPY api/terminal/etc /etc/terminal
-COPY ui/dist/* /data/terminal/ui/
+COPY ui/dist/ /data/terminal/ui/
 # RUN adduser --disabled-password app
 # RUN chown -R app:app /etc/terminal/
 # RUN chown -R app:app /var/log/terminal/
