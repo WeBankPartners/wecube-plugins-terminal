@@ -22,13 +22,14 @@ class SysUser(db_resource.SysUser):
     def generate_tokens(self, rid):
         roles = self.get_roles(rid)
         tokens = []
-        access_token_iat = int(time.time() * 1000)
+        current_time = int(time.time() * 1000)
+        access_token_iat = int(current_time / 1000)
         access_token_exp = access_token_iat + CONF.access_token_exipres
         refresh_token_exp = access_token_iat + CONF.refresh_token_exipres
         decoded_secret = terminal_utils.b64decode_key(CONF.jwt_signing_key)
         tokens.append({
             "expiration":
-            str(access_token_exp),
+            str(current_time + CONF.access_token_exipres * 1000),
             "token":
             jwt.encode(
                 {
@@ -47,7 +48,7 @@ class SysUser(db_resource.SysUser):
         })
         tokens.append({
             "expiration":
-            str(refresh_token_exp),
+            str(current_time + CONF.refresh_token_exipres * 1000),
             "token":
             jwt.encode(
                 {
