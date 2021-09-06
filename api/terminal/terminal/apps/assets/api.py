@@ -131,9 +131,10 @@ class Asset(object):
                 auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
             auth_asset_ids = set(auth_asset_ids)
             if auth_asset_ids:
-                assets = AssetMgmt().list_internal(filters={'id': auth_asset_ids})
+                assets = AssetMgmt().list_internal(filters=filters)
                 for item in assets:
                     item['connnection_url'] = CONF.websocket_url
+                assets = [item for item in assets if item['id'] in auth_asset_ids]
                 return assets
         else:
             fields = {
