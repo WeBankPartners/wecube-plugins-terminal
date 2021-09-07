@@ -14,14 +14,7 @@
             </div>
             <div class="container-host">
               <Tabs :value="currentHostTab" :animated="false" @on-click="changeHostTabs">
-                <TabPane :label="$t('t_default')" name="default">
-                  <Input
-                    v-model="searchHost"
-                    :placeholder="$t('t_search_host')"
-                    @on-change="filterHost"
-                    style="width: 100%;margin-bottom:16px"
-                  />
-                </TabPane>
+                <TabPane :label="$t('t_default')" name="default"> </TabPane>
                 <TabPane :label="$t('t_favorites')" name="favorites">
                   <Form :label-width="80">
                     <FormItem :label="$t('t_favorites')">
@@ -81,6 +74,12 @@
                   </div>
                 </TabPane>
               </Tabs>
+              <Input
+                v-model="searchHost"
+                :placeholder="$t('t_search_host')"
+                @on-change="filterHost"
+                style="width: 100%;margin-bottom:16px"
+              />
               <template v-if="hostInfo.length > 0">
                 <Collapse>
                   <template v-for="host in hostInfo">
