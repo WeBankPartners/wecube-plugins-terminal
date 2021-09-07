@@ -128,16 +128,16 @@
                             <span style="word-break: break-all;">{{ host.display_name }}</span>
                           </div>
                         </div>
-                      </Panel>
-                    </template>
-                  </Collapse>
-                </template>
-                <template v-else>
-                  <div style="text-align:center;color:#969696;font-size:12px">
-                    {{ $t('t_no_data') }}
-                  </div>
-                </template>
-              </Tabs>
+                      </div>
+                    </Panel>
+                  </template>
+                </Collapse>
+              </template>
+              <template v-else>
+                <div style="text-align:center;color:#969696;font-size:12px">
+                  {{ $t('t_no_data') }}
+                </div>
+              </template>
             </div>
           </Card>
         </div>
