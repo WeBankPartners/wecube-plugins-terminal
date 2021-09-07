@@ -12,7 +12,7 @@ export const MENUS = [
         cnName: '终端连接',
         enName: 'TERMINAL CONSOLE',
         isActive: false,
-        link: '/terminal/terminalOperation'
+        link: '/terminalOperation'
       }
     ]
   },
@@ -29,21 +29,21 @@ export const MENUS = [
         cnName: '终端管理',
         enName: 'TERMINAL ASSET',
         isActive: false,
-        link: '/terminal/terminalManagement'
+        link: '/terminalManagement'
       },
       {
         code: 'system_authorization',
         cnName: '系统授权',
         enName: 'TERMINAL AUTHORIZATION',
         isActive: false,
-        link: '/terminal/systemAuthorization'
+        link: '/systemAuthorization'
       },
       {
         code: 'system_permission',
         cnName: '终端授权',
         enName: 'TERMINAL PERMISSION',
         isActive: false,
-        link: '/terminal/terminalAuthorization'
+        link: '/terminalAuthorization'
       }
     ]
   }

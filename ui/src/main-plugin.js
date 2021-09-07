@@ -26,23 +26,23 @@ window.component('ModalComponent', ModalComponent)
 window.locale('zh-CN', zhCN)
 window.locale('en-US', enUS)
 const implicitRoute = {
-  '/terminal/terminalAuthorization/sessionRecords': {
+  '/terminalAuthorization/sessionRecords': {
     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
     childBreadcrumb: { 'zh-CN': '会话记录', 'en-US': 'Session Records' }
   },
-  '/terminal/terminalAuthorization/transferRecords': {
+  '/terminalAuthorization/transferRecords': {
     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
     childBreadcrumb: { 'zh-CN': '文件传输', 'en-US': 'Transfer Records' }
   },
-  '/terminal/terminalAuthorization/permissions': {
+  '/terminalAuthorization/permissions': {
     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
     childBreadcrumb: { 'zh-CN': '权限管理', 'en-US': 'Permissions' }
   },
-  '/terminal/terminalManagement/hosts': {
+  '/terminalManagement/hosts': {
     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
     childBreadcrumb: { 'zh-CN': '终端', 'en-US': 'HOST' }
   },
-  '/terminal/terminalManagement/jumpServer': {
+  '/terminalManagement/jumpServer': {
     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
     childBreadcrumb: { 'zh-CN': '跳板机', 'en-US': 'JUMP SERVER' }
   }

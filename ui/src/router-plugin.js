@@ -9,14 +9,14 @@ import jumpServer from '@/pages/management/jump-server'
 
 const router = [
   {
-    path: '/terminal/terminalOperation',
-    name: '/terminal/terminalOperation',
+    path: '/terminalOperation',
+    name: '/terminalOperation',
     component: terminalOperation,
     params: {},
     props: true
   },
   {
-    path: '/terminal/terminalAuthorization',
+    path: '/terminalAuthorization',
     name: 'terminalAuthorization',
     redirect: 'sessionRecords',
     component: terminalAuthorization,
@@ -45,7 +45,7 @@ const router = [
     ]
   },
   {
-    path: '/terminal/terminalManagement',
+    path: '/terminalManagement',
     name: 'terminalManagement',
     redirect: 'hosts',
     component: terminalManagement,

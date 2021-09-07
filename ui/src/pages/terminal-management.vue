@@ -16,10 +16,10 @@ export default {
   name: '',
   data () {
     return {
-      activeTab: '/terminal/terminalManagement/hosts',
+      activeTab: '/terminalManagement/hosts',
       tabs: [
-        { label: 'asset', path: '/terminal/terminalManagement/hosts' },
-        { label: 'jump_server', path: '/terminal/terminalManagement/jumpServer' }
+        { label: 'asset', path: '/terminalManagement/hosts' },
+        { label: 'jump_server', path: '/terminalManagement/jumpServer' }
       ]
     }
   },

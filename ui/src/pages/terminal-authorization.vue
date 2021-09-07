@@ -20,11 +20,11 @@ export default {
   name: '',
   data () {
     return {
-      activeTab: '/terminal/terminalAuthorization/sessionRecords',
+      activeTab: '/terminalAuthorization/sessionRecords',
       tabs: [
-        { label: 't_session_records', path: '/terminal/terminalAuthorization/sessionRecords' },
-        { label: 't_transfer_records', path: '/terminal/terminalAuthorization/transferRecords' },
-        { label: 't_permissions', path: '/terminal/terminalAuthorization/permissions' }
+        { label: 't_session_records', path: '/terminalAuthorization/sessionRecords' },
+        { label: 't_transfer_records', path: '/terminalAuthorization/transferRecords' },
+        { label: 't_permissions', path: '/terminalAuthorization/permissions' }
       ]
     }
   },
