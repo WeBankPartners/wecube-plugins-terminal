@@ -18,7 +18,7 @@ const router = [
   {
     path: '/terminalAuthorization',
     name: 'terminalAuthorization',
-    redirect: 'sessionRecords',
+    redirect: '/terminalManagement/sessionRecords',
     component: terminalAuthorization,
     children: [
       {
@@ -47,7 +47,7 @@ const router = [
   {
     path: '/terminalManagement',
     name: 'terminalManagement',
-    redirect: 'hosts',
+    redirect: '/terminalManagement/hosts',
     component: terminalManagement,
     children: [
       {
