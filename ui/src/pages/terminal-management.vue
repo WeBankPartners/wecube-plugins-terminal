@@ -16,14 +16,19 @@ export default {
   name: '',
   data () {
     return {
-      activeTab: '/terminalManagement/hosts',
+      isPlugin: false,
+      activeTab: '/terminalManagement/jumpServer',
       tabs: [
-        { label: 'asset', path: '/terminalManagement/hosts' },
-        { label: 'jump_server', path: '/terminalManagement/jumpServer' }
+        { label: 'jump_server', path: '/terminalManagement/jumpServer' },
+        { label: 'asset', path: '/terminalManagement/hosts' }
       ]
     }
   },
   mounted () {
+    this.isPlugin = !!window.request
+    if (this.isPlugin) {
+      this.tabs.splice(1, 1)
+    }
     this.activeTab = this.$route.path
   },
   methods: {
