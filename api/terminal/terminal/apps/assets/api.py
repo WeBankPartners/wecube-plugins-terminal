@@ -5,7 +5,9 @@ from __future__ import absolute_import
 import datetime
 import logging
 import os.path
+import re
 
+import ipaddress
 from talos.common import cache
 from talos.core import config
 from talos.core.i18n import _
@@ -134,7 +136,7 @@ class Asset(object):
             auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
             auth_asset_ids.extend([asset['id'] for asset in expression_assets])
         auth_asset_ids = set(auth_asset_ids)
-        
+
         datas = []
         filters = filters or {}
         # expression search
@@ -195,11 +197,10 @@ class Asset(object):
         if expression:
             wecube_client = wecube.WeCubeClient(CONF.wecube.base_url, None)
             wecube_client.token = self._token
-            resp = wecube_client.post(
-                wecube_client.build_url('/platform/v1/data-model/dme/integrated-query'), {
-                    'dataModelExpression': expression,
-                    'filters': []
-                })
+            resp = wecube_client.post(wecube_client.build_url('/platform/v1/data-model/dme/integrated-query'), {
+                'dataModelExpression': expression,
+                'filters': []
+            })
             assets = resp['data'] or []
             return self._transform_field(assets, field_mapping)
         return []
@@ -210,7 +211,12 @@ class AssetFile(object):
         asset = Asset().get_connection_info(rid, auth_type='upload')
         fullpath = os.path.join(destpath, filename)
         client = ssh.SSHClient()
-        client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
+        jump_servers = JumpServer().get_jump_servers(asset['ip_address'])
+        client.connect(asset['ip_address'],
+                       asset['username'],
+                       asset['password'],
+                       port=asset['port'],
+                       jump_servers=jump_servers)
         sftp = client.create_sftp()
         record = TransferRecord().create({
             'asset_id': rid,
@@ -251,7 +257,12 @@ class AssetFile(object):
 
         asset = Asset().get_connection_info(rid, auth_type='download')
         client = ssh.SSHClient()
-        client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
+        jump_servers = JumpServer().get_jump_servers(asset['ip_address'])
+        client.connect(asset['ip_address'],
+                       asset['username'],
+                       asset['password'],
+                       port=asset['port'],
+                       jump_servers=jump_servers)
         sftp = client.create_sftp()
         record = TransferRecord().create({
             'asset_id': rid,
@@ -546,3 +557,29 @@ class Bookmark(resource.Bookmark):
             raise exceptions.ValidationError(message=_('the resource(%(resource)s) does not belong to you') %
                                              {'resource': 'Bookmark[%s]' % rid})
         return super().delete(rid, filters=filters, detail=detail)
+
+
+class JumpServer(resource.JumpServer):
+    def get_jump_servers(self, dst_ip):
+        def is_belong(cidr, ip):
+            try:
+                cidr_network = ipaddress.IPv4Network(cidr)
+                return ip in cidr_network
+            except Exception:
+                return False
+
+        try:
+            dst_ip = ipaddress.IPv4Address(dst_ip)
+        except Exception:
+            return None
+
+        rets = []
+        servers = self.list_internal()
+        splitter = r',|\||;'
+        for server in servers:
+            cidrs = re.split(splitter, server['scope'] or '')
+            cidrs = [x for x in cidrs if x]
+            for cidr in cidrs:
+                if is_belong(cidr, dst_ip):
+                    rets.append((server['ip_address'], server['port'], server['username'], server['password']))
+        return rets

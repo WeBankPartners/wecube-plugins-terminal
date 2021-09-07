@@ -112,3 +112,25 @@ ALTER TABLE terminal.bookmark_roles ADD CONSTRAINT fkey_bookmark_roles FOREIGN K
 ALTER TABLE terminal.permission ADD expression TEXT NULL;
 
 #@v0.2.2.1-end@;
+
+
+#@v0.2.3.1-begin@;
+
+CREATE TABLE terminal.jump_server (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(63) NULL,
+  `scope` varchar(512) NULL,
+  `ip_address` varchar(36) NOT NULL,
+  `port` int unsigned NOT null,
+  `username` varchar(36) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_by` varchar(36) DEFAULT NULL,
+  `created_time` datetime DEFAULT NULL,
+  `updated_by` varchar(36) DEFAULT NULL,
+  `updated_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+#@v0.2.3.1-end@;
+

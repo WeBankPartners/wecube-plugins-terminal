@@ -163,6 +163,13 @@
   "t_regular_expression": "规则表达式",
   "t_to_be_favorites": "收藏",
   "t_no_data": "暂无数据",
+  "t_send": "发送",
+  "t_cmd_tip1": "1、↑，向上查找命令",
+  "t_cmd_tip2": "2、↓，向下查找命令",
+  "t_cmd_tip3": "3、Enter, 发送命令",
+  "t_cmd_tip4": "4、Alt + Enter, 换行",
+  "t_cmd_tip5": "5、Alt + ↑，上移",
+  "t_cmd_tip6": "6、Alt + ↓，下移",
 
   "selected_role": "选中角色",
   "unselected_role": "未选中角色",
