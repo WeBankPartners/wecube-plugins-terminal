@@ -14,15 +14,8 @@
             </div>
             <div class="container-host">
               <Tabs :value="currentHostTab" :animated="false" @on-click="changeHostTabs">
-                <TabPane :label="$t('t_default')" name="default">
-                  <Input
-                    v-model="searchHost"
-                    :placeholder="$t('t_search_host')"
-                    @on-change="filterHost"
-                    style="width: 100%;margin-bottom:16px"
-                  />
-                </TabPane>
-                <TabPane v-if="showRegular()" :label="$t('t_favorites')" name="favorites">
+                <TabPane :label="$t('t_default')" name="default"> </TabPane>
+                <TabPane :label="$t('t_favorites')" name="favorites">
                   <Form :label-width="80">
                     <FormItem :label="$t('t_favorites')">
                       <Select
@@ -80,12 +73,35 @@
                     }}</Button>
                   </div>
                 </TabPane>
-                <template v-if="hostInfo.length > 0">
-                  <Collapse>
-                    <template v-for="(host, hostIndex) in hostInfo">
-                      <Panel :name="host.ip_address" :key="host.ip_address + hostIndex">
-                        <div class="diyTitle">
-                          {{ host.ip_address }}<span style="color:#2d8cf0">[{{ host.username }}]</span>{{ host.name }}
+              </Tabs>
+              <Input
+                v-model="searchHost"
+                :placeholder="$t('t_search_host')"
+                @on-change="filterHost"
+                style="width: 100%;margin-bottom:16px"
+              />
+              <template v-if="hostInfo.length > 0">
+                <Collapse>
+                  <template v-for="host in hostInfo">
+                    <Panel :name="host.ip_address" :key="host.ip_address">
+                      <div class="diyTitle">
+                        {{ host.ip_address }}<span style="color:#2d8cf0">[{{ host.username }}]</span>{{ host.name }}
+                      </div>
+                      <template>
+                        <Tooltip content="Console" :delay="500" style="float:right">
+                          <i
+                            disabled
+                            class="fa fa-terminal operation-icon-terminal"
+                            @click.stop="openTerminal(host)"
+                            aria-hidden="true"
+                          >
+                          </i>
+                        </Tooltip>
+                      </template>
+                      <div slot="content">
+                        <div class="host-content">
+                          <span class="host-content-title">id:</span>
+                          <span>{{ host.id }}</span>
                         </div>
                         <template>
                           <Tooltip content="Console" :delay="500" style="float:right">
@@ -112,16 +128,16 @@
                             <span style="word-break: break-all;">{{ host.display_name }}</span>
                           </div>
                         </div>
-                      </Panel>
-                    </template>
-                  </Collapse>
-                </template>
-                <template v-else>
-                  <div style="text-align:center;color:#969696;font-size:12px">
-                    {{ $t('t_no_data') }}
-                  </div>
-                </template>
-              </Tabs>
+                      </div>
+                    </Panel>
+                  </template>
+                </Collapse>
+              </template>
+              <template v-else>
+                <div style="text-align:center;color:#969696;font-size:12px">
+                  {{ $t('t_no_data') }}
+                </div>
+              </template>
             </div>
           </Card>
         </div>
