@@ -257,7 +257,8 @@ export default {
       if (accessToken) {
         const expiration = getCookie('accessTokenExpirationTime') * 1 - currentTime
         if (expiration < 1 * 60 * 1000 && !refreshRequest) {
-          refreshRequest = axios.get('/auth/v1/api/token', {
+          const isPlugin = window.request ? '/auth/v1/api/token' : '/terminal/v1/refresh-token'
+          refreshRequest = axios.get(isPlugin, {
             headers: {
               Authorization: 'Bearer ' + getCookie('refreshToken')
             }

@@ -1,0 +1,49 @@
+version: "2"
+services:
+  terminal-mysql:
+    image: mysql:5.6
+    restart: always
+    command:
+      [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+        "--default-time-zone=+8:00",
+        "--max_allowed_packet=4M",
+        "--lower_case_table_names=1",
+      ]
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/terminal/init:/docker-entrypoint-initdb.d
+      - /data/terminal/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD={{db_password}}
+      - MYSQL_DATABASE=terminal
+    ports:
+      - 3309:3306
+
+  terminal:
+    image: terminal:{{version}}
+    restart: always
+    depends_on:
+      - terminal-mysql
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/terminal/records:/data/terminal/records
+      - /data/terminal/logs:/var/log/terminal
+    environment:
+      - TERMINAL_MODE=standalone
+      - TERMINAL_DB_USERNAME=root
+      - TERMINAL_DB_PASSWORD={{db_password}}
+      - TERMINAL_DB_HOSTIP={{hostip}}
+      - TERMINAL_DB_HOSTPORT=3309
+      - TERMINAL_DB_SCHEMA=terminal
+      - JWT_SIGNING_KEY=V2VjdWJlQDEyMzQ1Ng
+      - TERMINAL_SESSION_TIMEOUT=1800
+      - TERMINAL_WEBSOCKET_URL=ws://{{publicip}}:9002
+      - TERMINAL_COMMAND_CHECK=OFF
+      - TERMINAL_FILE_DOWNLOAD_MAX_BYTES=104857600
+      - TZ=Asia/Shanghai
+      - ENCRYPT_SEED=wecube
+    ports:
+      - 9001:9001
+      - 9002:9002

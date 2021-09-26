@@ -7,7 +7,7 @@ export default new Router({
     {
       path: '/',
       name: '/',
-      redirect: 'terminalOperation',
+      redirect: '/terminalOperation',
       component: () => import('@/pages/index'),
       children: [
         {
@@ -20,33 +20,67 @@ export default new Router({
       ]
     },
     {
-      path: '/terminalManagement',
-      name: 'terminalManagement',
-      redirect: '/terminalManagement/sessionRecords',
-      component: () => import('@/pages/terminal-management'),
+      path: '/terminalAuthorization',
+      name: 'terminalAuthorization',
+      redirect: '/terminalAuthorization/sessionRecords',
+      component: () => import('@/pages/terminal-authorization'),
       children: [
         {
-          path: 'permissions',
+          path: '/terminalAuthorization/permissions',
           name: 'permissions',
           title: '文件传输权限',
           meta: {},
-          component: () => import('@/pages/management/permissions')
+          component: () => import('@/pages/authorization/permissions')
         },
         {
-          path: 'sessionRecords',
+          path: '/terminalAuthorization/sessionRecords',
           name: 'sessionRecords',
           title: '访问记录',
           meta: {},
-          component: () => import('@/pages/management/session-records')
+          component: () => import('@/pages/authorization/session-records')
         },
         {
-          path: 'transferRecords',
+          path: '/terminalAuthorization/transferRecords',
           name: 'transferRecords',
           title: '文件传输列表',
           meta: {},
-          component: () => import('@/pages/management/transfer-records')
+          component: () => import('@/pages/authorization/transfer-records')
         }
       ]
+    },
+    {
+      path: '/terminalManagement',
+      name: 'terminalManagement',
+      redirect: '/terminalManagement/hosts',
+      component: () => import('@/pages/terminal-management'),
+      children: [
+        {
+          path: '/terminalManagement/hosts',
+          name: 'hosts',
+          title: '终端',
+          meta: {},
+          component: () => import('@/pages/management/hosts')
+        },
+        {
+          path: '/terminalManagement/jumpServer',
+          name: 'jumpServer',
+          title: '跳板机',
+          meta: {},
+          component: () => import('@/pages/management/jump-server')
+        }
+      ]
+    },
+    {
+      path: '/systemAuthorization',
+      name: 'systemAuthorization',
+      component: () => import('@/pages/system-authorization')
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/pages/login'),
+      params: {},
+      props: true
     }
   ]
 })

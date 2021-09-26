@@ -11,11 +11,13 @@ if (window.request) {
   }
 }
 
+export const login = data => req.post('/terminal/v1/login', data)
+
 export const getRoleList = () => req.get(`/platform/v1/roles/retrieve`)
 export const getRolesByCurrentUser = () => req.get(`/platform/v1/users/roles`)
 
 // Wecube Api
-export const getAllRoles = () => req.get(`/platform/v1/roles/retrieve`)
+export const getAllRolesPlatform = () => req.get(`/platform/v1/roles/retrieve`)
 
 export const getTableData = url => req.get(url)
 export const addTableRow = (url, data) => req.post(`${url}`, data)
@@ -48,3 +50,29 @@ export const getAllDataModels = () => req.get(`/platform/v1/models`)
 export const getFavoritesList = () => req.get(`/terminal/v1/bookmarks`)
 export const deleteFavorites = id => req.delete(`/terminal/v1/bookmarks/${id}`)
 export const editCollection = (id, data) => req.patch(`/terminal/v1/bookmarks/${id}`, data)
+
+export const addMgmtAssets = data => req.post(`/terminal/v1/mgmt-assets`, data)
+export const deleteMgmtAssets = id => req.delete(`/terminal/v1/mgmt-assets/${id}`)
+export const editMgmtAssets = (id, data) => req.patch(`/terminal/v1/mgmt-assets/${id}`, data)
+
+export const addJumpServers = data => req.post(`/terminal/v1/jumpservers`, data)
+export const deleteJumpServers = id => req.delete(`/terminal/v1/jumpservers/${id}`)
+export const editJumpServers = (id, data) => req.patch(`/terminal/v1/jumpservers/${id}`, data)
+
+export const getAllUsers = () => req.get(`/terminal/v1/users`)
+export const addUser = data => req.post(`/terminal/v1/users`, data)
+export const deleteUser = id => req.delete(`/terminal/v1/users/${id}`)
+export const resetPassword = id => req.post(`/terminal/v1/users/${id}/reset-password`, {})
+export const getAllRoles = () => req.get(`/terminal/v1/roles`)
+export const addRole = data => req.post(`/terminal/v1/roles`, data)
+export const deleteRole = id => req.delete(`/terminal/v1/roles/${id}`)
+export const getAllMenus = () => req.get(`/terminal/v1/menus`)
+export const getUsersByRole = roleName => req.get(`/terminal/v1/roles/${roleName}/users`)
+export const addUsersToRole = (id, data) => req.post(`/terminal/v1/roles/${id}/users`, data)
+export const getRolesByUser = username => req.get(`/terminal/v1/users/${username}/roles`)
+export const getPermissionsByRole = roleName => req.get(`/terminal/v1/roles/${roleName}/menus`)
+export const getPermissionsByUser = user => req.get(`/terminal/v1/users/${user}/menus`)
+export const addMenusToRole = (roleName, data) => req.post(`/terminal/v1/roles/${roleName}/menus`, data)
+
+export const changePassword = data => req.post(`/terminal/v1/user-password`, data)
+export const getUserMenus = () => req.get(`/terminal/v1/user-menus`)

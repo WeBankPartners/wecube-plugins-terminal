@@ -155,3 +155,13 @@ class CollectionJumpServers(Collection):
 class ItemJumpServer(Item):
     name = 'terminal.jumpservers'
     resource = files_api.JumpServer
+
+
+class CollectionAssetMgmt(Collection):
+    name = 'terminal.mgmt.assets'
+    resource = files_api.AssetMgmt
+
+
+class ItemAssetMgmt(Item):
+    name = 'terminal.mgmt.assets'
+    resource = files_api.AssetMgmt

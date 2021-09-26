@@ -10,6 +10,7 @@
     <menus>
         <menu code='IMPLEMENTATION_TERMINAL' cat='IMPLEMENTATION' displayName="Terminal" localDisplayName="远程终端">/terminalOperation</menu>
         <menu code='ADMIN_TERMINAL_CONFIG' cat='ADMIN' displayName="Terminal Management" localDisplayName="终端管理">/terminalManagement</menu>
+        <menu code='ADMIN_TERMINAL_AUTHORIZATION' cat='ADMIN' displayName="Terminal Authorization" localDisplayName="终端授权">/terminalAuthorization</menu>
     </menus>
 
     <!-- 3.数据模型 - 描述本插件包的数据模型,并且描述和Framework数据模型的关系 -->

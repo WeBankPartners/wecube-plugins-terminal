@@ -48,8 +48,11 @@ def main():
         try:
             msg = socket.recv_json()
             LOG.info('receive session upload task[%s]: %s', msg['session_id'], msg)
-            workers.submit(upload, msg['session_id'], msg['filepath'], CONF.s3.server, CONF.s3.access_key,
-                           CONF.s3.secret_key, CONF.s3.bucket, msg['object_key'])
+            if CONF.s3.server and CONF.s3.access_key and CONF.s3.secret_key and CONF.s3.bucket:
+                workers.submit(upload, msg['session_id'], msg['filepath'], CONF.s3.server, CONF.s3.access_key,
+                               CONF.s3.secret_key, CONF.s3.bucket, msg['object_key'])
+            else:
+                LOG.info('ignore session upload task[%s]: s3 information is not provide', msg['session_id'])
         except KeyboardInterrupt as e:
             return
         except Exception as e:
