@@ -17,10 +17,11 @@ export default {
   data () {
     return {
       isPlugin: false,
-      activeTab: '/terminalManagement/jumpServer',
+      activeTab: '/terminalManagement/permissions',
       tabs: [
-        { label: 'jump_server', path: '/terminalManagement/jumpServer' },
-        { label: 'asset', path: '/terminalManagement/hosts' }
+        { label: 't_permissions', path: '/terminalManagement/permissions' },
+        { label: 't_asset', path: '/terminalManagement/hosts' },
+        { label: 'jump_server', path: '/terminalManagement/jumpServer' }
       ]
     }
   },

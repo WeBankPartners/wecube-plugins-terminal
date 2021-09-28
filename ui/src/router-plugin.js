@@ -4,7 +4,6 @@ import permissions from '@/pages/authorization/permissions'
 import sessionRecords from '@/pages/authorization/session-records'
 import transferRecords from '@/pages/authorization/transfer-records'
 import terminalAuthorization from '@/pages/terminal-authorization'
-import hosts from '@/pages/management/hosts'
 import jumpServer from '@/pages/management/jump-server'
 
 const router = [
@@ -21,13 +20,6 @@ const router = [
     redirect: '/terminalAuthorization/sessionRecords',
     component: terminalAuthorization,
     children: [
-      {
-        path: 'permissions',
-        name: 'permissions',
-        title: '文件传输权限',
-        meta: {},
-        component: permissions
-      },
       {
         path: 'sessionRecords',
         name: 'sessionRecords',
@@ -47,7 +39,7 @@ const router = [
   {
     path: '/terminalManagement',
     name: 'terminalManagement',
-    redirect: '/terminalManagement/jumpServer',
+    redirect: '/terminalManagement/permissions',
     component: terminalManagement,
     children: [
       {
@@ -56,6 +48,13 @@ const router = [
         title: '跳板机',
         meta: {},
         component: jumpServer
+      },
+      {
+        path: 'permissions',
+        name: 'permissions',
+        title: '',
+        meta: {},
+        component: permissions
       }
     ]
   }

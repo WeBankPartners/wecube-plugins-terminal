@@ -39,9 +39,9 @@ export const MENUS = [
         link: '/systemAuthorization'
       },
       {
-        code: 'system_permission',
-        cnName: '终端授权',
-        enName: 'TERMINAL PERMISSION',
+        code: 'system_audit',
+        cnName: '终端审计',
+        enName: 'TERMINAL AUDIT',
         isActive: false,
         link: '/terminalAuthorization'
       }

@@ -26,13 +26,6 @@ export default new Router({
       component: () => import('@/pages/terminal-authorization'),
       children: [
         {
-          path: '/terminalAuthorization/permissions',
-          name: 'permissions',
-          title: '文件传输权限',
-          meta: {},
-          component: () => import('@/pages/authorization/permissions')
-        },
-        {
           path: '/terminalAuthorization/sessionRecords',
           name: 'sessionRecords',
           title: '访问记录',
@@ -51,7 +44,7 @@ export default new Router({
     {
       path: '/terminalManagement',
       name: 'terminalManagement',
-      redirect: '/terminalManagement/hosts',
+      redirect: '/terminalManagement/permissions',
       component: () => import('@/pages/terminal-management'),
       children: [
         {
@@ -67,6 +60,13 @@ export default new Router({
           title: '跳板机',
           meta: {},
           component: () => import('@/pages/management/jump-server')
+        },
+        {
+          path: '/terminalManagement/permissions',
+          name: 'permissions',
+          title: '文件传输权限',
+          meta: {},
+          component: () => import('@/pages/authorization/permissions')
         }
       ]
     },

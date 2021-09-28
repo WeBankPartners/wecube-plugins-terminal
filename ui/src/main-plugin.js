@@ -27,14 +27,14 @@ window.locale('zh-CN', zhCN)
 window.locale('en-US', enUS)
 const implicitRoute = {
   'terminalAuthorization/sessionRecords': {
-    parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
+    parentBreadcrumb: { 'zh-CN': '终端审计', 'en-US': 'Terminal Config' },
     childBreadcrumb: { 'zh-CN': '会话记录', 'en-US': 'Session Records' }
   },
   'terminalAuthorization/transferRecords': {
-    parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
+    parentBreadcrumb: { 'zh-CN': '终端审计', 'en-US': 'Terminal Config' },
     childBreadcrumb: { 'zh-CN': '文件传输', 'en-US': 'Transfer Records' }
   },
-  'terminalAuthorization/permissions': {
+  'terminalManagement/permissions': {
     parentBreadcrumb: { 'zh-CN': '终端管理', 'en-US': 'Terminal Config' },
     childBreadcrumb: { 'zh-CN': '权限管理', 'en-US': 'Permissions' }
   },
