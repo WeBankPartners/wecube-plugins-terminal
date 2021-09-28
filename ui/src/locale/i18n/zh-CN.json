@@ -129,7 +129,7 @@
   "t_operation_replay": "回放",
   "t_session_records": "会话记录",
   "t_transfer_records": "文件传输",
-  "t_permissions": "权限管理",
+  "t_permissions": "授权管理",
   "t_asset_id": "服务器",
   "t_select_datetime": "选择时间段",
   "t_search_host": "输入IP或名称进行过滤",
@@ -226,5 +226,6 @@
   "cancel": "取消",
   "header_title": "Terminal",
   "asset": "终端",
+  "t_asset": "终端资产",
   "jump_server": "跳板机"
 }

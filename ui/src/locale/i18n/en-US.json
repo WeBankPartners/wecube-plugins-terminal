@@ -224,5 +224,6 @@
   "cancel": "Cancel",
   "header_title": "Terminal",
   "asset": "Asset",
+  "t_asset": "Asset",
   "jump_server": "Jump Server"
 }
