@@ -44,7 +44,7 @@ export default new Router({
     {
       path: '/terminalManagement',
       name: 'terminalManagement',
-      redirect: '/terminalManagement/hosts',
+      redirect: '/terminalManagement/permissions',
       component: () => import('@/pages/terminal-management'),
       children: [
         {

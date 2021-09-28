@@ -39,7 +39,7 @@ const router = [
   {
     path: '/terminalManagement',
     name: 'terminalManagement',
-    redirect: '/terminalManagement/jumpServer',
+    redirect: '/terminalManagement/permissions',
     component: terminalManagement,
     children: [
       {
@@ -52,7 +52,7 @@ const router = [
       {
         path: 'permissions',
         name: 'permissions',
-        title: '文件传输权限',
+        title: '',
         meta: {},
         component: permissions
       }
