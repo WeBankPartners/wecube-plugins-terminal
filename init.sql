@@ -226,13 +226,13 @@ INSERT INTO sys_menu (id,display_name,url,seq_no,parent,is_active,created_by,cre
 	 ('system','系统',NULL,1,NULL,'yes','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('system_asset','终端管理',NULL,2,'system','yes','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('system_authorization','系统授权',NULL,4,'system','yes','admin','2021-08-26 00:00:00.0',NULL,NULL),
-	 ('system_permission','终端授权',NULL,3,'system','yes','admin','2021-08-26 00:00:00.0',NULL,NULL),
+	 ('system_audit','终端审计',NULL,3,'system','yes','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('terminal','终端',NULL,1,NULL,'yes','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('terminal_console','终端连接',NULL,2,'terminal','yes','admin','2021-08-26 00:00:00.0',NULL,NULL);
 
 INSERT INTO sys_role (id,description,role_type,is_system,created_by,created_time,updated_by,updated_time) VALUES
 	 ('CONFIG_ADMIN','配置管理员',NULL,'no','admin','2021-08-26 00:00:00.0',NULL,NULL),
-     ('AUDIT_ADMIN','审计管理员',NULL,'no','admin','2021-08-26 00:00:00.0',NULL,NULL),
+   ('AUDIT_ADMIN','审计管理员',NULL,'no','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('CONSOLE_USER','终端用户',NULL,'no','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('SUPER_ADMIN','超级管理员',NULL,'yes','admin','2021-08-26 00:00:00.0',NULL,NULL);
      
@@ -245,11 +245,10 @@ INSERT INTO sys_role_user (role_id,user_id,created_by,created_time,updated_by,up
 INSERT INTO sys_role_menu (role_id,menu_id,created_by,created_time,updated_by,updated_time) VALUES
 	 ('SUPER_ADMIN','system_asset','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('SUPER_ADMIN','system_authorization','admin','2021-08-26 00:00:00.0',NULL,NULL),
-	 ('SUPER_ADMIN','system_permission','admin','2021-08-26 00:00:00.0',NULL,NULL),
+	 ('SUPER_ADMIN','system_audit','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('SUPER_ADMIN','terminal_console','admin','2021-08-26 00:00:00.0',NULL,NULL),
-	 ('AUDIT_ADMIN','system_permission','admin','2021-08-26 00:00:00.0',NULL,NULL),
+	 ('AUDIT_ADMIN','system_audit','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('CONFIG_ADMIN','system_asset','admin','2021-08-26 00:00:00.0',NULL,NULL),
-	 ('CONFIG_ADMIN','system_permission','admin','2021-08-26 00:00:00.0',NULL,NULL),
 	 ('CONSOLE_USER','terminal_console','admin','2021-08-26 00:00:00.0',NULL,NULL);
 
 #@v0.2.3.5-end@;
