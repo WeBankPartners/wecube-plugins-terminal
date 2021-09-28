@@ -47,16 +47,9 @@ const router = [
   {
     path: '/terminalManagement',
     name: 'terminalManagement',
-    redirect: '/terminalManagement/hosts',
+    redirect: '/terminalManagement/jumpServer',
     component: terminalManagement,
     children: [
-      {
-        path: 'hosts',
-        name: 'hosts',
-        title: '终端',
-        meta: {},
-        component: hosts
-      },
       {
         path: 'jumpServer',
         name: 'jumpServer',
