@@ -14,6 +14,11 @@ from terminal.common import exceptions
 
 
 class Controller(BaseController):
+    allow_methods = (
+        'GET',
+        'POST',
+    )
+
     def on_post(self, req, resp, **kwargs):
         self._validate_method(req)
         self._validate_data(req)
@@ -23,6 +28,14 @@ class Controller(BaseController):
 
     def create(self, req, data, **kwargs):
         return self.make_resource(req).create(data, **kwargs)
+
+    def on_get(self, req, resp, **kwargs):
+        self._validate_method(req)
+        resp.json = {'code': 200, 'status': 'OK', 'data': self.get(req, **kwargs), 'message': 'success'}
+        resp.status = falcon.HTTP_200
+
+    def get(self, req, **kwargs):
+        return self.make_resource(req).get(**kwargs)
 
 
 class Collection(CollectionController):

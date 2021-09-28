@@ -10,7 +10,9 @@
           :placeholder="$t('t_asset_id')"
           style="width:340px"
         >
-          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{ item.ip_address + '(' + item.name + ')' }}</Option>
+          <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{
+            item.ip_address + '(' + item.name + ')'
+          }}</Option>
         </Select>
         <Select
           v-model="roles_id"
@@ -34,14 +36,16 @@
             </Option>
           </Select>
         </div>
-        <div class="marginbottom params-each">
+        <div class="marginbottom params-each" v-if="showRegular()">
           <label class="col-md-2 label-name">{{ $t('t_auth_expression') }}:</label>
-          <span><FilterRules
-            style="width:340px;display:inline-block;vertical-align: middle;"
-            :needAttr="true"
-            v-model="modelConfig.addRow.expression"
-            :allDataModelsWithAttrs="allEntityType"
-          ></FilterRules></span>
+          <span
+            ><FilterRules
+              style="width:340px;display:inline-block;vertical-align: middle;"
+              :needAttr="true"
+              v-model="modelConfig.addRow.expression"
+              :allDataModelsWithAttrs="allEntityType"
+            ></FilterRules
+          ></span>
         </div>
         <div class="marginbottom params-each">
           <label class="col-md-2 label-name">{{ $t('t_roles') }}:</label>
@@ -74,7 +78,16 @@
 </template>
 
 <script>
-import { getTableData, getAssets, getAllRoles, savePermission, editPermissions, deleteTableRow, getAllDataModels } from '@/api/server'
+import {
+  getTableData,
+  getAssets,
+  getAllRolesPlatform,
+  getAllRoles,
+  savePermission,
+  editPermissions,
+  deleteTableRow,
+  getAllDataModels
+} from '@/api/server'
 import FilterRules from '../components/filter-rules.vue'
 let tableEle = [
   {
@@ -152,6 +165,7 @@ export default {
   name: '',
   data () {
     return {
+      isPlugin: false,
       tValue: 1,
       fValue: 0,
       pageConfig: {
@@ -195,7 +209,6 @@ export default {
       },
       modelConfig: {
         modalId: 'add_object_Modal',
-        modalTitle: 'button.add',
         isAdd: true,
         config: [
           {
@@ -237,6 +250,11 @@ export default {
     }
   },
   mounted () {
+    this.isPlugin = window.request
+    const removeRegular = this.showRegular()
+    if (!removeRegular) {
+      tableEle[2].display = false
+    }
     this.initTableData()
     this.initAssets()
     this.initRoles()
@@ -248,6 +266,9 @@ export default {
     })
   },
   methods: {
+    showRegular () {
+      return !!window.request
+    },
     async initAssets () {
       const { status, data } = await getAssets()
       if (status === 'OK') {
@@ -255,9 +276,20 @@ export default {
       }
     },
     async initRoles () {
-      const { status, data } = await getAllRoles()
+      const method = this.isPlugin ? getAllRolesPlatform : getAllRoles
+      const { data, status } = await method()
       if (status === 'OK') {
-        this.rolesOption = data
+        if (this.isPlugin) {
+          this.rolesOption = data
+        } else {
+          this.rolesOption = data.data.map(item => {
+            return {
+              ...item,
+              name: item.id,
+              displayName: item.description
+            }
+          })
+        }
       }
     },
     async getAllDataModels () {
@@ -284,17 +316,31 @@ export default {
         this.pageConfig.pagination.total = data.count
       }
     },
+    async getRolesForModal () {
+      const method = this.isPlugin ? getAllRolesPlatform : getAllRoles
+      const { data, status } = await method()
+      if (status === 'OK') {
+        if (this.isPlugin) {
+          this.modelConfig.slotConfig.rolesOption = data
+          this.getAllDataModels()
+        } else {
+          this.modelConfig.slotConfig.rolesOption = data.data.map(item => {
+            return {
+              ...item,
+              name: item.id,
+              displayName: item.description
+            }
+          })
+        }
+      }
+    },
     async add () {
       this.modelConfig.isAdd = true
       const res = await getAssets()
       if (res.status === 'OK') {
         this.modelConfig.slotConfig.assertsOption = res.data.data
       }
-      const { status, data } = await getAllRoles()
-      if (status === 'OK') {
-        this.modelConfig.slotConfig.rolesOption = data
-      }
-      await this.getAllDataModels()
+      await this.getRolesForModal()
       this.$root.JQ('#add_object_Modal').modal('show')
     },
     async addPost () {
@@ -319,11 +365,7 @@ export default {
       if (res.status === 'OK') {
         this.modelConfig.slotConfig.assertsOption = res.data.data
       }
-      const { status, data } = await getAllRoles()
-      if (status === 'OK') {
-        this.modelConfig.slotConfig.rolesOption = data
-      }
-      await this.getAllDataModels()
+      await this.getRolesForModal()
       this.$root.JQ('#add_object_Modal').modal('show')
     },
     async editPost () {
@@ -355,7 +397,7 @@ export default {
       })
     }
   },
-  components: {FilterRules}
+  components: { FilterRules }
 }
 </script>
 

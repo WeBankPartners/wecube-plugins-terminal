@@ -50,15 +50,16 @@ class SSHClient:
         self._shell_fileno = None
         self._sftp = None
         self._client = paramiko.SSHClient()
+        self._jump_client = paramiko.SSHClient()
 
     @property
     def sftp(self):
         return self._sftp
 
-    def connect(self, host, username, password, port=22):
-        self._client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    def _connect(self, client, host, username, password, port=22, sock=None):
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
-            self._client.connect(hostname=host, port=int(port), username=username, password=password, timeout=10.0)
+            client.connect(hostname=host, port=port, username=username, password=password, timeout=10.0, sock=sock)
         except paramiko.AuthenticationException as e:
             LOG.exception(e)
             raise exceptions.PluginError(message=_(
@@ -86,6 +87,41 @@ class SSHClient:
                 'host': host,
                 'port': port
             })
+
+    def connect(self, host, username, password, port=22, jump_servers=None):
+        '''connect to host via ssh
+
+        :param host: destination host(ip or domain)
+        :param username: destination host login username
+        :param password: destination host login password
+        :param port: ssh port, defaults to 22
+        :param jump_servers: list of jumpserver(host, port, user, passwd), defaults to None
+        '''
+        jump_servers = jump_servers or []
+        port = int(port)
+        fail_msgs = []
+        final_jump_server = None
+        jump_channel = None
+        for jump_server in jump_servers:
+            if jump_server and (jump_server[0] != host or str(jump_server[1]) != str(port)):
+                jump_host, jump_port, jump_username, jump_password = jump_server
+                dest_addr = (host, port)
+                jump_addr = (jump_host, jump_port)
+                try:
+                    self._connect(self._jump_client, jump_host, jump_username, jump_password, port=jump_port)
+                except exceptions.PluginError as e:
+                    fail_msgs.append(str(e))
+                    continue
+                final_jump_server = jump_server
+                jump_transport = self._jump_client.get_transport()
+                jump_channel = jump_transport.open_channel("direct-tcpip", dest_addr, jump_addr)
+        if len(fail_msgs) > 0 and final_jump_server is None:
+            raise exceptions.PluginError(message=_("failed to establish connection with all jump_servers: %(reason)s") %
+                                         {'reason': '\n'.join(fail_msgs)})
+        self._connect(self._client, host, username, password, port=port, sock=jump_channel)
+        if final_jump_server:
+            LOG.info('using jump server %s@%s:%s', final_jump_server[2], final_jump_server[0], final_jump_server[1])
+        return {'result': True, 'jump_server': final_jump_server}
 
     def _load_private_key(self, key_content, key_password):
         return paramiko.RSAKey.from_private_key(io.StringIO(key_content), key_password)
@@ -163,7 +199,7 @@ class SSHClient:
     def close_sftp(self):
         if self._sftp:
             self._sftp.close()
-            self._shell = None
+            self._sftp = None
 
     def resize_shell(self, cols, rows):
         if self._shell:
@@ -181,6 +217,7 @@ class SSHClient:
         self.close_shell()
         self.close_sftp()
         self._client.close()
+        self._jump_client.close()
 
     @property
     def is_shell_closed(self):

@@ -145,3 +145,23 @@ class CollectionBookmarks(Collection):
 class ItemBookmark(Item):
     name = 'terminal.bookmarks'
     resource = files_api.Bookmark
+
+
+class CollectionJumpServers(Collection):
+    name = 'terminal.jumpservers'
+    resource = files_api.JumpServer
+
+
+class ItemJumpServer(Item):
+    name = 'terminal.jumpservers'
+    resource = files_api.JumpServer
+
+
+class CollectionAssetMgmt(Collection):
+    name = 'terminal.mgmt.assets'
+    resource = files_api.AssetMgmt
+
+
+class ItemAssetMgmt(Item):
+    name = 'terminal.mgmt.assets'
+    resource = files_api.AssetMgmt

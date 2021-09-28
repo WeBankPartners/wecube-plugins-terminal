@@ -382,3 +382,34 @@ def aes_cbc_pkcs7_decrypt(encrypted, key, iv):
     data = cipher.decrypt(encrypted)
     # pkcs7 padding
     return data[0:-data[-1]]
+
+
+def platform_encrypt(text, guid, seed):
+    result = text
+    encrypted_prefix = '{cipher_a}'
+    if not text.startswith(encrypted_prefix):
+        key = md5(guid + seed)[:16]
+        cipher = AES.new(key, AES.MODE_CBC, key)
+        text = utils.ensure_bytes(text)
+        # pkcs7 padding
+        amount_to_pad = AES.block_size - (len(text) % AES.block_size)
+        if amount_to_pad == 0:
+            amount_to_pad = AES.block_size
+        pad = chr(amount_to_pad).encode()
+        encrypted_text = cipher.encrypt(text + pad * amount_to_pad)
+        result = '{cipher_a}' + encrypted_text.hex()
+    return result
+
+
+def platform_decrypt(text, guid, seed):
+    result = text
+    encrypted_prefix = '{cipher_a}'
+    if text.startswith(encrypted_prefix):
+        encrypted_text = text[len(encrypted_prefix):]
+        encrypted_text = bytes.fromhex(encrypted_text)
+        key = md5(guid + seed)[:16]
+        cipher = AES.new(key, AES.MODE_CBC, key)
+        origin_text = cipher.decrypt(encrypted_text)
+        origin_text = origin_text[0:-origin_text[-1]]
+        result = origin_text.decode()
+    return result

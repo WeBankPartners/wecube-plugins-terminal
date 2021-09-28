@@ -133,7 +133,7 @@ export default {
         rows: this.consoleConfig.rows, // 行数
         cols: this.consoleConfig.cols, // 不指定行数，自动回车后光标从下一行开始
         convertEol: true, // 启用时，光标将设置为下一行的开头
-        scrollback: 50, // 终端中的回滚量
+        scrollback: 500, // 终端中的回滚量
         disableStdin: false, // 是否应禁用输入。
         cursorStyle: 'underline', // 光标样式
         cursorBlink: true, // 光标闪烁
@@ -257,7 +257,8 @@ export default {
       if (accessToken) {
         const expiration = getCookie('accessTokenExpirationTime') * 1 - currentTime
         if (expiration < 1 * 60 * 1000 && !refreshRequest) {
-          refreshRequest = axios.get('/auth/v1/api/token', {
+          const isPlugin = window.request ? '/auth/v1/api/token' : '/terminal/v1/refresh-token'
+          refreshRequest = axios.get(isPlugin, {
             headers: {
               Authorization: 'Bearer ' + getCookie('refreshToken')
             }

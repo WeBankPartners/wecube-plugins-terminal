@@ -166,7 +166,23 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                                    binary=False)
                 raise e
             try:
-                self._ssh_client.connect(asset['ip_address'], asset['username'], asset['password'], port=asset['port'])
+                jump_servers = asset_api.JumpServer().get_jump_servers(asset['ip_address'])
+                conn_info = self._ssh_client.connect(asset['ip_address'],
+                                                     asset['username'],
+                                                     asset['password'],
+                                                     port=asset['port'],
+                                                     jump_servers=jump_servers)
+                jump_server = conn_info['jump_server']
+                if jump_server and (jump_server[0] != asset['ip_address'] or str(jump_server[1]) != str(asset['port'])):
+                    jump_host, jump_port, jump_username, jump_password = jump_server
+                    self.write_message(json.dumps({
+                        'type':
+                        'console',
+                        'data':
+                        self._encode('#' * 80 + '\r\nusing jump server: %s@%s:%s\r\n' %
+                                     (jump_username, jump_host, jump_port) + '#' * 80 + '\r\n')
+                    }),
+                                       binary=False)
                 self._asset_info = asset
                 self._auth_user = token_user
             except exceptions.PluginError as e:
