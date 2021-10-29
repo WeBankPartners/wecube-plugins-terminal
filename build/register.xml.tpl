@@ -9,8 +9,8 @@
     <!-- 2.菜单注入 - 描述运行本插件包需要注入的菜单 -->
     <menus>
         <menu code='IMPLEMENTATION_TERMINAL' cat='IMPLEMENTATION' displayName="Terminal" localDisplayName="远程终端">/terminalOperation</menu>
-        <menu code='ADMIN_TERMINAL_CONFIG' cat='ADMIN' displayName="Terminal Authorization" localDisplayName="终端授权&amp;审计">/terminalAuthorization</menu>
-        <menu code='ADMIN_TERMINAL_ASSET' cat='ADMIN' displayName="Terminal Assets" localDisplayName="终端资产管理">/terminalManagement</menu>
+        <menu code='ADMIN_TERMINAL_AUDIT' cat='ADMIN' displayName="Terminal Audit" localDisplayName="终端审计">/terminalAuthorization</menu>
+        <menu code='ADMIN_TERMINAL_CONFIG' cat='ADMIN' displayName="Terminal Config" localDisplayName="终端管理">/terminalManagement</menu>
     </menus>
 
     <!-- 3.数据模型 - 描述本插件包的数据模型,并且描述和Framework数据模型的关系 -->
@@ -37,7 +37,7 @@
         <authority systemRoleName="SUPER_ADMIN">
             <menu code="IMPLEMENTATION_TERMINAL" />
             <menu code="ADMIN_TERMINAL_CONFIG" />
-            <menu code="ADMIN_TERMINAL_ASSET" />
+            <menu code="ADMIN_TERMINAL_AUDIT" />
         </authority>
     </authorities>
 
