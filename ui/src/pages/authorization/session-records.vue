@@ -162,7 +162,7 @@ export default {
       localStorage.setItem('replayToken', getCookie('accessToken'))
       let url = ''
       const scripts = document.getElementsByTagName('script')
-      for (let i = 0; i <= scripts.length; i++) {
+      for (let i = 0; i < scripts.length; i++) {
         if (scripts[i].src.endsWith('/xtem-player/xterm-player.min.js')) {
           url = scripts[i].src
         }
