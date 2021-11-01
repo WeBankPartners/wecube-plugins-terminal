@@ -109,12 +109,14 @@ class SSHClient:
                 jump_addr = (jump_host, jump_port)
                 try:
                     self._connect(self._jump_client, jump_host, jump_username, jump_password, port=jump_port)
+                    final_jump_server = jump_server
+                    jump_transport = self._jump_client.get_transport()
+                    jump_channel = jump_transport.open_channel("direct-tcpip", dest_addr, jump_addr)
+                    # use first available jumpserver
+                    break
                 except exceptions.PluginError as e:
                     fail_msgs.append(str(e))
                     continue
-                final_jump_server = jump_server
-                jump_transport = self._jump_client.get_transport()
-                jump_channel = jump_transport.open_channel("direct-tcpip", dest_addr, jump_addr)
         if len(fail_msgs) > 0 and final_jump_server is None:
             raise exceptions.PluginError(message=_("failed to establish connection with all jump_servers: %(reason)s") %
                                          {'reason': '\n'.join(fail_msgs)})
