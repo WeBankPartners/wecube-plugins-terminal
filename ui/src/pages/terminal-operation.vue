@@ -613,7 +613,7 @@ export default {
       return n
     },
     sendHistoryCmd () {
-      this.uniteCmd = this.selectedCmd
+      this.uniteCmd = this.selectedCmd + '\n'
       this.sendCmdValidate()
     },
     sendCmdValidate () {
