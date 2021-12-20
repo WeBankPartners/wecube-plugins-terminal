@@ -44,6 +44,7 @@ services:
       - TERMINAL_FILE_DOWNLOAD_MAX_BYTES=104857600
       - TZ=Asia/Shanghai
       - ENCRYPT_SEED=wecube
+      - TERMINAL_LOG_LEVEL=info
     ports:
       - 9001:9001
       - 9002:9002
