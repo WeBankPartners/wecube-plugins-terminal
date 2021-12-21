@@ -430,7 +430,7 @@ export default {
       this.$nextTick(() => {
         this.$Modal.confirm({
           title: this.$t('confirm_to_delete'),
-          content: item.name,
+          content: new Option(item.name).innerHTML,
           onOk: () => {
             this.deleteCollection(item)
           },
