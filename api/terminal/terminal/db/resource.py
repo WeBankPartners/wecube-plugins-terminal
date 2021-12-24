@@ -144,9 +144,9 @@ class Bookmark(MetaCRUD):
 
     _validate = [
         crud.ColumnValidator(field='name',
-                             rule=my_validator.LengthValidator(0, 63),
-                             validate_on=('create:O', 'update:O'),
-                             nullable=True),
+                             rule=my_validator.LengthValidator(1, 63),
+                             validate_on=('create:M', 'update:O'),
+                             nullable=False),
         crud.ColumnValidator(field='512',
                              rule=my_validator.LengthValidator(0, 512),
                              validate_on=('create:O', 'update:O'),
@@ -158,6 +158,10 @@ class Bookmark(MetaCRUD):
         crud.ColumnValidator(field='created_time', validate_on=('*:O', ), nullable=True),
         crud.ColumnValidator(field='updated_by', validate_on=('*:O', ), nullable=True),
         crud.ColumnValidator(field='updated_time', validate_on=('*:O', ), nullable=True),
+        crud.ColumnValidator(field='roles',
+                             rule=validator.TypeValidator(dict),
+                             validate_on=('create:M', 'update:O'),
+                             orm_required=False),
     ]
 
 

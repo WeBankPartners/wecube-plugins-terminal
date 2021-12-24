@@ -14,8 +14,8 @@
             </div>
             <div class="container-host">
               <Tabs :value="currentHostTab" :animated="false" @on-click="changeHostTabs">
-                <TabPane :label="$t('t_default')" name="default"> </TabPane>
-                <TabPane :label="$t('t_favorites')" name="favorites">
+                <TabPane :label="$t('t_default')" name="default"></TabPane>
+                <TabPane v-if="showRegular()" :label="$t('t_favorites')" name="favorites">
                   <Form :label-width="80">
                     <FormItem :label="$t('t_favorites')">
                       <Select
@@ -103,30 +103,13 @@
                           <span class="host-content-title">id:</span>
                           <span>{{ host.id }}</span>
                         </div>
-                        <template>
-                          <Tooltip content="Console" :delay="500" style="float:right">
-                            <i
-                              disabled
-                              class="fa fa-terminal operation-icon-terminal"
-                              @click.stop="openTerminal(host)"
-                              aria-hidden="true"
-                            >
-                            </i>
-                          </Tooltip>
-                        </template>
-                        <div slot="content">
-                          <div class="host-content">
-                            <span class="host-content-title">id:</span>
-                            <span>{{ host.id }}</span>
-                          </div>
-                          <div class="host-content">
-                            <span class="host-content-title">name:</span>
-                            <span>{{ host.name }}</span>
-                          </div>
-                          <div class="host-content">
-                            <span class="host-content-title">display_name:</span>
-                            <span style="word-break: break-all;">{{ host.display_name }}</span>
-                          </div>
+                        <div class="host-content">
+                          <span class="host-content-title">name:</span>
+                          <span>{{ host.name }}</span>
+                        </div>
+                        <div class="host-content">
+                          <span class="host-content-title">display_name:</span>
+                          <span style="word-break: break-all;">{{ host.display_name }}</span>
                         </div>
                       </div>
                     </Panel>
@@ -534,7 +517,7 @@ export default {
         this.clearSelectedCollectionId()
       }
       if (result.status === 'OK') {
-        this.$Message.success('成功！')
+        this.$Message.success(this.$t('tips.success'))
         this.collectionRoleManageModal = false
       }
     },
