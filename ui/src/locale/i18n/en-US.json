@@ -225,5 +225,8 @@
   "header_title": "Terminal",
   "asset": "Asset",
   "t_asset": "Asset",
-  "jump_server": "Jump Server"
+  "jump_server": "Jump Server",
+  "total": "Total ",
+  "items": "items",
+  "page": "/page"
 }

@@ -74,15 +74,30 @@
                   </div>
                 </TabPane>
               </Tabs>
-              <Input
-                v-model="searchHost"
-                :placeholder="$t('t_search_host')"
-                @on-change="filterHost"
-                style="width: 100%;margin-bottom:16px"
-              />
+              <div style="margin-bottom:8px">
+                <Input
+                  v-model="searchHost"
+                  :placeholder="$t('t_search_host')"
+                  @on-enter="filterHost"
+                  class="search-input"
+                />
+                <Button type="primary" @click="filterHost" style="width: 70px;">{{ $t('button.search') }}</Button>
+              </div>
               <template v-if="hostInfo.length > 0">
+                <div style="margin-bottom:8px;display: flex;justify-content: space-between;">
+                  <span>{{ $t('total') }}{{ hostInfo.length }}{{ $t('items') }}</span>
+                  <Page
+                    style="display: inline-block;vertical-align: bottom;"
+                    :page-size="pageSize"
+                    :current="current"
+                    @on-change="pageChange"
+                    :total="hostInfo.length"
+                    simple
+                  />
+                  <span>{{ pageSize }}{{ $t('page') }}</span>
+                </div>
                 <Collapse>
-                  <template v-for="host in hostInfo">
+                  <template v-for="host in hostInfoToShow">
                     <Panel :name="host.ip_address" :key="host.ip_address">
                       <div class="diyTitle">
                         {{ host.ip_address }}<span style="color:#2d8cf0">[{{ host.username }}]</span>{{ host.name }}
@@ -292,8 +307,9 @@ export default {
       // sendForAll: true,
       sendHostSet: [],
       searchHost: '',
-      hostInfo: [],
-      oriHostInfo: [],
+      hostInfo: [], // 搜索后数据
+      oriHostInfo: [], // 原始全量数据
+      hostInfoToShow: [], // 搜索后分页显示数据
 
       activeTab: '',
       terminalTabs: [],
@@ -335,7 +351,10 @@ export default {
       isStartSelected: false,
       altDirect: 'up',
       selectedCmdIndex: -1,
-      historyCmd: []
+      historyCmd: [],
+      // 结果分页
+      current: 1,
+      pageSize: 20
     }
   },
   mounted () {
@@ -373,6 +392,7 @@ export default {
       this.currentHostTab = name
       this.hostInfo = []
       this.oriHostInfo = []
+      this.hostInfoToShow = []
       this.selectedCollectionId = ''
       this.searchHost = ''
       if (name === 'default') {
@@ -396,6 +416,8 @@ export default {
         })
         this.hostInfo = data.data
         this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
+        this.current = 1
+        this.finalData()
       }
     },
     clearSelectedCollectionId () {
@@ -470,6 +492,8 @@ export default {
         })
         this.hostInfo = data.data
         this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
+        this.current = 1
+        this.finalData()
       }
     },
     async getRoleList () {
@@ -635,13 +659,8 @@ export default {
       }
     },
     filterHost () {
-      if (this.searchHost) {
-        this.hostInfo = this.oriHostInfo.filter(
-          item => item.ip_address.includes(this.searchHost) || item.name.includes(this.searchHost)
-        )
-      } else {
-        this.hostInfo = this.oriHostInfo
-      }
+      this.current = 1
+      this.finalData()
     },
     async getHostList () {
       const { status, data } = await getHost()
@@ -652,6 +671,24 @@ export default {
         })
         this.hostInfo = data.data
         this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
+        this.current = 1
+        this.finalData()
+      }
+    },
+    pageChange (page) {
+      this.current = page
+      this.finalData()
+    },
+    finalData () {
+      const startNumber = (this.current - 1) * this.pageSize
+      if (this.searchHost === '') {
+        this.hostInfo = this.oriHostInfo
+        this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
+      } else {
+        this.hostInfo = this.oriHostInfo.filter(
+          item => item.ip_address.includes(this.searchHost) || item.name.includes(this.searchHost)
+        )
+        this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
       }
     },
     openTerminal (host) {
@@ -811,5 +848,8 @@ export default {
   font-weight: 700;
   background-color: rgb(226, 222, 222);
   margin-bottom: 5px;
+}
+.search-input {
+  width: ~'calc(100% - 90px)';
 }
 </style>

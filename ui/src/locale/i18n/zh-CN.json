@@ -227,5 +227,8 @@
   "header_title": "Terminal",
   "asset": "终端",
   "t_asset": "终端资产",
-  "jump_server": "跳板机"
+  "jump_server": "跳板机",
+  "total": "总计 ",
+  "items": "条",
+  "page": "条/页"
 }
