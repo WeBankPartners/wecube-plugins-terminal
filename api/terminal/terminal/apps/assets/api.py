@@ -205,6 +205,7 @@ class Asset(object):
                     origin_password = item['password'][len(encrypted_prefix):]
                     origin_password = bytes.fromhex(origin_password)
                     key = utils.md5(item['id'] + CONF.platform_encrypt_seed)[:16]
+                    key = key.encode(encoding = "utf-8")
                     origin_password = utils.aes_cbc_pkcs7_decrypt(origin_password, key, key)
                     item['password'] = origin_password.decode()
             return datas
