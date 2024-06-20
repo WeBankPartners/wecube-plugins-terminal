@@ -132,7 +132,7 @@
   "t_permissions": "授权管理",
   "t_asset_id": "服务器",
   "t_select_datetime": "选择时间段",
-  "t_search_host": "输入IP或名称进行过滤",
+  "t_search_host": "输入IP或名称，回车或点击搜索按钮进行过滤",
   "t_started_time": "开始时间",
   "t_ended_time": "结束时间",
   "t_filepath": "路径",
