@@ -228,5 +228,7 @@
   "jump_server": "Jump Server",
   "total": "Total ",
   "items": "items",
-  "page": "/page"
+  "page": "/page",
+  "t_start_all": "Start All",
+  "t_maximum_reached": "Maximum connections reached"
 }

@@ -320,10 +320,11 @@ export default {
 
 <style scoped lang="less">
 .file-operate {
-  position: absolute;
-  z-index: 10;
+  position: relative;
+  z-index: 9;
   margin-top: 6px;
-  right: 40px;
+  right: 20px;
+  float: right;
 }
 .file-content {
   position: absolute;

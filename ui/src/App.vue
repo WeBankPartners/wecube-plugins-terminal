@@ -46,7 +46,7 @@ export default {
   min-width: 1280px;
 
   .app-content-container {
-    height: 100%;
+    // height: 100%;
   }
 }
 #nav {

@@ -130,6 +130,10 @@
                     </Panel>
                   </template>
                 </Collapse>
+                <!-- v-if="currentHostTab==='favorites'&&hostInfoToShow.length>0" -->
+                <Button @click="startAll" style="float: right;margin: 8px 0" type="success" size="small">{{
+                  $t('t_start_all')
+                }}</Button>
               </template>
               <template v-else>
                 <div style="text-align:center;color:#969696;font-size:12px">
@@ -155,6 +159,7 @@
           <div>
             <Tabs
               type="card"
+              class="terminal-tabs"
               closable
               :animated="false"
               @on-click="clickTab"
@@ -162,8 +167,8 @@
               :value="activeTab"
             >
               <template v-for="tab in terminalTabs">
-                <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
-                  <div :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }">
+                <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode" class="terminal-tab">
+                  <div :style="{ 'overflow-y': 'auto' }">
                     <Terminal
                       :ref="tab.uniqueCode"
                       :host="tab"
@@ -176,6 +181,12 @@
                   </div>
                 </TabPane>
               </template>
+              <Icon
+                slot="extra"
+                @click="startSplit"
+                type="logo-windows"
+                style="font-size: 18px;margin: 8px;cursor: pointer"
+              />
             </Tabs>
           </div>
           <div v-if="showCmd">
@@ -291,6 +302,7 @@ import {
 } from '@/api/server'
 import FilterRules from './components/filter-rules.vue'
 import Terminal from './terminal/terminal'
+const maxConnectionLimit = 21
 export default {
   name: '',
   data () {
@@ -354,7 +366,8 @@ export default {
       historyCmd: [],
       // 结果分页
       current: 1,
-      pageSize: 20
+      pageSize: 20,
+      isSplitScreenMode: false // 是否开启分屏模式
     }
   },
   mounted () {
@@ -362,6 +375,61 @@ export default {
     this.getHostList()
   },
   methods: {
+    startSplit () {
+      this.isSplitScreenMode = !this.isSplitScreenMode
+      // 获取tab头
+      const tabCard = document.querySelector('.terminal-tabs .ivu-tabs-nav-scroll')
+      // 获取所有tab内容
+      const tabs = document.getElementsByClassName('terminal-tab')
+      if (this.isSplitScreenMode) {
+        // 显示所有tab内容，并改变其尺寸、布局
+        for (let i = 0; i < tabs.length; i++) {
+          tabs[i].style.setProperty('visibility', 'visible', 'important')
+          tabs[i].style.setProperty('display', 'inline-block', 'important')
+          tabs[i].style.setProperty('width', '50%', 'important')
+        }
+        this.calculateConsoleSizeForSplit()
+      } else {
+        // 显示所有tab内容，并改变其尺寸、布局
+        for (let i = 0; i < tabs.length; i++) {
+          tabs[i].style.setProperty('width', '100%', 'important')
+          if (i === 0) {
+            tabs[i].style.setProperty('visibility', 'visible', 'important')
+          } else {
+            tabs[i].style.setProperty('visibility', 'hidden', 'important')
+          }
+        }
+        this.calculateConsoleSizeForFull()
+      }
+      // 控制tab头是否显示
+      tabCard.style.setProperty('display', this.isSplitScreenMode ? 'none' : 'initial', 'important')
+    },
+    // 分屏计算新窗口尺寸
+    calculateConsoleSizeForSplit () {
+      const height = document.body.scrollHeight
+      let terminalH = (height - 260) / 8.2
+      terminalH = Math.floor(terminalH / 4)
+      this.consoleConfig.rows = terminalH
+      this.consoleConfig.cols = 70
+      this.terminalTabs.forEach(item => {
+        this.$nextTick(() => {
+          this.$refs[item.uniqueCode][0].resizeScreen()
+        })
+      })
+    },
+    // 全屏计算新窗口尺寸
+    calculateConsoleSizeForFull () {
+      this.initConsole()
+      this.terminalTabs.forEach(item => {
+        this.$nextTick(() => {
+          this.$refs[item.uniqueCode][0].resizeScreen()
+        })
+      })
+      const tab = this.terminalTabs.find(item => item.showName === this.activeTab)
+      if (tab) {
+        this.focusConsole(tab.uniqueCode)
+      }
+    },
     showRegular () {
       return !!window.request
     },
@@ -604,7 +672,7 @@ export default {
       this.consoleConfig.terminalH = height - 150
       let terminalH = (height - 210) / 17
       terminalH = Math.floor(terminalH)
-      this.consoleConfig.rows = terminalH
+      this.consoleConfig.rows = terminalH - 3
 
       const width = document.body.scrollWidth
       let terminalW = ((width - 260) * 18) / 24 / 8.2
@@ -691,7 +759,20 @@ export default {
         this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
       }
     },
+    startAll () {
+      if (this.hostInfoToShow.length + this.terminalTabs.length >= maxConnectionLimit) {
+        this.$Message.warning(this.$t('t_maximum_reached'))
+        return
+      }
+      this.hostInfoToShow.forEach(host => {
+        this.openTerminal(host)
+      })
+    },
     openTerminal (host) {
+      if (this.terminalTabs.length >= maxConnectionLimit) {
+        this.$Message.warning(this.$t('t_maximum_reached'))
+        return
+      }
       this.switchAllSelect(false)
       // eslint-disable-next-line no-unused-vars
       let lastTab = ''
@@ -814,6 +895,7 @@ export default {
   border: 1px solid #c4d3f1;
   height: ~'calc(100vh - 130px)';
   width: ~'calc(100% - 30px)';
+  overflow: auto;
 }
 
 .normal-icon {

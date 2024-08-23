@@ -230,5 +230,7 @@
   "jump_server": "跳板机",
   "total": "总计 ",
   "items": "条",
-  "page": "条/页"
+  "page": "条/页",
+  "t_start_all": "全部启动",
+  "t_maximum_reached": "已到最大连接数"
 }
