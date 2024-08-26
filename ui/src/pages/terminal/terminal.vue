@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <Button @click="openDrawer" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
+    <Button @click="openTerminalFileMgmt" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
     <div
       class="file-content"
       :style="{
@@ -69,6 +69,10 @@
         <Button type="warning" :disabled="!confirmModal.check" @click="dangerousCmd">{{ $t('bc_confirm') }}</Button>
       </div>
     </Modal>
+    <!-- 文件管理 -->
+    <Drawer :title="$t('t_file_management')" width="730" :closable="false" v-model="terminalMgmtDrawer">
+      <FileMgmt ref="fileMgmtRef" @closeDrawer="closeDrawer"></FileMgmt>
+    </Drawer>
   </div>
 </template>
 
@@ -80,6 +84,7 @@ import axios from 'axios'
 import { Terminal } from 'xterm'
 // import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
+import FileMgmt from './file-mgmt.vue'
 export default {
   name: '',
   data () {
@@ -100,7 +105,8 @@ export default {
         check: false,
         message: ''
       },
-      cmd: '' // 缓存命令
+      cmd: '', // 缓存命令
+      terminalMgmtDrawer: false // 终端管理抽屉
     }
   },
   computed: {
@@ -117,15 +123,21 @@ export default {
     this.getHeaders()
   },
   methods: {
+    // #region 文件管理
+    openTerminalFileMgmt () {
+      this.terminalMgmtDrawer = true
+      this.$refs.fileMgmtRef.openDrawer(this.host, this.ssh_session)
+    },
+    closeDrawer () {
+      this.terminalMgmtDrawer = false
+      this.focus()
+    },
+    // #endregion
     focus () {
       this.term.focus()
     },
     byteConvert (size) {
       return byteConvert(size)
-    },
-    closeDrawer () {
-      this.isOpenDrawer = !this.isOpenDrawer
-      this.focus()
     },
     async initTerminal () {
       const term = new Terminal({
@@ -183,7 +195,7 @@ export default {
         if (data.type === 'console') {
           this.term.write(data.data) // (window.atob(data.data))
         } else if (data.type === 'listdir') {
-          this.showDir(data)
+          this.$refs.fileMgmtRef.showDir(data)
         } else if (data.type === 'warn') {
           this.confirm(data)
         } else if (data.type === 'error') {
@@ -315,7 +327,9 @@ export default {
   beforeDestroy () {
     this.ssh_session.close()
   },
-  components: {}
+  components: {
+    FileMgmt
+  }
 }
 </script>
 
