@@ -177,7 +177,9 @@
                       @exectDangerousCmd="exectDangerousCmd"
                       @cancelDangerousCmd="cancelDangerousCmd"
                     ></Terminal>
-                    <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
+                    <Button v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
+                      $t('t_terminal_interaction')
+                    }}</Button>
                   </div>
                 </TabPane>
               </template>
@@ -188,6 +190,9 @@
                 style="font-size: 18px;margin: 8px;cursor: pointer"
               />
             </Tabs>
+            <Button v-if="!showCmd && isSplitScreenMode" @click="sendForMulti">{{
+              $t('t_terminal_interaction')
+            }}</Button>
           </div>
           <div v-if="showCmd">
             <div style="margin:8px">
