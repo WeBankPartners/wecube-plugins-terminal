@@ -154,9 +154,10 @@ export default {
     resizeScreen () {
       // this.fitAddon.fit()
       this.term.resize(this.consoleConfig.cols, this.consoleConfig.rows)
-      this.ssh_session.send(
-        JSON.stringify({ type: 'resize', data: { rows: this.consoleConfig.rows, cols: this.consoleConfig.cols } })
-      )
+      this.ssh_session &&
+        this.ssh_session.send(
+          JSON.stringify({ type: 'resize', data: { rows: this.consoleConfig.rows, cols: this.consoleConfig.cols } })
+        )
     },
     async terminalConnect () {
       if (this.ssh_session) {

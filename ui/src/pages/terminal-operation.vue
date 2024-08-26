@@ -183,7 +183,7 @@
               </template>
               <Icon
                 slot="extra"
-                @click="startSplit"
+                @click="startSplit(true)"
                 type="logo-windows"
                 style="font-size: 18px;margin: 8px;cursor: pointer"
               />
@@ -375,8 +375,12 @@ export default {
     this.getHostList()
   },
   methods: {
-    startSplit () {
-      this.isSplitScreenMode = !this.isSplitScreenMode
+    startSplit (needChangeSplit) {
+      // 入口触发时，切换分屏，
+      // 新打开终端时， 不切换状态，只计算尺寸
+      if (needChangeSplit) {
+        this.isSplitScreenMode = !this.isSplitScreenMode
+      }
       // 获取tab头
       const tabCard = document.querySelector('.terminal-tabs .ivu-tabs-nav-scroll')
       // 获取所有tab内容
@@ -393,10 +397,11 @@ export default {
         // 显示所有tab内容，并改变其尺寸、布局
         for (let i = 0; i < tabs.length; i++) {
           tabs[i].style.setProperty('width', '100%', 'important')
-          if (i === 0) {
+          if (i === tabs.length - 1) {
             tabs[i].style.setProperty('visibility', 'visible', 'important')
           } else {
             tabs[i].style.setProperty('visibility', 'hidden', 'important')
+            tabs[i].style.setProperty('display', 'none', 'important')
           }
         }
         this.calculateConsoleSizeForFull()
@@ -675,7 +680,7 @@ export default {
       this.consoleConfig.rows = terminalH - 3
 
       const width = document.body.scrollWidth
-      let terminalW = ((width - 260) * 18) / 24 / 8.2
+      let terminalW = ((width - 250) * 18) / 24 / 8.2
       terminalW = Math.floor(terminalW)
       this.consoleConfig.cols = terminalW
     },
@@ -804,6 +809,9 @@ export default {
         })
         showName = `${host.showName}(${index})`
       }
+      this.$nextTick(() => {
+        this.startSplit(false)
+      })
       this.activeTab = showName || host.ip_address
     },
     handleTabRemove (name) {
@@ -894,7 +902,7 @@ export default {
 .container-height {
   border: 1px solid #c4d3f1;
   height: ~'calc(100vh - 130px)';
-  width: ~'calc(100% - 30px)';
+  width: ~'calc(100% - 10px)';
   overflow: auto;
 }
 
