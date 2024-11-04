@@ -1,4 +1,4 @@
-FROM python:3.7-slim
+FROM python:3.8-slim-buster
 LABEL maintainer = "Webank CTB Team"
 # Install logrotate
 RUN sed -i 's/deb.debian.org/mirrors.tencentyun.com/g' /etc/apt/sources.list
