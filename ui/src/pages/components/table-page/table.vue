@@ -990,7 +990,7 @@ export default {
   margin: 2px 4px;
   line-height: 18px;
 }
-.multiFilter ::deep.ivu-checkbox-group-item {
+.multiFilter ::v-deep .ivu-checkbox-group-item {
   display: block;
   padding: 0 16px;
   margin: 0;
@@ -1114,7 +1114,7 @@ export default {
   .cell {
     overflow: hidden;
   }
-  ::deep .ivu-tooltip-rel {
+  ::v-deep .ivu-tooltip-rel {
     display: block;
   }
   .poplableSty {
