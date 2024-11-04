@@ -1114,9 +1114,12 @@ export default {
   .cell {
     overflow: hidden;
   }
-  ::v-deep .ivu-tooltip-rel {
+
+  /deep/ .ivu-tooltip-rel,
+  >>> .ivu-tooltip-rel {
     display: block;
   }
+
   .poplableSty {
     // max-width: 150px;
     overflow: hidden;
