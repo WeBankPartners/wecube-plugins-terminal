@@ -1115,8 +1115,7 @@ export default {
     overflow: hidden;
   }
 
-  /deep/ .ivu-tooltip-rel,
-  >>> .ivu-tooltip-rel {
+  /deep/ .ivu-tooltip-rel {
     display: block;
   }
 
