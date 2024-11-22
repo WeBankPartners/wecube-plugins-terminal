@@ -28,7 +28,10 @@ def upload(session_id, filepath, endpoint, ak, sk, bucket, object_key):
     if not os.path.exists(filepath):
         return
     client = s3.S3Client(endpoint, ak, sk)
-    fullurl = '/'.join(['http://' + endpoint.rstrip('/'), bucket, object_key])
+    urlprefix = endpoint.rstrip('/')
+    if not urlprefix.startswith('http'):
+        urlprefix = 'http://' + urlprefix
+    fullurl = '/'.join([urlprefix, bucket, object_key])
     try:
         client.upload_file(bucket, object_key, filepath)
         resource.SessionRecord().update(session_id, {'filepath': fullurl})
