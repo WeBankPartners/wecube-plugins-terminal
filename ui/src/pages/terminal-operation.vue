@@ -164,6 +164,7 @@
               :animated="false"
               @on-click="clickTab"
               @on-tab-remove="handleTabRemove"
+              :before-remove="beforeRemove"
               :value="activeTab"
             >
               <template v-for="tab in terminalTabs">
@@ -174,8 +175,10 @@
                       :host="tab"
                       :sendHostSet="sendHostSet"
                       :consoleConfig="consoleConfig"
+                      :isSplitScreenMode="isSplitScreenMode"
                       @exectDangerousCmd="exectDangerousCmd"
                       @cancelDangerousCmd="cancelDangerousCmd"
+                      @handleTabRemove="handleTabRemove"
                     ></Terminal>
                     <Button v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
                       $t('t_terminal_interaction')
@@ -183,12 +186,10 @@
                   </div>
                 </TabPane>
               </template>
-              <Icon
-                slot="extra"
-                @click="startSplit(true)"
-                type="logo-windows"
-                style="font-size: 18px;margin: 8px;cursor: pointer"
-              />
+              <div slot="extra" style="margin: 0 16px">
+                <span style="vertical-align: sub;">{{ $t('t_split_screen') }}</span>
+                <i-switch v-model="isSplitScreenMode" @on-change="change" true-color="#13ce66" />
+              </div>
             </Tabs>
             <Button v-if="!showCmd && isSplitScreenMode" @click="sendForMulti">{{
               $t('t_terminal_interaction')
@@ -380,14 +381,16 @@ export default {
     this.getHostList()
   },
   methods: {
+    change (val) {
+      this.startSplit(val)
+    },
     startSplit (needChangeSplit) {
+      this.isSplitScreenMode = needChangeSplit
       // 入口触发时，切换分屏，
       // 新打开终端时， 不切换状态，只计算尺寸
-      if (needChangeSplit) {
-        this.isSplitScreenMode = !this.isSplitScreenMode
-      }
-      // 获取tab头
-      const tabCard = document.querySelector('.terminal-tabs .ivu-tabs-nav-scroll')
+      // if (needChangeSplit) {
+      //   this.isSplitScreenMode = !this.isSplitScreenMode
+      // }
       // 获取所有tab内容
       const tabs = document.getElementsByClassName('terminal-tab')
       if (this.isSplitScreenMode) {
@@ -412,7 +415,8 @@ export default {
         this.calculateConsoleSizeForFull()
       }
       // 控制tab头是否显示
-      tabCard.style.setProperty('display', this.isSplitScreenMode ? 'none' : 'initial', 'important')
+      const tabCard = document.querySelector('.terminal-tabs .ivu-tabs-nav-scroll')
+      tabCard.style.setProperty('display', this.isSplitScreenMode ? 'none' : '', 'important')
     },
     // 分屏计算新窗口尺寸
     calculateConsoleSizeForSplit () {
@@ -819,6 +823,19 @@ export default {
       })
       this.activeTab = showName || host.ip_address
     },
+    beforeRemove () {
+      return new Promise(resolve => {
+        this.$Modal.confirm({
+          title: this.$t('t_close_terminal'),
+          content: this.$t('t_close_terminal_tip') + this.activeTab,
+          'z-index': 1000000,
+          onOk: () => {
+            resolve() // 允许关闭
+          },
+          onCancel: () => {}
+        })
+      })
+    },
     handleTabRemove (name) {
       const tab = this.terminalTabs.find(item => item.showName === name)
       const uniqueCode = tab.uniqueCode
@@ -862,6 +879,11 @@ export default {
   }
 }
 </script>
+<style scoped lang="less">
+.terminal-tabs /deep/ .ivu-tabs-bar {
+  margin-bottom: 0 !important;
+}
+</style>
 <style scoped lang="less">
 .ivu-form-item {
   margin-bottom: 4px;

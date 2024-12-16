@@ -230,5 +230,8 @@
   "items": "items",
   "page": "/page",
   "t_start_all": "Start All",
-  "t_maximum_reached": "Maximum connections reached"
+  "t_maximum_reached": "Maximum connections reached",
+  "t_split_screen": "Split Screen",
+  "t_close_terminal": "Close Terminal",
+  "t_close_terminal_tip": "Confirm closing the terminal:"
 }

@@ -1,6 +1,15 @@
 <template>
   <div class="">
-    <Button @click="openTerminalFileMgmt" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
+    <Button
+      @click="openTerminalFileMgmt"
+      class="file-operate"
+      :style="{
+        'margin-top': isSplitScreenMode ? '33px' : '6px'
+      }"
+      type="primary"
+      >{{ $t('t_file_management') }}</Button
+    >
+    <Tag v-if="isSplitScreenMode" closable @on-close="closeTerminal">{{ host.showName }}</Tag>
     <div
       class="file-content"
       :style="{
@@ -70,7 +79,12 @@
       </div>
     </Modal>
     <!-- 文件管理 -->
-    <Drawer :title="$t('t_file_management')" width="730" :closable="false" v-model="terminalMgmtDrawer">
+    <Drawer
+      :title="$t('t_file_management') + '(' + this.host.showName + ')'"
+      width="730"
+      :closable="false"
+      v-model="terminalMgmtDrawer"
+    >
       <FileMgmt ref="fileMgmtRef" @closeDrawer="closeDrawer"></FileMgmt>
     </Drawer>
   </div>
@@ -114,7 +128,7 @@ export default {
       return `/terminal/v1/assets/${this.host.key}/file?path=` + encodeURIComponent(this.currentDir)
     }
   },
-  props: ['host', 'consoleConfig', 'sendHostSet'],
+  props: ['host', 'consoleConfig', 'sendHostSet', 'isSplitScreenMode'],
   created () {},
   async mounted () {
     await this.initTerminal()
@@ -123,6 +137,19 @@ export default {
     this.getHeaders()
   },
   methods: {
+    closeTerminal () {
+      return new Promise(resolve => {
+        this.$Modal.confirm({
+          title: this.$t('t_close_terminal'),
+          content: this.$t('t_close_terminal_tip') + this.host.showName,
+          'z-index': 1000000,
+          onOk: () => {
+            this.$emit('handleTabRemove', this.host.showName)
+          },
+          onCancel: () => {}
+        })
+      })
+    },
     // #region 文件管理
     openTerminalFileMgmt () {
       this.terminalMgmtDrawer = true
@@ -337,7 +364,6 @@ export default {
 .file-operate {
   position: relative;
   z-index: 9;
-  margin-top: 6px;
   right: 20px;
   float: right;
 }
