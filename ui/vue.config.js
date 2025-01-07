@@ -1,6 +1,6 @@
 const CompressionPlugin = require('compression-webpack-plugin')
 const path = require('path')
-const baseUrl = ''
+const baseUrl = process.env.TARGET
 module.exports = {
   devServer: {
     // hot: true,
