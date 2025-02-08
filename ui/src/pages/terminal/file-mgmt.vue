@@ -8,7 +8,7 @@
         :on-error="uploadFailed"
         :action="uploadUrl"
         :headers="headers"
-        style="display:inline-block"
+        style="display: inline-block"
       >
         <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('upload')">{{
           $t('t_file_upload')
@@ -17,16 +17,16 @@
     </div>
     <div style="margin: 4px 0">
       {{ $t('t_current_directory') }}：
-      <Input style="width:60%" v-model="currentDir" @on-enter="getFiles"> </Input>
+      <Input style="width: 60%" v-model="currentDir" @on-enter="getFiles"> </Input>
     </div>
     <div class="file-list-content">
       <template v-for="(file, index) in fileLists">
         <div :key="index">
-          <label style="width:80px">{{ file.mode }} </label>
-          <label style="width:50px">{{ file.gid }} </label>
-          <label style="width:50px">{{ file.uid }} </label>
-          <label style="width:100px" :title="file.size">{{ byteConvert(file.size) }}</label>
-          <label style="width:100px">{{ file.mtime }} </label>
+          <label style="width: 80px">{{ file.mode }} </label>
+          <label style="width: 50px">{{ file.gid }} </label>
+          <label style="width: 50px">{{ file.uid }} </label>
+          <label style="width: 100px" :title="file.size">{{ byteConvert(file.size) }}</label>
+          <label style="width: 100px">{{ file.mtime }} </label>
           <label class="file-name" @click="getFileList(file)">
             <Icon v-if="file.type === 'dir'" type="ios-folder" />
             <Icon v-if="file.type === 'link'" type="ios-link" />
@@ -181,6 +181,6 @@ export default {
   width: 280px;
   vertical-align: top;
   cursor: pointer;
-  color: #2d8cf0;
+  color: #5384ff;
 }
 </style>

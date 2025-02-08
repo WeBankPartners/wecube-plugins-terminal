@@ -24,7 +24,7 @@
       <div slot="content">
         <div v-show="!disabled" ref="filter_rules_path_options" class="filter_rules_path_options">
           <ul>
-            <li id="paste" style="margin-bottom: 5px;" v-if="pathList.length === 0">
+            <li id="paste" style="margin-bottom: 5px" v-if="pathList.length === 0">
               <input
                 class="paste_input"
                 v-model="pasteValue"
@@ -33,35 +33,35 @@
                 @paste="pastePathExp($event)"
               />
             </li>
-            <li class v-if="pathList.length > 0" style="color: #ed4014" @click="deleteCurrentNode">
+            <li class v-if="pathList.length > 0" style="color: #ff4d4f" @click="deleteCurrentNode">
               {{ $t('delete_node') }}
             </li>
             <li
               class
-              style="color: #2d8cf0"
+              style="color: #5384ff"
               v-if="pathList.length > 0 && currentNode.nodeType === 'entity'"
               @click="addFilterRuleForCurrentNode"
             >
               {{ $t('add_filter_rule') }}
             </li>
             <li>
-              <Input prefix="ios-search" v-model="filterString" size="small" style="width:100%" />
+              <Input prefix="ios-search" v-model="filterString" size="small" style="width: 100%" />
             </li>
           </ul>
-          <hr style="margin-top:5px;" />
-          <div style="max-height: 145px;overflow: auto;margin-top:5px;">
+          <hr style="margin-top: 5px" />
+          <div style="max-height: 145px; overflow: auto; margin-top: 5px">
             <ul
               v-if="!needNativeAttr"
               v-for="opt in filterCurrentLeafOptiongs"
               :key="opt.pathExp + Math.random() * 1000"
             >
-              <li style="color:rgb(49, 104, 4)" @click="optClickHandler(opt)">{{ opt.pathExp }}</li>
+              <li style="color: rgb(49, 104, 4)" @click="optClickHandler(opt)">{{ opt.pathExp }}</li>
             </ul>
             <ul v-for="opt in filterCurrentRefOptiongs" :key="opt.pathExp + Math.random() * 1000">
-              <li style="color:rgb(64, 141, 218)" @click="optClickHandler(opt)">{{ opt.pathExp }}</li>
+              <li style="color: rgb(64, 141, 218)" @click="optClickHandler(opt)">{{ opt.pathExp }}</li>
             </ul>
             <ul v-for="opt in filterCurrentOptiongs" :key="opt.pathExp + Math.random() * 1000">
-              <li style="color:rgb(211, 82, 32)" @click="optClickHandler(opt)">{{ opt.pathExp }}</li>
+              <li style="color: rgb(211, 82, 32)" @click="optClickHandler(opt)">{{ opt.pathExp }}</li>
             </ul>
           </div>
         </div>
@@ -75,7 +75,7 @@
       @on-cancel="cancelHandler"
     >
       <Row style="margin-bottom: 10px" v-for="(rule, index) in currentPathFilterRules" :key="index">
-        <Col span="1" style="margin-top: 4px;"
+        <Col span="1" style="margin-top: 4px"
           ><Button type="error" icon="ios-trash-outline" @click="deleteFilterRule(index)" size="small"></Button
         ></Col>
         <Col span="8" offset="1">

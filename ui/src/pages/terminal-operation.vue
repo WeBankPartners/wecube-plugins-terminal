@@ -3,7 +3,7 @@
     <Row>
       <Col span="6" v-if="showHostList">
         <div class="hide-icon-left">
-          <Icon type="ios-arrow-dropleft" color="#2d8cf0" @click="hideHost" size="20" />
+          <Icon type="ios-arrow-dropleft" color="#5384FF" @click="hideHost" size="20" />
         </div>
         <div @mouseenter="mouseenter('showHideIcon')" @mouseleave="mouseleave('showHideIcon')">
           <Card>
@@ -28,7 +28,7 @@
                       >
                         <Option v-for="item in favoritesLists" :value="item.id" :key="item.id" :label="item.name">
                           <span>{{ item.name }}</span>
-                          <span v-if="item.is_owner" style="float:right;">
+                          <span v-if="item.is_owner" style="float: right">
                             <Button
                               icon="ios-trash"
                               type="error"
@@ -36,7 +36,7 @@
                               @click="showDeleteConfirm(item)"
                             ></Button>
                           </span>
-                          <span v-if="item.is_owner" style="float:right;margin-right: 10px">
+                          <span v-if="item.is_owner" style="float: right; margin-right: 10px">
                             <Button
                               icon="ios-build"
                               type="primary"
@@ -52,7 +52,7 @@
                 <TabPane v-if="showRegular()" :label="$t('t_regular_expression')" name="regular_expression">
                   <span v-if="showFilterRules">
                     <FilterRules
-                      style="display:inline-block;vertical-align: middle;padding:0"
+                      style="display: inline-block; vertical-align: middle; padding: 0"
                       class="col-md-12"
                       :needAttr="true"
                       v-model="expressionPath"
@@ -60,7 +60,7 @@
                     ></FilterRules>
                   </span>
 
-                  <div style="display:flex;justify-content: space-around;margin:12px">
+                  <div style="display: flex; justify-content: space-around; margin: 12px">
                     <Button
                       :disabled="expressionPath === ''"
                       type="primary"
@@ -74,20 +74,20 @@
                   </div>
                 </TabPane>
               </Tabs>
-              <div style="margin-bottom:8px">
+              <div style="margin-bottom: 8px">
                 <Input
                   v-model="searchHost"
                   :placeholder="$t('t_search_host')"
                   @on-enter="filterHost"
                   class="search-input"
                 />
-                <Button type="primary" @click="filterHost" style="width: 70px;">{{ $t('button.search') }}</Button>
+                <Button type="primary" @click="filterHost" style="width: 70px">{{ $t('button.search') }}</Button>
               </div>
               <template v-if="hostInfo.length > 0">
-                <div style="margin-bottom:8px;display: flex;justify-content: space-between;">
+                <div style="margin-bottom: 8px; display: flex; justify-content: space-between">
                   <span>{{ $t('total') }}{{ hostInfo.length }}{{ $t('items') }}</span>
                   <Page
-                    style="display: inline-block;vertical-align: bottom;"
+                    style="display: inline-block; vertical-align: bottom"
                     :page-size="pageSize"
                     :current="current"
                     @on-change="pageChange"
@@ -100,10 +100,10 @@
                   <template v-for="host in hostInfoToShow">
                     <Panel :name="host.ip_address" :key="host.ip_address">
                       <div class="diyTitle">
-                        {{ host.ip_address }}<span style="color:#2d8cf0">[{{ host.username }}]</span>{{ host.name }}
+                        {{ host.ip_address }}<span style="color: #5384ff">[{{ host.username }}]</span>{{ host.name }}
                       </div>
                       <template>
-                        <Tooltip content="Console" :delay="500" style="float:right">
+                        <Tooltip content="Console" :delay="500" style="float: right">
                           <i
                             disabled
                             class="fa fa-terminal operation-icon-terminal"
@@ -124,19 +124,19 @@
                         </div>
                         <div class="host-content">
                           <span class="host-content-title">display_name:</span>
-                          <span style="word-break: break-all;">{{ host.display_name }}</span>
+                          <span style="word-break: break-all">{{ host.display_name }}</span>
                         </div>
                       </div>
                     </Panel>
                   </template>
                 </Collapse>
                 <!-- v-if="currentHostTab==='favorites'&&hostInfoToShow.length>0" -->
-                <Button @click="startAll" style="float: right;margin: 8px 0" type="success" size="small">{{
+                <Button @click="startAll" style="float: right; margin: 8px 0" type="success" size="small">{{
                   $t('t_start_all')
                 }}</Button>
               </template>
               <template v-else>
-                <div style="text-align:center;color:#969696;font-size:12px">
+                <div style="text-align: center; color: #969696; font-size: 12px">
                   {{ $t('t_no_data') }}
                 </div>
               </template>
@@ -149,13 +149,13 @@
           v-if="!showHostList"
           @mouseenter="mouseenter('showDisplayIcon')"
           @mouseleave="mouseleave('showDisplayIcon')"
-          style="width: 20px;background:#fafafa;display:inline-block;height:calc(100vh - 130px)"
+          style="width: 20px; background: #fafafa; display: inline-block; height: calc(100vh - 130px)"
         >
           <div class="hide-icon-right">
-            <Icon @click="showHost" color="#2d8cf0" type="ios-arrow-dropright" size="20" />
+            <Icon @click="showHost" color="#5384FF" type="ios-arrow-dropright" size="20" />
           </div>
         </div>
-        <div class="container-height" style="display:inline-block;vertical-align: top;">
+        <div class="container-height" style="display: inline-block; vertical-align: top">
           <div>
             <Tabs
               type="card"
@@ -187,7 +187,7 @@
                 </TabPane>
               </template>
               <div slot="extra" style="margin: 0 16px">
-                <span style="vertical-align: sub;">{{ $t('t_split_screen') }}</span>
+                <span style="vertical-align: sub">{{ $t('t_split_screen') }}</span>
                 <i-switch v-model="isSplitScreenMode" @on-change="change" true-color="#13ce66" />
               </div>
             </Tabs>
@@ -196,7 +196,7 @@
             }}</Button>
           </div>
           <div v-if="showCmd">
-            <div style="margin:8px">
+            <div style="margin: 8px">
               <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
                 $t('t_cancel_terminal_interaction')
               }}</Button>
@@ -211,10 +211,8 @@
                   <div>{{ $t('t_cmd_tip6') }}</div>
                 </div>
               </Tooltip>
-              <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600;">
-                ALL
-              </Checkbox>
-              <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display:inline-block">
+              <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600"> ALL </Checkbox>
+              <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display: inline-block">
                 <template v-for="tab in terminalTabs">
                   <Checkbox :label="tab.uniqueCode" :name="tab.uniqueCode" :key="tab.uniqueCode">
                     <span>{{ tab.showName }}</span>
@@ -225,10 +223,10 @@
                 :disabled="!selectedCmd"
                 @click="sendHistoryCmd"
                 type="primary"
-                style="float:right;margin:0 16px"
+                style="float: right; margin: 0 16px"
                 >{{ $t('t_send') }}</Button
               >
-              <Select v-model="selectedCmd" style="float:right; width:200px" placeholder="history cmd">
+              <Select v-model="selectedCmd" style="float: right; width: 200px" placeholder="history cmd">
                 <Option v-for="item in historyCmd" :value="item.label" :key="item.value">{{ item.label }}</Option>
               </Select>
             </div>
@@ -257,7 +255,7 @@
         </FormItem>
         <FormItem :label="$t('t_regular_expression')">
           <FilterRules
-            style="display:inline-block;vertical-align: middle;padding:0"
+            style="display: inline-block; vertical-align: middle; padding: 0"
             class="col-md-12"
             :needAttr="true"
             v-model="collectionParams.expression"

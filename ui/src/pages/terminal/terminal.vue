@@ -25,18 +25,18 @@
           :on-error="uploadFailed"
           :action="uploadUrl"
           :headers="headers"
-          style="display:inline-block"
+          style="display: inline-block"
         >
           <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('upload')">{{
             $t('t_file_upload')
           }}</Button>
         </Upload>
 
-        <Button @click="closeDrawer" type="primary" style="position: absolute;right: 40px;">{{ $t('t_close') }}</Button>
+        <Button @click="closeDrawer" type="primary" style="position: absolute; right: 40px">{{ $t('t_close') }}</Button>
       </div>
       <div style="margin: 4px 0">
         {{ $t('t_current_directory') }}：
-        <Input style="width:60%" v-model="currentDir" @on-enter="getFiles"> </Input>
+        <Input style="width: 60%" v-model="currentDir" @on-enter="getFiles"> </Input>
       </div>
       <div
         :style="{
@@ -46,11 +46,11 @@
       >
         <template v-for="(file, index) in fileLists">
           <div :key="index">
-            <label style="width:80px">{{ file.mode }} </label>
-            <label style="width:50px">{{ file.gid }} </label>
-            <label style="width:50px">{{ file.uid }} </label>
-            <label style="width:100px" :title="file.size">{{ byteConvert(file.size) }}</label>
-            <label style="width:100px">{{ file.mtime }} </label>
+            <label style="width: 80px">{{ file.mode }} </label>
+            <label style="width: 50px">{{ file.gid }} </label>
+            <label style="width: 50px">{{ file.uid }} </label>
+            <label style="width: 100px" :title="file.size">{{ byteConvert(file.size) }}</label>
+            <label style="width: 100px">{{ file.mtime }} </label>
             <label class="file-name" @click="getFileList(file)">
               <Icon v-if="file.type === 'dir'" type="ios-folder" />
               <Icon v-if="file.type === 'link'" type="ios-link" />
@@ -67,11 +67,11 @@
         <Icon :size="28" :color="'#f90'" type="md-help-circle" />
         <span class="confirm-msg">{{ $t('confirm_to_exect') }}</span>
       </div>
-      <div style="max-height: 400px;overflow-y: auto;">
-        <pre style="margin-left: 44px;">{{ this.confirmModal.message }}</pre>
+      <div style="max-height: 400px; overflow-y: auto">
+        <pre style="margin-left: 44px">{{ this.confirmModal.message }}</pre>
       </div>
       <div slot="footer">
-        <span style="margin-left:30px;color:#ed4014;float: left;text-align:left">
+        <span style="margin-left: 30px; color: #ff4d4f; float: left; text-align: left">
           <Checkbox v-model="confirmModal.check">{{ $t('dangerous_confirm_tip') }}</Checkbox>
         </span>
         <Button type="text" @click="cancelConfirm">{{ $t('bc_cancel') }}</Button>
@@ -382,6 +382,6 @@ export default {
   width: 280px;
   vertical-align: top;
   cursor: pointer;
-  color: #2d8cf0;
+  color: #5384ff;
 }
 </style>
