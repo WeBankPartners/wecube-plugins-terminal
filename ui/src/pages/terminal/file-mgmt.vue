@@ -11,7 +11,7 @@
         style="display: inline-block"
       >
         <Button class="btn-upload" :disabled="!filePermisson.includes('upload')">
-          <img src="@/styles/icon/UploadOutlined.svg" class="upload-icon" />
+          <img src="@/styles/icon/UploadOutlined.png" class="upload-icon" />
           {{ $t('t_file_upload') }}
         </Button>
         <!-- <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('upload')">{{
