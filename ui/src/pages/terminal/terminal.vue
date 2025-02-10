@@ -27,9 +27,13 @@
           :headers="headers"
           style="display: inline-block"
         >
-          <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('upload')">{{
+          <Button class="btn-upload" :disabled="!filePermisson.includes('upload')">
+            <img src="@/styles/icon/UploadOutlined.svg" class="upload-icon" />
+            {{ $t('t_file_upload') }}
+          </Button>
+          <!-- <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('upload')">{{
             $t('t_file_upload')
-          }}</Button>
+          }}</Button> -->
         </Upload>
 
         <Button @click="closeDrawer" type="primary" style="position: absolute; right: 40px">{{ $t('t_close') }}</Button>
