@@ -294,16 +294,17 @@
 </template>
 <script>
 import {
+  addCollection,
+  deleteFavorites,
+  editCollection,
+  getAllDataModels,
+  getAssetsByExpression,
+  getFavoritesList,
   getHost,
   getRoleList,
-  getRolesByCurrentUser,
-  addCollection,
-  getAllDataModels,
-  getFavoritesList,
-  getAssetsByExpression,
-  deleteFavorites,
-  editCollection
+  getRolesByCurrentUser
 } from '@/api/server'
+import _ from 'lodash'
 import FilterRules from './components/filter-rules.vue'
 import Terminal from './terminal/terminal'
 const maxConnectionLimit = 21
@@ -771,7 +772,7 @@ export default {
         this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
       }
     },
-    startAll () {
+    startAll: _.debounce(function () {
       if (this.hostInfoToShow.length + this.terminalTabs.length >= maxConnectionLimit) {
         this.$Message.warning(this.$t('t_maximum_reached'))
         return
@@ -779,7 +780,7 @@ export default {
       this.hostInfoToShow.forEach(host => {
         this.openTerminal(host)
       })
-    },
+    }, 300),
     openTerminal (host) {
       if (this.terminalTabs.length >= maxConnectionLimit) {
         this.$Message.warning(this.$t('t_maximum_reached'))
