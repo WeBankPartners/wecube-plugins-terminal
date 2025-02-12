@@ -10,61 +10,6 @@
       >{{ $t('t_file_management') }}</Button
     >
     <Tag v-if="isSplitScreenMode" closable @on-close="closeTerminal">{{ host.showName }}</Tag>
-    <div
-      class="file-content"
-      :style="{
-        display: isOpenDrawer ? 'inherit' : 'none'
-      }"
-      type="primary"
-    >
-      <div style="margin-top: 8px">
-        <Upload
-          ref="uploadButton"
-          show-upload-list
-          :on-success="uploadSucess"
-          :on-error="uploadFailed"
-          :action="uploadUrl"
-          :headers="headers"
-          style="display: inline-block"
-        >
-          <Button class="btn-upload" :disabled="!filePermisson.includes('upload')">
-            <img src="@/styles/icon/UploadOutlined.png" class="upload-icon" />
-            {{ $t('t_file_upload') }}
-          </Button>
-          <!-- <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('upload')">{{
-            $t('t_file_upload')
-          }}</Button> -->
-        </Upload>
-
-        <Button @click="closeDrawer" type="primary" style="position: absolute; right: 40px">{{ $t('t_close') }}</Button>
-      </div>
-      <div style="margin: 4px 0">
-        {{ $t('t_current_directory') }}：
-        <Input style="width: 60%" v-model="currentDir" @on-enter="getFiles"> </Input>
-      </div>
-      <div
-        :style="{
-          height: consoleConfig.terminalH - 145 + 'px',
-          overflow: 'auto'
-        }"
-      >
-        <template v-for="(file, index) in fileLists">
-          <div :key="index">
-            <label style="width: 80px">{{ file.mode }} </label>
-            <label style="width: 50px">{{ file.gid }} </label>
-            <label style="width: 50px">{{ file.uid }} </label>
-            <label style="width: 100px" :title="file.size">{{ byteConvert(file.size) }}</label>
-            <label style="width: 100px">{{ file.mtime }} </label>
-            <label class="file-name" @click="getFileList(file)">
-              <Icon v-if="file.type === 'dir'" type="ios-folder" />
-              <Icon v-if="file.type === 'link'" type="ios-link" />
-              <Icon v-if="file.type === 'file'" type="md-document" />
-              {{ file.name }}
-            </label>
-          </div>
-        </template>
-      </div>
-    </div>
     <div id="terminal" ref="terminal"></div>
     <Modal v-model="confirmModal.isShowConfirmModal" width="900">
       <div>
@@ -96,10 +41,10 @@
 
 <script>
 import { getFileManagementPermission } from '@/api/server'
-import { setCookie, getCookie } from '../util/cookie'
-import { byteConvert } from '../util/functools'
 import axios from 'axios'
 import { Terminal } from 'xterm'
+import { getCookie, setCookie } from '../util/cookie'
+import { byteConvert } from '../util/functools'
 // import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
 import FileMgmt from './file-mgmt.vue'
@@ -125,11 +70,6 @@ export default {
       },
       cmd: '', // 缓存命令
       terminalMgmtDrawer: false // 终端管理抽屉
-    }
-  },
-  computed: {
-    uploadUrl () {
-      return `/terminal/v1/assets/${this.host.key}/file?path=` + encodeURIComponent(this.currentDir)
     }
   },
   props: ['host', 'consoleConfig', 'sendHostSet', 'isSplitScreenMode'],
@@ -257,9 +197,6 @@ export default {
       this.cmd = cmd
       this.ssh_session.send(JSON.stringify({ type: 'console', data: cmd }))
     },
-    getFiles () {
-      this.ssh_session.send(JSON.stringify({ type: 'listdir', data: this.currentDir }))
-    },
     async openDrawer () {
       const res = await getFileManagementPermission(this.host.key)
       this.filePermisson = res.data
@@ -270,29 +207,6 @@ export default {
       this.fileLists = listDir.data.filelist
       this.currentDir = listDir.data.pwd
       this.getHeaders()
-    },
-    getFileList (file) {
-      if (['link', 'file'].includes(file.type)) {
-        this.downLoadFile(file)
-      } else if (file.type === 'dir') {
-        this.ssh_session.send(JSON.stringify({ type: 'listdir', data: file.fullpath }))
-      }
-    },
-    downLoadFile (file) {
-      const api = `/terminal/v1/assets/${this.host.key}/file?path=`
-      window.open(api + encodeURIComponent(file.fullpath), '_blank')
-    },
-    uploadSucess (response) {
-      this.$refs.uploadButton.clearFiles()
-      this.$Notice.info({
-        title: response.status,
-        desc: response.message
-      })
-      this.ssh_session.send(JSON.stringify({ type: 'listdir', data: this.currentDir }))
-    },
-    uploadFailed (msg) {
-      console.log(msg)
-      console.log('faild')
     },
     async getHeaders () {
       let refreshRequest = null
@@ -350,9 +264,6 @@ export default {
       this.confirmModal.isShowConfirmModal = false
       this.ssh_session.send(JSON.stringify({ type: 'console', confirm: true, data: this.cmd }))
       this.term.focus()
-    },
-    cancelConfirmToExecution () {
-      this.confirmModal.isShowConfirmModal = false
     }
   },
   beforeDestroy () {

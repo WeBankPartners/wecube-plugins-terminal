@@ -311,7 +311,6 @@ import {
   getRoleList,
   getRolesByCurrentUser
 } from '@/api/server'
-import _ from 'lodash'
 import FilterRules from './components/filter-rules.vue'
 import Terminal from './terminal/terminal'
 const maxConnectionLimit = 21
@@ -779,15 +778,29 @@ export default {
         this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
       }
     },
-    startAll: _.debounce(function () {
+    startAll () {
       if (this.hostInfoToShow.length + this.terminalTabs.length >= maxConnectionLimit) {
         this.$Message.warning(this.$t('t_maximum_reached'))
         return
       }
-      this.hostInfoToShow.forEach(host => {
-        this.openTerminal(host)
+      this.$Modal.confirm({
+        title: this.$t('t_start_all_tip'),
+        content: '',
+        render: h => {
+          const ipList = this.hostInfoToShow.map(item => {
+            return h('Tag', item.ip_address)
+          })
+          return ipList
+        },
+        'z-index': 1000000,
+        onOk: () => {
+          this.hostInfoToShow.forEach(host => {
+            this.openTerminal(host)
+          })
+        },
+        onCancel: () => {}
       })
-    }),
+    },
     openTerminal (host) {
       if (this.terminalTabs.length >= maxConnectionLimit) {
         this.$Message.warning(this.$t('t_maximum_reached'))

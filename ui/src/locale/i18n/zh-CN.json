@@ -232,6 +232,7 @@
   "items": "条",
   "page": "条/页",
   "t_start_all": "全部启动",
+  "t_start_all_tip": "确定启动如下全部终端？",
   "t_maximum_reached": "已到最大连接数",
   "t_split_screen": "分屏展示",
   "t_close_terminal": "关闭终端",
