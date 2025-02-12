@@ -156,7 +156,11 @@
             <Icon @click="showHost" color="#5384FF" type="ios-arrow-dropright" size="20" />
           </div>
         </div>
-        <div class="container-height" style="display: inline-block; vertical-align: top">
+        <div
+          class="container-height"
+          :class="showHostList ? 'container-width-18' : 'container-width-24'"
+          style="display: inline-block; vertical-align: top"
+        >
           <div>
             <Tabs
               type="card"
@@ -195,7 +199,12 @@
               </template>
               <div slot="extra" style="margin: 0 16px">
                 <span style="vertical-align: sub">{{ $t('t_split_screen') }}</span>
-                <i-switch v-model="isSplitScreenMode" @on-change="change" true-color="#13ce66" />
+                <i-switch
+                  v-model="isSplitScreenMode"
+                  @on-change="change"
+                  true-color="#13ce66"
+                  style="vertical-align: bottom"
+                />
               </div>
             </Tabs>
             <Button v-if="!showCmd && isSplitScreenMode" @click="sendForMulti">{{
@@ -645,12 +654,14 @@ export default {
       this.resizeConsole()
       this.showHideIcon = false
       this.showDisplayIcon = false
+      this.startSplit(this.isSplitScreenMode)
     },
     showHost () {
       this.showHostList = true
       this.resizeConsole()
       this.showHideIcon = false
       this.showDisplayIcon = false
+      this.startSplit(this.isSplitScreenMode)
     },
     cancelTerminalInteraction () {
       this.initConsole()
@@ -868,6 +879,7 @@ export default {
         this.activeTab = lastTab.showName
         this.focusConsole(lastTab.uniqueCode)
       } else {
+        this.activeTab = ''
         this.cancelTerminalInteraction()
       }
     },
@@ -948,8 +960,14 @@ export default {
 .container-height {
   border: 1px solid #c4d3f1;
   height: ~'calc(100vh - 130px)';
-  width: ~'calc(100% - 10px)';
   overflow: auto;
+}
+
+.container-width-18 {
+  width: ~'calc(100% - 6px)';
+}
+.container-width-24 {
+  width: ~'calc(100% - 30px)';
 }
 
 .normal-icon {
