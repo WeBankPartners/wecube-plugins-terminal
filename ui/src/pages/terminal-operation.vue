@@ -84,18 +84,6 @@
                 <Button type="primary" @click="filterHost" style="width: 70px">{{ $t('button.search') }}</Button>
               </div>
               <template v-if="hostInfo.length > 0">
-                <div style="margin-bottom: 8px; display: flex; justify-content: space-between">
-                  <span>{{ $t('total') }}{{ hostInfo.length }}{{ $t('items') }}</span>
-                  <Page
-                    style="display: inline-block; vertical-align: bottom"
-                    :page-size="pageSize"
-                    :current="current"
-                    @on-change="pageChange"
-                    :total="hostInfo.length"
-                    simple
-                  />
-                  <span>{{ pageSize }}{{ $t('page') }}</span>
-                </div>
                 <Collapse>
                   <template v-for="host in hostInfoToShow">
                     <Panel :name="host.ip_address" :key="host.ip_address">
@@ -131,7 +119,20 @@
                   </template>
                 </Collapse>
                 <!-- v-if="currentHostTab==='favorites'&&hostInfoToShow.length>0" -->
-                <Button @click="startAll" style="float: right; margin: 8px 0" type="success" size="small">{{
+                <div style="margin-top: 6px; display: flex; justify-content: space-between">
+                  <span>{{ $t('total') }}{{ hostInfo.length }}{{ $t('items') }}</span>
+                  <Page
+                    style="display: inline-block; vertical-align: bottom"
+                    :page-size="pageSize"
+                    :current="current"
+                    @on-change="pageChange"
+                    :total="hostInfo.length"
+                    simple
+                  />
+                  <span>{{ pageSize }}{{ $t('page') }}</span>
+                </div>
+
+                <Button @click="startAll" style="float: right" type="success" size="small">{{
                   $t('t_start_all')
                 }}</Button>
               </template>
@@ -828,11 +829,11 @@ export default {
       })
       this.activeTab = showName || host.ip_address
     },
-    beforeRemove () {
+    beforeRemove (tabIndex) {
       return new Promise(resolve => {
         this.$Modal.confirm({
           title: this.$t('t_close_terminal'),
-          content: this.$t('t_close_terminal_tip') + this.activeTab,
+          content: this.$t('t_close_terminal_tip') + this.terminalTabs[tabIndex].showName,
           'z-index': 1000000,
           onOk: () => {
             resolve() // 允许关闭
