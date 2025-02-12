@@ -10,7 +10,7 @@ clean:
 build: clean
 	cd api/terminal && pip3 install wheel
 	cd api/terminal && python3 setup.py bdist_wheel
-	cd ui && npm run plugin
+	cd ui && npm install --force && npm run plugin
 
 image: build
 	docker build -t $(project_name):$(version) .
