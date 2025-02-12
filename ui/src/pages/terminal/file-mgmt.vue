@@ -48,8 +48,8 @@
 
 <script>
 import { getFileManagementPermission } from '@/api/server'
-import { setCookie, getCookie } from '../util/cookie'
-import { byteConvert } from '../util/functools'
+import { getCookie, setCookie } from '@/pages/util/cookie'
+import { byteConvert } from '@/pages/util/functools'
 import axios from 'axios'
 // import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'

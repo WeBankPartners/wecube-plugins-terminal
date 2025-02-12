@@ -106,20 +106,20 @@
 </template>
 <script>
 import {
-  getAllUsers,
-  getAllRoles,
-  resetPassword,
-  getAllMenus,
-  deleteUser,
-  deleteRole,
-  getRolesByUser,
-  getUsersByRole,
+  addMenusToRole,
   addRole,
   addUser,
+  addUsersToRole,
+  deleteRole,
+  deleteUser,
+  getAllMenus,
+  getAllRoles,
+  getAllUsers,
   getPermissionsByRole,
   getPermissionsByUser,
-  addUsersToRole,
-  addMenusToRole
+  getRolesByUser,
+  getUsersByRole,
+  resetPassword
 } from '@/api/server.js'
 
 import { MENUS } from '@/const/menus.js'

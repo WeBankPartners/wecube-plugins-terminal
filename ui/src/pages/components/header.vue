@@ -40,7 +40,7 @@
         <div class="language">
           <Dropdown>
             <a href="javascript:void(0)">
-              <Icon size="16" type="ios-globe" style="margin-right:5px; cursor: pointer" />
+              <Icon size="16" type="ios-globe" style="margin-right: 5px; cursor: pointer" />
               {{ currentLanguage }}
               <Icon type="ios-arrow-down"></Icon>
             </a>
@@ -90,10 +90,10 @@
   </div>
 </template>
 <script>
-import Vue from 'vue'
 import { changePassword, getUserMenus } from '@/api/server.js'
-import { clearAllCookie } from '../util/cookie'
 import { MENUS } from '@/const/menus.js'
+import { clearAllCookie } from '@/pages/util/cookie'
+import Vue from 'vue'
 export default {
   data () {
     return {

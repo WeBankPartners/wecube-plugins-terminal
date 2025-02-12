@@ -311,8 +311,8 @@ import {
   getRoleList,
   getRolesByCurrentUser
 } from '@/api/server'
-import FilterRules from './components/filter-rules.vue'
-import Terminal from './terminal/terminal'
+import FilterRules from '@/pages/components/filter-rules.vue'
+import Terminal from '@/pages/terminal/terminal'
 const maxConnectionLimit = 21
 export default {
   name: '',

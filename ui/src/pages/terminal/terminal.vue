@@ -41,10 +41,10 @@
 
 <script>
 import { getFileManagementPermission } from '@/api/server'
+import { getCookie, setCookie } from '@/pages/util/cookie'
+import { byteConvert } from '@/pages/util/functools'
 import axios from 'axios'
 import { Terminal } from 'xterm'
-import { getCookie, setCookie } from '../util/cookie'
-import { byteConvert } from '../util/functools'
 // import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
 import FileMgmt from './file-mgmt.vue'

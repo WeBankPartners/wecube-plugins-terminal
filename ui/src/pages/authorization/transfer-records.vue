@@ -8,7 +8,7 @@
           clearable
           @on-clear="initTableData"
           :placeholder="$t('t_asset_id')"
-          style="width:340px"
+          style="width: 340px"
         >
           <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{
             item.ip_address + '(' + item.name + ')'
@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import { getTableData, getAssets } from '@/api/server'
-import { byteConvert } from '../util/functools'
+import { getAssets, getTableData } from '@/api/server'
+import { byteConvert } from '@/pages/util/functools'
 let tableEle = [
   {
     title: 't_asset_id',

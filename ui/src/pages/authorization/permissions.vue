@@ -8,7 +8,7 @@
           clearable
           @on-clear="initTableData"
           :placeholder="$t('t_asset_id')"
-          style="width:340px"
+          style="width: 340px"
         >
           <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{
             item.ip_address + '(' + item.name + ')'
@@ -20,7 +20,7 @@
           clearable
           @on-clear="initTableData"
           :placeholder="$t('t_roles')"
-          style="width:340px"
+          style="width: 340px"
         >
           <Option v-for="item in rolesOption" :value="item.name" :key="item.name">{{ item.displayName }}</Option>
         </Select>
@@ -30,7 +30,7 @@
       <div slot="permissionConfig" class="extentClass">
         <div class="marginbottom params-each">
           <label class="col-md-2 label-name">{{ $t('t_asset_id') }}:</label>
-          <Select v-model="modelConfig.addRow.assets" multiple filterable style="width:340px">
+          <Select v-model="modelConfig.addRow.assets" multiple filterable style="width: 340px">
             <Option v-for="item in modelConfig.slotConfig.assertsOption" :value="item.id" :key="item.id">
               {{ item.ip_address + '(' + item.name + ')' }}
             </Option>
@@ -40,7 +40,7 @@
           <label class="col-md-2 label-name">{{ $t('t_auth_expression') }}:</label>
           <span
             ><FilterRules
-              style="width:340px;display:inline-block;vertical-align: middle;"
+              style="width: 340px; display: inline-block; vertical-align: middle"
               :needAttr="true"
               v-model="modelConfig.addRow.expression"
               :allDataModelsWithAttrs="allEntityType"
@@ -49,7 +49,7 @@
         </div>
         <div class="marginbottom params-each">
           <label class="col-md-2 label-name">{{ $t('t_roles') }}:</label>
-          <Select v-model="modelConfig.addRow.roles" multiple filterable style="width:340px">
+          <Select v-model="modelConfig.addRow.roles" multiple filterable style="width: 340px">
             <Option v-for="item in modelConfig.slotConfig.rolesOption" :value="item.name" :key="item.name">
               {{ item.displayName }}
             </Option>
@@ -79,16 +79,16 @@
 
 <script>
 import {
-  getTableData,
-  getAssets,
-  getAllRolesPlatform,
-  getAllRoles,
-  savePermission,
-  editPermissions,
   deleteTableRow,
-  getAllDataModels
+  editPermissions,
+  getAllDataModels,
+  getAllRoles,
+  getAllRolesPlatform,
+  getAssets,
+  getTableData,
+  savePermission
 } from '@/api/server'
-import FilterRules from '../components/filter-rules.vue'
+import FilterRules from '@/pages/components/filter-rules.vue'
 let tableEle = [
   {
     title: 't_name',
