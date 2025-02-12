@@ -168,7 +168,13 @@
               :value="activeTab"
             >
               <template v-for="tab in terminalTabs">
-                <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode" class="terminal-tab">
+                <TabPane
+                  :label="tab.showName"
+                  :name="tab.showName"
+                  :key="tab.uniqueCode"
+                  class="terminal-tab"
+                  style="visibility: visible"
+                >
                   <div :style="{ 'overflow-y': 'auto' }">
                     <Terminal
                       :ref="tab.uniqueCode"
@@ -780,7 +786,7 @@ export default {
       this.hostInfoToShow.forEach(host => {
         this.openTerminal(host)
       })
-    }, 300),
+    }),
     openTerminal (host) {
       if (this.terminalTabs.length >= maxConnectionLimit) {
         this.$Message.warning(this.$t('t_maximum_reached'))
@@ -818,7 +824,7 @@ export default {
         showName = `${host.showName}(${index})`
       }
       this.$nextTick(() => {
-        this.startSplit(false)
+        this.startSplit(this.isSplitScreenMode)
       })
       this.activeTab = showName || host.ip_address
     },
