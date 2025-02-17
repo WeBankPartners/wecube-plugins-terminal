@@ -180,7 +180,8 @@
                   class="terminal-tab"
                   style="visibility: visible"
                 >
-                  <div :style="{ 'overflow-y': 'auto' }">
+                  <!-- :style="{ 'overflow-y': 'auto' }" -->
+                  <div>
                     <Terminal
                       :ref="tab.uniqueCode"
                       :host="tab"
@@ -409,7 +410,7 @@ export default {
       // 获取所有tab内容
       const tabs = document.getElementsByClassName('terminal-tab')
       if (this.isSplitScreenMode) {
-        // 显示所有tab内容，并改变其尺寸、布局
+        // 分屏，并改变其尺寸、布局
         for (let i = 0; i < tabs.length; i++) {
           tabs[i].style.setProperty('visibility', 'visible', 'important')
           tabs[i].style.setProperty('display', 'inline-block', 'important')
@@ -417,9 +418,10 @@ export default {
         }
         this.calculateConsoleSizeForSplit()
       } else {
-        // 显示所有tab内容，并改变其尺寸、布局
+        // 全屏，并改变其尺寸、布局
         for (let i = 0; i < tabs.length; i++) {
           tabs[i].style.setProperty('width', '100%', 'important')
+          this.activeTab = this.terminalTabs[i].showName
           if (i === tabs.length - 1) {
             tabs[i].style.setProperty('visibility', 'visible', 'important')
           } else {
@@ -435,10 +437,11 @@ export default {
     },
     // 分屏计算新窗口尺寸
     calculateConsoleSizeForSplit () {
-      const height = document.body.scrollHeight
-      let terminalH = (height - 260) / 8.2
-      terminalH = Math.floor(terminalH / 4)
-      this.consoleConfig.rows = terminalH
+      // const height = document.body.scrollHeight
+      // let terminalH = (height - 260) / 8.2
+      // terminalH = Math.floor(terminalH / 4)
+      // console.log(1.8, terminalH)
+      this.consoleConfig.rows = 22
       this.consoleConfig.cols = 70
       this.terminalTabs.forEach(item => {
         this.$nextTick(() => {
