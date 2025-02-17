@@ -203,6 +203,7 @@
                   v-model="isSplitScreenMode"
                   @on-change="change"
                   true-color="#13ce66"
+                  :disabled="terminalTabs.length <= 1"
                   style="vertical-align: bottom"
                 />
               </div>
@@ -874,14 +875,22 @@ export default {
 
       const index = this.terminalTabs.findIndex(item => item.showName === name)
       this.terminalTabs.splice(index, 1)
+      // 在terminalTabs数量小于1时，关闭分屏模式
       if (this.terminalTabs.length > 0) {
+        if (this.terminalTabs.length === 1) {
+          this.isSplitScreenMode = false
+        }
         const lastTab = this.terminalTabs.slice(-1)[0]
         this.activeTab = lastTab.showName
         this.focusConsole(lastTab.uniqueCode)
       } else {
+        this.isSplitScreenMode = false
         this.activeTab = ''
         this.cancelTerminalInteraction()
       }
+      this.$nextTick(() => {
+        this.startSplit(this.isSplitScreenMode)
+      })
     },
     clickTab (godTab) {
       const tab = this.terminalTabs.find(item => item.showName === godTab)

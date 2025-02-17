@@ -115,8 +115,7 @@ export default {
       this.ssh_session.send(JSON.stringify({ type: 'listdir', data: this.currentDir }))
     },
     uploadFailed (msg) {
-      console.log(msg)
-      console.log('faild')
+      console.log(msg, 'faild')
     },
     async getHeaders () {
       let refreshRequest = null

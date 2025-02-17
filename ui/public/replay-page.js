@@ -12,5 +12,5 @@ window.onload = function () {
   const div = document.getElementById('app')
   // eslint-disable-next-line no-undef
   const player = new XtermPlayer.XtermPlayer(req, div)
-  console.log(player)
+  player.play()
 }
