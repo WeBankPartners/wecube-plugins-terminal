@@ -117,7 +117,7 @@ export default {
   name: 'FilterRules',
   data () {
     return {
-      filterRuleOp: ['eq', 'neq', 'in', 'like', 'gt', 'lt', 'is', 'isnot'],
+      filterRuleOp: ['in', 'eq', 'gt', 'lt', 'neq', 'is', 'isnot', 'like'],
       pathList: [],
       currentPathFilterRules: [],
       currentOptiongs: [],
