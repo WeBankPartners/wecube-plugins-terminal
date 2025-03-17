@@ -104,13 +104,15 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                     'filesize': os.path.getsize(self._ssh_recorder.filepath)
                 })
             # push task to uploader
+            object_path = self._ssh_recorder_db['started_time'].strftime('%Y-%m-%d')
+            
             self.event_pusher.send_json({
                 'session_id':
                 self._ssh_recorder_db['id'],
                 'filepath':
                 self._ssh_recorder.filepath,
                 'object_key':
-                self._asset_info['id'] + '/' + os.path.basename(self._ssh_recorder.filepath)
+                object_path + '/' + os.path.basename(self._ssh_recorder.filepath)
             })
             self.event_pusher.close()
             # reset pointer
@@ -195,13 +197,15 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
             self._audit.resize(user_cols, user_rows)
             self._ssh_client.create_sftp()
             # generate record after meta information
-            session_filename = "%s_%s_%s.cast" % (asset_id, int(time.time()), _generate_random())
+            session_starttime = datetime.datetime.now()
+            session_filename = "%s_%s_%s.cast" % (asset['ip_address'], session_starttime.strftime('%Y%m%d%H%M%S'),
+                                                  _generate_random())
             self._ssh_recorder = ssh.SSHRecorder(os.path.join(CONF.session.record_path, session_filename))
             self._ssh_recorder_db = asset_api.SessionRecord().create({
                 'asset_id': asset_id,
                 'filepath': session_filename,
                 'user': token_user,
-                'started_time': datetime.datetime.now(),
+                'started_time': session_starttime,
                 'ended_time': None
             })
             self._ssh_recorder.start(cols=user_cols, rows=user_rows)

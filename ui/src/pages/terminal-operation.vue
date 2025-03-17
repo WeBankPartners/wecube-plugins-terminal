@@ -3,7 +3,7 @@
     <Row>
       <Col span="6" v-if="showHostList">
         <div class="hide-icon-left">
-          <Icon type="ios-arrow-dropleft" color="#2d8cf0" @click="hideHost" size="20" />
+          <Icon type="ios-arrow-dropleft" color="#5384FF" @click="hideHost" size="20" />
         </div>
         <div @mouseenter="mouseenter('showHideIcon')" @mouseleave="mouseleave('showHideIcon')">
           <Card>
@@ -28,7 +28,7 @@
                       >
                         <Option v-for="item in favoritesLists" :value="item.id" :key="item.id" :label="item.name">
                           <span>{{ item.name }}</span>
-                          <span v-if="item.is_owner" style="float:right;">
+                          <span v-if="item.is_owner" style="float: right">
                             <Button
                               icon="ios-trash"
                               type="error"
@@ -36,7 +36,7 @@
                               @click="showDeleteConfirm(item)"
                             ></Button>
                           </span>
-                          <span v-if="item.is_owner" style="float:right;margin-right: 10px">
+                          <span v-if="item.is_owner" style="float: right; margin-right: 10px">
                             <Button
                               icon="ios-build"
                               type="primary"
@@ -52,7 +52,7 @@
                 <TabPane v-if="showRegular()" :label="$t('t_regular_expression')" name="regular_expression">
                   <span v-if="showFilterRules">
                     <FilterRules
-                      style="display:inline-block;vertical-align: middle;padding:0"
+                      style="display: inline-block; vertical-align: middle; padding: 0"
                       class="col-md-12"
                       :needAttr="true"
                       v-model="expressionPath"
@@ -60,7 +60,7 @@
                     ></FilterRules>
                   </span>
 
-                  <div style="display:flex;justify-content: space-around;margin:12px">
+                  <div style="display: flex; justify-content: space-around; margin: 12px">
                     <Button
                       :disabled="expressionPath === ''"
                       type="primary"
@@ -74,21 +74,24 @@
                   </div>
                 </TabPane>
               </Tabs>
-              <Input
-                v-model="searchHost"
-                :placeholder="$t('t_search_host')"
-                @on-change="filterHost"
-                style="width: 100%;margin-bottom:16px"
-              />
+              <div style="margin-bottom: 8px">
+                <Input
+                  v-model="searchHost"
+                  :placeholder="$t('t_search_host')"
+                  @on-enter="filterHost"
+                  class="search-input"
+                />
+                <Button type="primary" @click="filterHost" style="width: 70px">{{ $t('button.search') }}</Button>
+              </div>
               <template v-if="hostInfo.length > 0">
                 <Collapse>
-                  <template v-for="host in hostInfo">
+                  <template v-for="host in hostInfoToShow">
                     <Panel :name="host.ip_address" :key="host.ip_address">
                       <div class="diyTitle">
-                        {{ host.ip_address }}<span style="color:#2d8cf0">[{{ host.username }}]</span>{{ host.name }}
+                        {{ host.ip_address }}<span style="color: #5384ff">[{{ host.username }}]</span>{{ host.name }}
                       </div>
                       <template>
-                        <Tooltip content="Console" :delay="500" style="float:right">
+                        <Tooltip content="Console" :delay="500" style="float: right">
                           <i
                             disabled
                             class="fa fa-terminal operation-icon-terminal"
@@ -109,15 +112,32 @@
                         </div>
                         <div class="host-content">
                           <span class="host-content-title">display_name:</span>
-                          <span style="word-break: break-all;">{{ host.display_name }}</span>
+                          <span style="word-break: break-all">{{ host.display_name }}</span>
                         </div>
                       </div>
                     </Panel>
                   </template>
                 </Collapse>
+                <!-- v-if="currentHostTab==='favorites'&&hostInfoToShow.length>0" -->
+                <div style="margin-top: 6px; display: flex; justify-content: space-between">
+                  <span>{{ $t('total') }}{{ hostInfo.length }}{{ $t('items') }}</span>
+                  <Page
+                    style="display: inline-block; vertical-align: bottom"
+                    :page-size="pageSize"
+                    :current="current"
+                    @on-change="pageChange"
+                    :total="hostInfo.length"
+                    simple
+                  />
+                  <span>{{ pageSize }}{{ $t('page') }}</span>
+                </div>
+
+                <Button @click="startAll" style="float: right" type="success" size="small">{{
+                  $t('t_start_all')
+                }}</Button>
               </template>
               <template v-else>
-                <div style="text-align:center;color:#969696;font-size:12px">
+                <div style="text-align: center; color: #969696; font-size: 12px">
                   {{ $t('t_no_data') }}
                 </div>
               </template>
@@ -130,41 +150,71 @@
           v-if="!showHostList"
           @mouseenter="mouseenter('showDisplayIcon')"
           @mouseleave="mouseleave('showDisplayIcon')"
-          style="width: 20px;background:#fafafa;display:inline-block;height:calc(100vh - 130px)"
+          style="width: 20px; background: #fafafa; display: inline-block; height: calc(100vh - 130px)"
         >
           <div class="hide-icon-right">
-            <Icon @click="showHost" color="#2d8cf0" type="ios-arrow-dropright" size="20" />
+            <Icon @click="showHost" color="#5384FF" type="ios-arrow-dropright" size="20" />
           </div>
         </div>
-        <div class="container-height" style="display:inline-block;vertical-align: top;">
+        <div
+          class="container-height"
+          :class="showHostList ? 'container-width-18' : 'container-width-24'"
+          style="display: inline-block; vertical-align: top"
+        >
           <div>
             <Tabs
               type="card"
+              class="terminal-tabs"
               closable
               :animated="false"
               @on-click="clickTab"
               @on-tab-remove="handleTabRemove"
+              :before-remove="beforeRemove"
               :value="activeTab"
             >
               <template v-for="tab in terminalTabs">
-                <TabPane :label="tab.showName" :name="tab.showName" :key="tab.uniqueCode">
-                  <div :style="{ height: consoleConfig.terminalH + 'px', 'overflow-y': 'auto', 'margin-right': '7px' }">
+                <TabPane
+                  :label="tab.showName"
+                  :name="tab.showName"
+                  :key="tab.uniqueCode"
+                  class="terminal-tab"
+                  style="visibility: visible"
+                >
+                  <!-- :style="{ 'overflow-y': 'auto' }" -->
+                  <div>
                     <Terminal
                       :ref="tab.uniqueCode"
                       :host="tab"
                       :sendHostSet="sendHostSet"
                       :consoleConfig="consoleConfig"
+                      :isSplitScreenMode="isSplitScreenMode"
                       @exectDangerousCmd="exectDangerousCmd"
                       @cancelDangerousCmd="cancelDangerousCmd"
+                      @handleTabRemove="handleTabRemove"
                     ></Terminal>
-                    <Button v-if="!showCmd" @click="sendForMulti">{{ $t('t_terminal_interaction') }}</Button>
+                    <Button v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
+                      $t('t_terminal_interaction')
+                    }}</Button>
                   </div>
                 </TabPane>
               </template>
+              <div slot="extra" style="margin: 0 16px">
+                <span style="vertical-align: sub">{{ $t('t_split_screen') }}</span>
+                <i-switch
+                  v-model="isSplitScreenMode"
+                  @on-change="change"
+                  true-color="#13ce66"
+                  :disabled="terminalTabs.length <= 1"
+                  style="vertical-align: bottom"
+                />
+              </div>
             </Tabs>
+            <Button v-if="!showCmd && isSplitScreenMode" @click="sendForMulti">{{
+              $t('t_terminal_interaction')
+            }}</Button>
           </div>
           <div v-if="showCmd">
-            <div style="margin:8px">
+            <div style="margin: 8px">
               <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
                 $t('t_cancel_terminal_interaction')
               }}</Button>
@@ -179,10 +229,8 @@
                   <div>{{ $t('t_cmd_tip6') }}</div>
                 </div>
               </Tooltip>
-              <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600;">
-                ALL
-              </Checkbox>
-              <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display:inline-block">
+              <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600"> ALL </Checkbox>
+              <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display: inline-block">
                 <template v-for="tab in terminalTabs">
                   <Checkbox :label="tab.uniqueCode" :name="tab.uniqueCode" :key="tab.uniqueCode">
                     <span>{{ tab.showName }}</span>
@@ -193,10 +241,10 @@
                 :disabled="!selectedCmd"
                 @click="sendHistoryCmd"
                 type="primary"
-                style="float:right;margin:0 16px"
+                style="float: right; margin: 0 16px"
                 >{{ $t('t_send') }}</Button
               >
-              <Select v-model="selectedCmd" style="float:right; width:200px" placeholder="history cmd">
+              <Select v-model="selectedCmd" style="float: right; width: 200px" placeholder="history cmd">
                 <Option v-for="item in historyCmd" :value="item.label" :key="item.value">{{ item.label }}</Option>
               </Select>
             </div>
@@ -225,7 +273,7 @@
         </FormItem>
         <FormItem :label="$t('t_regular_expression')">
           <FilterRules
-            style="display:inline-block;vertical-align: middle;padding:0"
+            style="display: inline-block; vertical-align: middle; padding: 0"
             class="col-md-12"
             :needAttr="true"
             v-model="collectionParams.expression"
@@ -264,18 +312,19 @@
 </template>
 <script>
 import {
+  addCollection,
+  deleteFavorites,
+  editCollection,
+  getAllDataModels,
+  getAssetsByExpression,
+  getFavoritesList,
   getHost,
   getRoleList,
-  getRolesByCurrentUser,
-  addCollection,
-  getAllDataModels,
-  getFavoritesList,
-  getAssetsByExpression,
-  deleteFavorites,
-  editCollection
+  getRolesByCurrentUser
 } from '@/api/server'
-import FilterRules from './components/filter-rules.vue'
-import Terminal from './terminal/terminal'
+import FilterRules from '@/pages/components/filter-rules.vue'
+import Terminal from '@/pages/terminal/terminal'
+const maxConnectionLimit = 21
 export default {
   name: '',
   data () {
@@ -292,8 +341,9 @@ export default {
       // sendForAll: true,
       sendHostSet: [],
       searchHost: '',
-      hostInfo: [],
-      oriHostInfo: [],
+      hostInfo: [], // 搜索后数据
+      oriHostInfo: [], // 原始全量数据
+      hostInfoToShow: [], // 搜索后分页显示数据
 
       activeTab: '',
       terminalTabs: [],
@@ -335,7 +385,11 @@ export default {
       isStartSelected: false,
       altDirect: 'up',
       selectedCmdIndex: -1,
-      historyCmd: []
+      historyCmd: [],
+      // 结果分页
+      current: 1,
+      pageSize: 20,
+      isSplitScreenMode: false // 是否开启分屏模式
     }
   },
   mounted () {
@@ -343,6 +397,71 @@ export default {
     this.getHostList()
   },
   methods: {
+    change (val) {
+      this.startSplit(val)
+    },
+    startSplit (needChangeSplit) {
+      this.isSplitScreenMode = needChangeSplit
+      // 入口触发时，切换分屏，
+      // 新打开终端时， 不切换状态，只计算尺寸
+      // if (needChangeSplit) {
+      //   this.isSplitScreenMode = !this.isSplitScreenMode
+      // }
+      // 获取所有tab内容
+      const tabs = document.getElementsByClassName('terminal-tab')
+      if (this.isSplitScreenMode) {
+        // 分屏，并改变其尺寸、布局
+        for (let i = 0; i < tabs.length; i++) {
+          tabs[i].style.setProperty('visibility', 'visible', 'important')
+          tabs[i].style.setProperty('display', 'inline-block', 'important')
+          tabs[i].style.setProperty('width', '50%', 'important')
+        }
+        this.calculateConsoleSizeForSplit()
+      } else {
+        // 全屏，并改变其尺寸、布局
+        for (let i = 0; i < tabs.length; i++) {
+          tabs[i].style.setProperty('width', '100%', 'important')
+          this.activeTab = this.terminalTabs[i].showName
+          if (i === tabs.length - 1) {
+            tabs[i].style.setProperty('visibility', 'visible', 'important')
+          } else {
+            tabs[i].style.setProperty('visibility', 'hidden', 'important')
+            tabs[i].style.setProperty('display', 'none', 'important')
+          }
+        }
+        this.calculateConsoleSizeForFull()
+      }
+      // 控制tab头是否显示
+      const tabCard = document.querySelector('.terminal-tabs .ivu-tabs-nav-scroll')
+      tabCard.style.setProperty('display', this.isSplitScreenMode ? 'none' : '', 'important')
+    },
+    // 分屏计算新窗口尺寸
+    calculateConsoleSizeForSplit () {
+      // const height = document.body.scrollHeight
+      // let terminalH = (height - 260) / 8.2
+      // terminalH = Math.floor(terminalH / 4)
+      // console.log(1.8, terminalH)
+      this.consoleConfig.rows = 22
+      this.consoleConfig.cols = 70
+      this.terminalTabs.forEach(item => {
+        this.$nextTick(() => {
+          this.$refs[item.uniqueCode][0].resizeScreen()
+        })
+      })
+    },
+    // 全屏计算新窗口尺寸
+    calculateConsoleSizeForFull () {
+      this.initConsole()
+      this.terminalTabs.forEach(item => {
+        this.$nextTick(() => {
+          this.$refs[item.uniqueCode][0].resizeScreen()
+        })
+      })
+      const tab = this.terminalTabs.find(item => item.showName === this.activeTab)
+      if (tab) {
+        this.focusConsole(tab.uniqueCode)
+      }
+    },
     showRegular () {
       return !!window.request
     },
@@ -373,6 +492,7 @@ export default {
       this.currentHostTab = name
       this.hostInfo = []
       this.oriHostInfo = []
+      this.hostInfoToShow = []
       this.selectedCollectionId = ''
       this.searchHost = ''
       if (name === 'default') {
@@ -396,6 +516,8 @@ export default {
         })
         this.hostInfo = data.data
         this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
+        this.current = 1
+        this.finalData()
       }
     },
     clearSelectedCollectionId () {
@@ -470,6 +592,8 @@ export default {
         })
         this.hostInfo = data.data
         this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
+        this.current = 1
+        this.finalData()
       }
     },
     async getRoleList () {
@@ -534,12 +658,14 @@ export default {
       this.resizeConsole()
       this.showHideIcon = false
       this.showDisplayIcon = false
+      this.startSplit(this.isSplitScreenMode)
     },
     showHost () {
       this.showHostList = true
       this.resizeConsole()
       this.showHideIcon = false
       this.showDisplayIcon = false
+      this.startSplit(this.isSplitScreenMode)
     },
     cancelTerminalInteraction () {
       this.initConsole()
@@ -580,10 +706,10 @@ export default {
       this.consoleConfig.terminalH = height - 150
       let terminalH = (height - 210) / 17
       terminalH = Math.floor(terminalH)
-      this.consoleConfig.rows = terminalH
+      this.consoleConfig.rows = terminalH - 3
 
       const width = document.body.scrollWidth
-      let terminalW = ((width - 260) * 18) / 24 / 8.2
+      let terminalW = ((width - 250) * 18) / 24 / 8.2
       terminalW = Math.floor(terminalW)
       this.consoleConfig.cols = terminalW
     },
@@ -635,13 +761,8 @@ export default {
       }
     },
     filterHost () {
-      if (this.searchHost) {
-        this.hostInfo = this.oriHostInfo.filter(
-          item => item.ip_address.includes(this.searchHost) || item.name.includes(this.searchHost)
-        )
-      } else {
-        this.hostInfo = this.oriHostInfo
-      }
+      this.current = 1
+      this.finalData()
     },
     async getHostList () {
       const { status, data } = await getHost()
@@ -652,9 +773,54 @@ export default {
         })
         this.hostInfo = data.data
         this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
+        this.current = 1
+        this.finalData()
       }
     },
+    pageChange (page) {
+      this.current = page
+      this.finalData()
+    },
+    finalData () {
+      const startNumber = (this.current - 1) * this.pageSize
+      if (this.searchHost === '') {
+        this.hostInfo = this.oriHostInfo
+        this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
+      } else {
+        this.hostInfo = this.oriHostInfo.filter(
+          item => item.ip_address.includes(this.searchHost) || item.name.includes(this.searchHost)
+        )
+        this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
+      }
+    },
+    startAll () {
+      if (this.hostInfoToShow.length + this.terminalTabs.length >= maxConnectionLimit) {
+        this.$Message.warning(this.$t('t_maximum_reached'))
+        return
+      }
+      this.$Modal.confirm({
+        title: this.$t('t_start_all_tip'),
+        content: '',
+        render: h => {
+          const ipList = this.hostInfoToShow.map(item => {
+            return h('Tag', item.ip_address)
+          })
+          return ipList
+        },
+        'z-index': 1000000,
+        onOk: () => {
+          this.hostInfoToShow.forEach(host => {
+            this.openTerminal(host)
+          })
+        },
+        onCancel: () => {}
+      })
+    },
     openTerminal (host) {
+      if (this.terminalTabs.length >= maxConnectionLimit) {
+        this.$Message.warning(this.$t('t_maximum_reached'))
+        return
+      }
       this.switchAllSelect(false)
       // eslint-disable-next-line no-unused-vars
       let lastTab = ''
@@ -686,7 +852,23 @@ export default {
         })
         showName = `${host.showName}(${index})`
       }
+      this.$nextTick(() => {
+        this.startSplit(this.isSplitScreenMode)
+      })
       this.activeTab = showName || host.ip_address
+    },
+    beforeRemove (tabIndex) {
+      return new Promise(resolve => {
+        this.$Modal.confirm({
+          title: this.$t('t_close_terminal'),
+          content: this.$t('t_close_terminal_tip') + this.terminalTabs[tabIndex].showName,
+          'z-index': 1000000,
+          onOk: () => {
+            resolve() // 允许关闭
+          },
+          onCancel: () => {}
+        })
+      })
     },
     handleTabRemove (name) {
       const tab = this.terminalTabs.find(item => item.showName === name)
@@ -696,13 +878,22 @@ export default {
 
       const index = this.terminalTabs.findIndex(item => item.showName === name)
       this.terminalTabs.splice(index, 1)
+      // 在terminalTabs数量小于1时，关闭分屏模式
       if (this.terminalTabs.length > 0) {
+        if (this.terminalTabs.length === 1) {
+          this.isSplitScreenMode = false
+        }
         const lastTab = this.terminalTabs.slice(-1)[0]
         this.activeTab = lastTab.showName
         this.focusConsole(lastTab.uniqueCode)
       } else {
+        this.isSplitScreenMode = false
+        this.activeTab = ''
         this.cancelTerminalInteraction()
       }
+      this.$nextTick(() => {
+        this.startSplit(this.isSplitScreenMode)
+      })
     },
     clickTab (godTab) {
       const tab = this.terminalTabs.find(item => item.showName === godTab)
@@ -731,6 +922,11 @@ export default {
   }
 }
 </script>
+<style scoped lang="less">
+.terminal-tabs /deep/ .ivu-tabs-bar {
+  margin-bottom: 0 !important;
+}
+</style>
 <style scoped lang="less">
 .ivu-form-item {
   margin-bottom: 4px;
@@ -776,6 +972,13 @@ export default {
 .container-height {
   border: 1px solid #c4d3f1;
   height: ~'calc(100vh - 130px)';
+  overflow: auto;
+}
+
+.container-width-18 {
+  width: ~'calc(100% - 6px)';
+}
+.container-width-24 {
   width: ~'calc(100% - 30px)';
 }
 
@@ -811,5 +1014,8 @@ export default {
   font-weight: 700;
   background-color: rgb(226, 222, 222);
   margin-bottom: 5px;
+}
+.search-input {
+  width: ~'calc(100% - 90px)';
 }
 </style>

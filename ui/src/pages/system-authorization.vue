@@ -20,10 +20,10 @@
             <span :title="` ${item.display_name} ( ${item.description} ) `">{{
               ` ${item.display_name} ( ${item.description} ) `
             }}</span>
-            <span v-if="users.length > 1" style="float:right;" @click="resetPassword($event, item)">
+            <span v-if="users.length > 1" style="float: right" @click="resetPassword($event, item)">
               <Icon size="20" type="ios-unlock-outline" />
             </span>
-            <span v-if="users.length > 1" style="float:right;color:red" @click="deleteUser($event, item)">
+            <span v-if="users.length > 1" style="float: right; color: red" @click="deleteUser($event, item)">
               <Icon size="20" type="ios-trash-outline" />
             </span>
           </Tag>
@@ -47,7 +47,7 @@
               @on-change="handleRoleClick"
             >
               <span :title="item.description">{{ item.description }}</span>
-              <span v-if="item.id !== 'SUPER_ADMIN'" style="float:right;color:red" @click="deleteRole($event, item)">
+              <span v-if="item.id !== 'SUPER_ADMIN'" style="float: right; color: red" @click="deleteRole($event, item)">
                 <Icon size="20" type="ios-trash-outline" />
               </span>
             </Tag>
@@ -106,20 +106,20 @@
 </template>
 <script>
 import {
-  getAllUsers,
-  getAllRoles,
-  resetPassword,
-  getAllMenus,
-  deleteUser,
-  deleteRole,
-  getRolesByUser,
-  getUsersByRole,
+  addMenusToRole,
   addRole,
   addUser,
+  addUsersToRole,
+  deleteRole,
+  deleteUser,
+  getAllMenus,
+  getAllRoles,
+  getAllUsers,
   getPermissionsByRole,
   getPermissionsByUser,
-  addUsersToRole,
-  addMenusToRole
+  getRolesByUser,
+  getUsersByRole,
+  resetPassword
 } from '@/api/server.js'
 
 import { MENUS } from '@/const/menus.js'
@@ -559,7 +559,7 @@ export default {
     background-color: #4ee643;
   }
   .ivu-checkbox-disabled.ivu-checkbox-checked .ivu-checkbox-inner {
-    background-color: #2d8cf0;
+    background-color: #5384ff;
   }
 }
 .permission-management-p {
@@ -573,12 +573,12 @@ export default {
 .batch-operation {
   padding-bottom: 0 5px 8px 5px;
   margin-bottom: 18px;
-  border-bottom: 1px solid #2d8cf0;
+  border-bottom: 1px solid #5384ff;
 }
 .batch-operation-btn {
   text-align: right;
   padding-top: 8px;
   margin-top: 8px;
-  border-top: 1px solid #2d8cf0;
+  border-top: 1px solid #5384ff;
 }
 </style>

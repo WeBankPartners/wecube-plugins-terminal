@@ -1,6 +1,6 @@
 const CompressionPlugin = require('compression-webpack-plugin')
 const path = require('path')
-const baseUrl = ''
+const baseUrl = process.env.TARGET
 module.exports = {
   devServer: {
     // hot: true,
@@ -69,6 +69,14 @@ module.exports = {
     'style-resources-loader': {
       preProcessor: 'less',
       patterns: [path.resolve(__dirname, './src/assets/css/common.less')] // 引入全局样式变量
+    }
+  },
+  css: {
+    loaderOptions: {
+      less: {
+        // 启用内联 JavaScript
+        javascriptEnabled: true
+      }
     }
   }
 }

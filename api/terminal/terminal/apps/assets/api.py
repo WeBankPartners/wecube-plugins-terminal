@@ -6,6 +6,7 @@ import datetime
 import logging
 import os.path
 import re
+import concurrent.futures
 
 import ipaddress
 from talos.common import cache
@@ -147,10 +148,18 @@ class Asset(object):
                 CONF.asset.asset_field_password: 'password',
                 CONF.asset.asset_field_desc: 'description'
             }
-            for permission in permissions:
-                expression_assets = self.list_asset_by_expression(permission['expression'], fields)
-                auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
-                auth_asset_ids.extend([asset['id'] for asset in expression_assets])
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                futures = [executor.submit(self.list_asset_by_expression, permission['expression'], fields)
+                           for permission in permissions]
+                for future in concurrent.futures.as_completed(futures):
+                    expression_assets = future.result()
+                    auth_asset_ids.extend([asset['id'] for asset in expression_assets])
+                for permission in permissions:
+                    auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
+            # for permission in permissions:
+            #     expression_assets = self.list_asset_by_expression(permission['expression'], fields)
+            #     auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
+            #     auth_asset_ids.extend([asset['id'] for asset in expression_assets])
             auth_asset_ids = set(auth_asset_ids)
 
             datas = []

@@ -132,7 +132,7 @@
   "t_permissions": "Permissions",
   "t_asset_id": "Server",
   "t_select_datetime": "Select date and time",
-  "t_search_host": "Enter IP or name to filter",
+  "t_search_host": "Enter IP or name, press Enter or click Search button to filter.",
   "t_started_time": "Started Time",
   "t_ended_time": "Ended Time",
   "t_filepath": "File Path",
@@ -225,5 +225,14 @@
   "header_title": "Terminal",
   "asset": "Asset",
   "t_asset": "Asset",
-  "jump_server": "Jump Server"
+  "jump_server": "Jump Server",
+  "total": "Total ",
+  "items": "items",
+  "page": "/page",
+  "t_start_all": "Start All",
+  "t_start_all_tip": "Confirm to start all terminals?",
+  "t_maximum_reached": "Maximum connections reached",
+  "t_split_screen": "Split Screen",
+  "t_close_terminal": "Close Terminal",
+  "t_close_terminal_tip": "Confirm closing the terminal:"
 }

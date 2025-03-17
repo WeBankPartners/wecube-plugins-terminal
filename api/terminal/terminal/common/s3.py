@@ -41,7 +41,7 @@ class S3Client(object):
 
     def upload_file(self, bucket, object_key, filepath):
         endpoint_info = self.parse_url(self.endpoint)
-        client = minio.Minio(self.endpoint, self.access_key, self.secret_key, secure=endpoint_info['secure'])
+        client = minio.Minio(endpoint_info['host'], self.access_key, self.secret_key, secure=endpoint_info['secure'])
         return client.fput_object(bucket, object_key, filepath)
 
     def download_file(self, url, filepath):

@@ -16,5 +16,5 @@ api/terminal/build/*
 # ui
 ui/node_modules
 ui/dist
-ui/package-lock.json
+ui/.env
 ui/vue.config.js

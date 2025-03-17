@@ -18,7 +18,7 @@ proc_name = CONF.locale_app
 bind = '%s:%d' % (CONF.server.bind, CONF.server.port)
 backlog = CONF.server.backlog
 # 超时
-timeout = 30
+timeout = 30*60
 # 进程数
 workers = max(multiprocessing.cpu_count() * 2, 8)
 # 指定每个进程开启的线程数

@@ -132,7 +132,7 @@
   "t_permissions": "授权管理",
   "t_asset_id": "服务器",
   "t_select_datetime": "选择时间段",
-  "t_search_host": "输入IP或名称进行过滤",
+  "t_search_host": "输入IP或名称，回车或点击搜索按钮进行过滤",
   "t_started_time": "开始时间",
   "t_ended_time": "结束时间",
   "t_filepath": "路径",
@@ -227,5 +227,14 @@
   "header_title": "Terminal",
   "asset": "终端",
   "t_asset": "终端资产",
-  "jump_server": "跳板机"
+  "jump_server": "跳板机",
+  "total": "总计 ",
+  "items": "条",
+  "page": "条/页",
+  "t_start_all": "全部启动",
+  "t_start_all_tip": "确定启动如下全部终端？",
+  "t_maximum_reached": "已到最大连接数",
+  "t_split_screen": "分屏展示",
+  "t_close_terminal": "关闭终端",
+  "t_close_terminal_tip": "确定关闭终端："
 }

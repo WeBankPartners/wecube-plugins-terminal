@@ -17,16 +17,14 @@
         @on-enter="login"
         style="margin-top: 20px"
       />
-      <Button type="primary" long @click="login" :loading="loading" style="margin-top: 20px">
-        Login
-      </Button>
+      <Button type="primary" long @click="login" :loading="loading" style="margin-top: 20px"> Login </Button>
       <!-- <Button type="success" long>SUBMIT</Button> -->
     </div>
   </div>
 </template>
 <script>
 import { login } from '@/api/server'
-import { setCookie } from './util/cookie'
+import { setCookie } from '@/pages/util/cookie'
 export default {
   data () {
     return {

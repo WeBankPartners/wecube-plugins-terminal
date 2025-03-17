@@ -10,9 +10,7 @@ clean:
 build: clean
 	cd api/terminal && pip3 install wheel
 	cd api/terminal && python3 setup.py bdist_wheel
-	cd ui && npm --registry https://registry.npm.taobao.org  install --unsafe-perm
-	cd ui && npm rebuild node-sass
-	cd ui && npm run plugin
+	cd ui && npm install --force && npm run plugin
 
 image: build
 	docker build -t $(project_name):$(version) .
@@ -46,8 +44,6 @@ upload: package
 build_standalone: clean
 	cd api/terminal && pip3 install wheel
 	cd api/terminal && python3 setup.py bdist_wheel
-	cd ui && npm --registry https://registry.npm.taobao.org  install --unsafe-perm
-	cd ui && npm rebuild node-sass
 	cd ui && npm run build
 
 image_standalone: build_standalone

@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="ui-table-container">
-      <table class="table table-hover" style="table-layout:auto;">
+      <table class="table table-hover" style="table-layout: auto">
         <!-- table-striped -->
         <thead>
           <tr>
@@ -31,7 +31,7 @@
             </th>
             <template v-for="(item, tableEleIndex) in table.tableEle">
               <th
-                style="min-width:100px;"
+                style="min-width: 100px"
                 :style="item.style"
                 class="th-border-bottom c-dark"
                 v-if="item.display"
@@ -43,9 +43,7 @@
                     {{ $t(item.title) }}
                     <div slot="content" class="tooltip-clipboard" @click="doCopy(tableEleIndex, item)">
                       <Icon type="clipboard"></Icon>
-                      <span>
-                        复制列
-                      </span>
+                      <span> 复制列 </span>
                     </div>
                   </Tooltip>
                 </span>
@@ -73,7 +71,7 @@
                       v-if="pageConfig.table.tableEle[tableEleIndex]._isShowFilterPop"
                       class="popfilter"
                     >
-                      <div class="" style="padding: 10px 16px 4px;">
+                      <div class="" style="padding: 10px 16px 4px">
                         <input
                           type="text"
                           v-model="filterParam"
@@ -135,11 +133,11 @@
               </th>
             </template>
 
-            <th style="width: 140px;" class="th-border-bottom c-dark" v-if="table.btn.length != 0">
-              <div style="width:130px">{{ $t('table.action') }}</div>
+            <th style="width: 140px" class="th-border-bottom c-dark" v-if="table.btn.length != 0">
+              <div style="width: 130px">{{ $t('table.action') }}</div>
             </th>
             <th
-              style="width: 151px;"
+              style="width: 151px"
               class="th-border-bottom c-dark handleSty"
               v-if="table.btn.length != 0 && table.handleFloat"
             >
@@ -205,7 +203,7 @@
                         {{ renderValue(value, val.toolTips) }}
                       </div>
                       <div class="Newline" v-if="val.toolTips.type === 'json'">
-                        <pre style="color:white;overflow-y:auto;max-height:300px">{{
+                        <pre style="color: white; overflow-y: auto; max-height: 300px">{{
                           renderValue(value, val.toolTips)
                         }}</pre>
                       </div>
@@ -282,7 +280,7 @@
 
                     <!--列表标签适配--开始-->
                     <template v-if="val.tags">
-                      <div style="display: flex;flex-direction: row;flex-wrap: wrap;" :style="val.tags.style">
+                      <div style="display: flex; flex-direction: row; flex-wrap: wrap" :style="val.tags.style">
                         <template v-for="(tagsData, tagsIndex) in renderValue(value, val)">
                           <span class="tag-f" :key="tagsIndex">{{ tagsData.label }}</span>
                         </template>
@@ -300,7 +298,7 @@
 
               <!--操作区--开始-->
               <td class="td-center td-operation c-dark" v-if="table.btn.length != 0">
-                <div style="width:140px">
+                <div style="width: 140px">
                   <!-- <template v-for="(btn_val,btn_i) in table.btn">
                 <span :id="btn_val.btn_func" :key="btn_i"
                       v-if="btn_val.btn_name !='more' && !btn_val.render"
@@ -341,9 +339,9 @@
               <td
                 class="td-center td-operation handleSty c-dark"
                 v-if="table.btn.length != 0 && table.handleFloat"
-                style="padding:10px 0px"
+                style="padding: 10px 0px"
               >
-                <div style="width: 151px;padding-left: 8px;height: 21px;">
+                <div style="width: 151px; padding-left: 8px; height: 21px">
                   <template v-if="operationsFormat(value, tableDataIndex)"> </template>
                   <template v-if="table.tableData[tableDataIndex]._operatons.length <= 2">
                     <template v-for="(btn_val, btn_i) in table.tableData[tableDataIndex]._operatons">
@@ -392,9 +390,7 @@
                     >
                       {{ renderValue(value, table.tableData[tableDataIndex]._operatons[0]) }}
                     </span>
-                    <span class="btn-pipe">
-                      |
-                    </span>
+                    <span class="btn-pipe"> | </span>
                     <Poptip content="" placement="bottom" trigger="hover">
                       <div class="batch-operation">
                         <div class="btn-group" role="group" @mouseover="btnMore(tableDataIndex)">
@@ -966,7 +962,7 @@ export default {
 
 .ivu-table-sort,
 .ivu-poptip-rel i.on {
-  color: #2d8cf0;
+  color: #5384ff;
 }
 .popfilter {
   max-height: 200px;
@@ -990,7 +986,7 @@ export default {
   margin: 2px 4px;
   line-height: 18px;
 }
-.multiFilter /deep/.ivu-checkbox-group-item {
+.multiFilter ::v-deep .ivu-checkbox-group-item {
   display: block;
   padding: 0 16px;
   margin: 0;
@@ -1044,7 +1040,6 @@ export default {
     /*width: 120px;*/
     height: 40px;
     padding: 2px 0px 2px 8px;
-    font-family: MicrosoftYaHei-Bold;
     font-size: 13px;
     color: #333333;
     letter-spacing: 0.7px;
@@ -1114,9 +1109,11 @@ export default {
   .cell {
     overflow: hidden;
   }
+
   /deep/ .ivu-tooltip-rel {
     display: block;
   }
+
   .poplableSty {
     // max-width: 150px;
     overflow: hidden;
@@ -1175,7 +1172,7 @@ export default {
 
 .cell-icon {
   padding: 4px;
-  color: #2d8cf0;
+  color: #5384ff;
   cursor: pointer;
 }
 .cell-edit {
@@ -1289,7 +1286,6 @@ button:focus {
   margin-right: 20px;
   background-color: @color-blue;
   border-color: @color-blue;
-  font-family: MicrosoftYaHei;
   font-size: 14px;
   color: #ffffff;
   letter-spacing: 0.7px;
