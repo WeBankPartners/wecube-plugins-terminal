@@ -228,5 +228,11 @@
   "jump_server": "Jump Server",
   "total": "Total ",
   "items": "items",
-  "page": "/page"
+  "page": "/page",
+  "t_start_all": "Start All",
+  "t_start_all_tip": "Confirm to start all terminals?",
+  "t_maximum_reached": "Maximum connections reached",
+  "t_split_screen": "Split Screen",
+  "t_close_terminal": "Close Terminal",
+  "t_close_terminal_tip": "Confirm closing the terminal:"
 }

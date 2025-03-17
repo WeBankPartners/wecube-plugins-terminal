@@ -1,85 +1,53 @@
 <template>
   <div class="">
-    <Button @click="openDrawer" class="file-operate" type="primary">{{ $t('t_file_management') }}</Button>
-    <div
-      class="file-content"
+    <Button
+      @click="openTerminalFileMgmt"
+      class="file-operate"
       :style="{
-        display: isOpenDrawer ? 'inherit' : 'none'
+        'margin-top': isSplitScreenMode ? '33px' : '6px'
       }"
       type="primary"
+      >{{ $t('t_file_management') }}</Button
     >
-      <div style="margin-top: 8px">
-        <Upload
-          ref="uploadButton"
-          show-upload-list
-          :on-success="uploadSucess"
-          :on-error="uploadFailed"
-          :action="uploadUrl"
-          :headers="headers"
-          style="display:inline-block"
-        >
-          <Button icon="ios-cloud-upload-outline" :disabled="!filePermisson.includes('upload')">{{
-            $t('t_file_upload')
-          }}</Button>
-        </Upload>
-
-        <Button @click="closeDrawer" type="primary" style="position: absolute;right: 40px;">{{ $t('t_close') }}</Button>
-      </div>
-      <div style="margin: 4px 0">
-        {{ $t('t_current_directory') }}：
-        <Input style="width:60%" v-model="currentDir" @on-enter="getFiles"> </Input>
-      </div>
-      <div
-        :style="{
-          height: consoleConfig.terminalH - 145 + 'px',
-          overflow: 'auto'
-        }"
-      >
-        <template v-for="(file, index) in fileLists">
-          <div :key="index">
-            <label style="width:80px">{{ file.mode }} </label>
-            <label style="width:50px">{{ file.gid }} </label>
-            <label style="width:50px">{{ file.uid }} </label>
-            <label style="width:100px" :title="file.size">{{ byteConvert(file.size) }}</label>
-            <label style="width:100px">{{ file.mtime }} </label>
-            <label class="file-name" @click="getFileList(file)">
-              <Icon v-if="file.type === 'dir'" type="ios-folder" />
-              <Icon v-if="file.type === 'link'" type="ios-link" />
-              <Icon v-if="file.type === 'file'" type="md-document" />
-              {{ file.name }}
-            </label>
-          </div>
-        </template>
-      </div>
-    </div>
+    <Tag v-if="isSplitScreenMode" closable @on-close="closeTerminal">{{ host.showName }}</Tag>
     <div id="terminal" ref="terminal"></div>
     <Modal v-model="confirmModal.isShowConfirmModal" width="900">
       <div>
         <Icon :size="28" :color="'#f90'" type="md-help-circle" />
         <span class="confirm-msg">{{ $t('confirm_to_exect') }}</span>
       </div>
-      <div style="max-height: 400px;overflow-y: auto;">
-        <pre style="margin-left: 44px;">{{ this.confirmModal.message }}</pre>
+      <div style="max-height: 400px; overflow-y: auto">
+        <pre style="margin-left: 44px">{{ this.confirmModal.message }}</pre>
       </div>
       <div slot="footer">
-        <span style="margin-left:30px;color:#ed4014;float: left;text-align:left">
+        <span style="margin-left: 30px; color: #ff4d4f; float: left; text-align: left">
           <Checkbox v-model="confirmModal.check">{{ $t('dangerous_confirm_tip') }}</Checkbox>
         </span>
         <Button type="text" @click="cancelConfirm">{{ $t('bc_cancel') }}</Button>
         <Button type="warning" :disabled="!confirmModal.check" @click="dangerousCmd">{{ $t('bc_confirm') }}</Button>
       </div>
     </Modal>
+    <!-- 文件管理 -->
+    <Drawer
+      :title="$t('t_file_management') + '(' + this.host.showName + ')'"
+      width="730"
+      :closable="false"
+      v-model="terminalMgmtDrawer"
+    >
+      <FileMgmt ref="fileMgmtRef" @closeDrawer="closeDrawer"></FileMgmt>
+    </Drawer>
   </div>
 </template>
 
 <script>
 import { getFileManagementPermission } from '@/api/server'
-import { setCookie, getCookie } from '../util/cookie'
-import { byteConvert } from '../util/functools'
+import { getCookie, setCookie } from '@/pages/util/cookie'
+import { byteConvert } from '@/pages/util/functools'
 import axios from 'axios'
 import { Terminal } from 'xterm'
 // import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
+import FileMgmt from './file-mgmt.vue'
 export default {
   name: '',
   data () {
@@ -100,15 +68,11 @@ export default {
         check: false,
         message: ''
       },
-      cmd: '' // 缓存命令
+      cmd: '', // 缓存命令
+      terminalMgmtDrawer: false // 终端管理抽屉
     }
   },
-  computed: {
-    uploadUrl () {
-      return `/terminal/v1/assets/${this.host.key}/file?path=` + encodeURIComponent(this.currentDir)
-    }
-  },
-  props: ['host', 'consoleConfig', 'sendHostSet'],
+  props: ['host', 'consoleConfig', 'sendHostSet', 'isSplitScreenMode'],
   created () {},
   async mounted () {
     await this.initTerminal()
@@ -117,15 +81,34 @@ export default {
     this.getHeaders()
   },
   methods: {
+    closeTerminal () {
+      return new Promise(resolve => {
+        this.$Modal.confirm({
+          title: this.$t('t_close_terminal'),
+          content: this.$t('t_close_terminal_tip') + this.host.showName,
+          'z-index': 1000000,
+          onOk: () => {
+            this.$emit('handleTabRemove', this.host.showName)
+          },
+          onCancel: () => {}
+        })
+      })
+    },
+    // #region 文件管理
+    openTerminalFileMgmt () {
+      this.terminalMgmtDrawer = true
+      this.$refs.fileMgmtRef.openDrawer(this.host, this.ssh_session)
+    },
+    closeDrawer () {
+      this.terminalMgmtDrawer = false
+      this.focus()
+    },
+    // #endregion
     focus () {
       this.term.focus()
     },
     byteConvert (size) {
       return byteConvert(size)
-    },
-    closeDrawer () {
-      this.isOpenDrawer = !this.isOpenDrawer
-      this.focus()
     },
     async initTerminal () {
       const term = new Terminal({
@@ -154,9 +137,10 @@ export default {
     resizeScreen () {
       // this.fitAddon.fit()
       this.term.resize(this.consoleConfig.cols, this.consoleConfig.rows)
-      this.ssh_session.send(
-        JSON.stringify({ type: 'resize', data: { rows: this.consoleConfig.rows, cols: this.consoleConfig.cols } })
-      )
+      this.ssh_session &&
+        this.ssh_session.send(
+          JSON.stringify({ type: 'resize', data: { rows: this.consoleConfig.rows, cols: this.consoleConfig.cols } })
+        )
     },
     async terminalConnect () {
       if (this.ssh_session) {
@@ -182,7 +166,7 @@ export default {
         if (data.type === 'console') {
           this.term.write(data.data) // (window.atob(data.data))
         } else if (data.type === 'listdir') {
-          this.showDir(data)
+          this.$refs.fileMgmtRef.showDir(data)
         } else if (data.type === 'warn') {
           this.confirm(data)
         } else if (data.type === 'error') {
@@ -213,9 +197,6 @@ export default {
       this.cmd = cmd
       this.ssh_session.send(JSON.stringify({ type: 'console', data: cmd }))
     },
-    getFiles () {
-      this.ssh_session.send(JSON.stringify({ type: 'listdir', data: this.currentDir }))
-    },
     async openDrawer () {
       const res = await getFileManagementPermission(this.host.key)
       this.filePermisson = res.data
@@ -226,29 +207,6 @@ export default {
       this.fileLists = listDir.data.filelist
       this.currentDir = listDir.data.pwd
       this.getHeaders()
-    },
-    getFileList (file) {
-      if (['link', 'file'].includes(file.type)) {
-        this.downLoadFile(file)
-      } else if (file.type === 'dir') {
-        this.ssh_session.send(JSON.stringify({ type: 'listdir', data: file.fullpath }))
-      }
-    },
-    downLoadFile (file) {
-      const api = `/terminal/v1/assets/${this.host.key}/file?path=`
-      window.open(api + encodeURIComponent(file.fullpath), '_blank')
-    },
-    uploadSucess (response) {
-      this.$refs.uploadButton.clearFiles()
-      this.$Notice.info({
-        title: response.status,
-        desc: response.message
-      })
-      this.ssh_session.send(JSON.stringify({ type: 'listdir', data: this.currentDir }))
-    },
-    uploadFailed (msg) {
-      console.log(msg)
-      console.log('faild')
     },
     async getHeaders () {
       let refreshRequest = null
@@ -306,24 +264,23 @@ export default {
       this.confirmModal.isShowConfirmModal = false
       this.ssh_session.send(JSON.stringify({ type: 'console', confirm: true, data: this.cmd }))
       this.term.focus()
-    },
-    cancelConfirmToExecution () {
-      this.confirmModal.isShowConfirmModal = false
     }
   },
   beforeDestroy () {
     this.ssh_session.close()
   },
-  components: {}
+  components: {
+    FileMgmt
+  }
 }
 </script>
 
 <style scoped lang="less">
 .file-operate {
-  position: absolute;
-  z-index: 10;
-  margin-top: 6px;
-  right: 40px;
+  position: relative;
+  z-index: 9;
+  right: 20px;
+  float: right;
 }
 .file-content {
   position: absolute;
@@ -340,6 +297,6 @@ export default {
   width: 280px;
   vertical-align: top;
   cursor: pointer;
-  color: #2d8cf0;
+  color: #5384ff;
 }
 </style>

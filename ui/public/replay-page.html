@@ -3,22 +3,9 @@
     <link rel="stylesheet" href="./xtem-player/xterm-player.min.css" />
     <script src="./xtem-player/xterm.min.js"></script>
     <script src="./xtem-player/xterm-player.min.js"></script>
+    <script src="./replay-page.js"></script>
   </head>
   <body>
     <div id="app"></div>
-    <script src="./replay-page.js"></script>
-    <!-- <script>
-      const fileId = localStorage.getItem('fileId')
-      const token = localStorage.getItem('replayToken')
-      var headers = new Headers({
-          "Authorization": "Bearer " + token
-      });
-      var req = new Request(`/terminal/v1/session-records/${fileId}/file`, {method: "GET", headers: headers, mode: 'cors'})
-      const div = document.getElementById('app')
-      const player = new XtermPlayer.XtermPlayer(
-        req,
-        div
-      )
-    </script> -->
   </body>
 </html>

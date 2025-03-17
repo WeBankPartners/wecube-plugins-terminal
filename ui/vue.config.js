@@ -70,5 +70,13 @@ module.exports = {
       preProcessor: 'less',
       patterns: [path.resolve(__dirname, './src/assets/css/common.less')] // 引入全局样式变量
     }
+  },
+  css: {
+    loaderOptions: {
+      less: {
+        // 启用内联 JavaScript
+        javascriptEnabled: true
+      }
+    }
   }
 }
