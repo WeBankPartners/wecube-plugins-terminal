@@ -251,7 +251,7 @@
             <Input
               v-model="uniteCmd"
               type="textarea"
-              :autosize="{ minRows: 2, maxRows: 16 }"
+              :autosize="{ minRows: 2, maxRows: 2 }"
               @keyup.enter.exact.native.prevent="sendCmd"
               @keyup.38.exact.native="upCmd"
               @keyup.40.exact.native="downCmd"
