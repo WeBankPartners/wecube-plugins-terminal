@@ -192,7 +192,7 @@
                       @cancelDangerousCmd="cancelDangerousCmd"
                       @handleTabRemove="handleTabRemove"
                     ></Terminal>
-                    <Button style="margin: 1px" v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
+                    <Button style="margin: 2px" v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
                       $t('t_terminal_interaction')
                     }}</Button>
                   </div>
@@ -214,39 +214,43 @@
             }}</Button>
           </div>
           <div v-if="showCmd" class="interaction-region">
-            <div style="margin: 1px">
-              <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
-                $t('t_cancel_terminal_interaction')
-              }}</Button>
-              <Tooltip content="Here is the prompt text">
-                <Icon type="ios-help-circle-outline" />
-                <div slot="content">
-                  <div>{{ $t('t_cmd_tip1') }}</div>
-                  <div>{{ $t('t_cmd_tip2') }}</div>
-                  <div>{{ $t('t_cmd_tip3') }}</div>
-                  <div>{{ $t('t_cmd_tip4') }}</div>
-                  <div>{{ $t('t_cmd_tip5') }}</div>
-                  <div>{{ $t('t_cmd_tip6') }}</div>
-                </div>
-              </Tooltip>
-              <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600"> ALL </Checkbox>
-              <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display: inline-block">
-                <template v-for="tab in terminalTabs">
-                  <Checkbox :label="tab.uniqueCode" :name="tab.uniqueCode" :key="tab.uniqueCode">
-                    <span>{{ tab.showName }}</span>
-                  </Checkbox>
-                </template>
-              </CheckboxGroup>
-              <Button
-                :disabled="!selectedCmd"
-                @click="sendHistoryCmd"
-                type="primary"
-                style="float: right; margin: 0 16px"
-                >{{ $t('t_send') }}</Button
-              >
-              <Select v-model="selectedCmd" style="float: right; width: 200px" placeholder="history cmd">
-                <Option v-for="item in historyCmd" :value="item.label" :key="item.value">{{ item.label }}</Option>
-              </Select>
+            <div class="show-terminal-region">
+              <div>
+                <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
+                  $t('t_cancel_terminal_interaction')
+                }}</Button>
+                <Tooltip content="Here is the prompt text">
+                  <Icon type="ios-help-circle-outline" />
+                  <div slot="content">
+                    <div>{{ $t('t_cmd_tip1') }}</div>
+                    <div>{{ $t('t_cmd_tip2') }}</div>
+                    <div>{{ $t('t_cmd_tip3') }}</div>
+                    <div>{{ $t('t_cmd_tip4') }}</div>
+                    <div>{{ $t('t_cmd_tip5') }}</div>
+                    <div>{{ $t('t_cmd_tip6') }}</div>
+                  </div>
+                </Tooltip>
+                <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600"> ALL </Checkbox>
+                <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display: inline-block">
+                  <template v-for="tab in terminalTabs">
+                    <Checkbox :label="tab.uniqueCode" :name="tab.uniqueCode" :key="tab.uniqueCode">
+                      <span>{{ tab.showName }}</span>
+                    </Checkbox>
+                  </template>
+                </CheckboxGroup>
+              </div>
+              <div>
+                <Button
+                  :disabled="!selectedCmd"
+                  @click="sendHistoryCmd"
+                  type="primary"
+                  style="float: right; margin: 0 16px"
+                  >{{ $t('t_send') }}</Button
+                >
+                <Select v-model="selectedCmd" style="float: right; width: 200px" placeholder="history cmd">
+                  <Option v-for="item in historyCmd" :value="item.label" :key="item.value">{{ item.label }}</Option>
+                </Select>
+              </div>
             </div>
             <Input
               v-model="uniteCmd"
@@ -941,6 +945,15 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+.show-terminal-region {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  margin-top: 2px;
+  margin-left: 2px;
+  margin-right: 2px;
 }
 .terminal-tabs /deep/ .ivu-tabs-bar {
   margin-bottom: 0 !important;
