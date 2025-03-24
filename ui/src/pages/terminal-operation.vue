@@ -192,7 +192,7 @@
                       @cancelDangerousCmd="cancelDangerousCmd"
                       @handleTabRemove="handleTabRemove"
                     ></Terminal>
-                    <Button v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
+                    <Button style="margin: 3px" v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
                       $t('t_terminal_interaction')
                     }}</Button>
                   </div>
@@ -214,7 +214,7 @@
             }}</Button>
           </div>
           <div v-if="showCmd">
-            <div style="margin: 8px">
+            <div style="margin: 3px">
               <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
                 $t('t_cancel_terminal_interaction')
               }}</Button>
@@ -251,7 +251,7 @@
             <Input
               v-model="uniteCmd"
               type="textarea"
-              :autosize="{ minRows: 5, maxRows: 16 }"
+              :autosize="{ minRows: 2, maxRows: 16 }"
               @keyup.enter.exact.native.prevent="sendCmd"
               @keyup.38.exact.native="upCmd"
               @keyup.40.exact.native="downCmd"
@@ -706,7 +706,7 @@ export default {
       this.consoleConfig.terminalH = height - 150
       let terminalH = (height - 210) / 17
       terminalH = Math.floor(terminalH)
-      this.consoleConfig.rows = terminalH - 3
+      this.consoleConfig.rows = terminalH - 4
 
       const width = document.body.scrollWidth
       let terminalW = ((width - 250) * 18) / 24 / 8.2
