@@ -214,7 +214,7 @@
             }}</Button>
           </div>
           <div v-if="showCmd">
-            <div style="margin: 3px">
+            <div style="margin: 1px">
               <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
                 $t('t_cancel_terminal_interaction')
               }}</Button>
@@ -251,7 +251,7 @@
             <Input
               v-model="uniteCmd"
               type="textarea"
-              :autosize="{ minRows: 2, maxRows: 2 }"
+              :autosize="{ minRows: 3, maxRows: 3 }"
               @keyup.enter.exact.native.prevent="sendCmd"
               @keyup.38.exact.native="upCmd"
               @keyup.40.exact.native="downCmd"
@@ -706,7 +706,7 @@ export default {
       this.consoleConfig.terminalH = height - 150
       let terminalH = (height - 210) / 17
       terminalH = Math.floor(terminalH)
-      this.consoleConfig.rows = terminalH - 4
+      this.consoleConfig.rows = terminalH - 5
 
       const width = document.body.scrollWidth
       let terminalW = ((width - 250) * 18) / 24 / 8.2
