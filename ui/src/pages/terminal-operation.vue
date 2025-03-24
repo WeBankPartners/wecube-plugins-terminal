@@ -192,7 +192,7 @@
                       @cancelDangerousCmd="cancelDangerousCmd"
                       @handleTabRemove="handleTabRemove"
                     ></Terminal>
-                    <Button style="margin: 3px" v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
+                    <Button style="margin: 1px" v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
                       $t('t_terminal_interaction')
                     }}</Button>
                   </div>
