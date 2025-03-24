@@ -213,7 +213,7 @@
               $t('t_terminal_interaction')
             }}</Button>
           </div>
-          <div v-if="showCmd">
+          <div v-if="showCmd" class="interaction-region">
             <div style="margin: 1px">
               <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
                 $t('t_cancel_terminal_interaction')
@@ -680,6 +680,7 @@ export default {
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
       this.showCmd = true
+      this.calculateRegion()
     },
     resizeConsole () {
       const width = document.body.scrollWidth
@@ -914,6 +915,19 @@ export default {
       this.$nextTick(() => {
         this.$refs[uniqueCode][0].focus()
       })
+    },
+    calculateRegion () {
+      this.$nextTick(() => {
+        const container = document.querySelector('.container-height')
+        const terminal = document.querySelector('.terminal-tabs')
+        const region = document.querySelector('.interaction-region')
+        if (container && terminal && region) {
+          const containerHeight = container.offsetHeight
+          const terminalHeight = terminal.offsetHeight
+          const cHeight = containerHeight - terminalHeight - 2
+          region.style.height = `${cHeight}px`
+        }
+      })
     }
   },
   components: {
@@ -923,6 +937,11 @@ export default {
 }
 </script>
 <style scoped lang="less">
+.interaction-region {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 .terminal-tabs /deep/ .ivu-tabs-bar {
   margin-bottom: 0 !important;
 }
