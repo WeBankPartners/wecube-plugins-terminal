@@ -22,10 +22,11 @@ RUN mkdir -p /data/terminal/records
 RUN mkdir -p /data/terminal/ui
 RUN echo "It works" > /data/terminal/ui/index.html
 COPY api/terminal/etc /etc/terminal
-# RUN adduser --disabled-password app
-# RUN chown -R app:app /etc/terminal/
-# RUN chown -R app:app /var/log/terminal/
-# USER app
 COPY build/start_all.sh /scripts/start_all.sh
 RUN chmod +x /scripts/start_all.sh
-CMD ["/bin/sh","-c","/scripts/start_all.sh"]
+
+RUN addgroup --system --gid 6000 apps && useradd --uid 6001 --gid 6000 app
+RUN chown -R app:apps /etc/terminal && chown -R app:apps /var/log/terminal && chown -R app:apps /data/terminal && chown -R app:apps /scripts
+RUN chmod -R 755 /etc/terminal && chmod -R 755 /var/log/terminal && chmod -R 755 /data/terminal && chmod -R 755 /scripts
+USER app
+ENTRYPOINT ["/bin/sh", "/scripts/start_all.sh"]
