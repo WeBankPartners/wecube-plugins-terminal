@@ -256,6 +256,7 @@
             <Input
               v-model="uniteCmd"
               type="textarea"
+              ref="uniteCmd"
               :autosize="{ minRows: 3, maxRows: 3 }"
               @keyup.enter.exact.native.prevent="sendCmd"
               @keyup.38.exact.native="upCmd"
@@ -693,6 +694,10 @@ export default {
       this.consoleConfig.rows = terminalH
       this.showCmd = true
       this.calculateRegion()
+      this.$nextTick(() => {
+        this.$refs.uniteCmd.focus()
+      })
+      this.switchAllSelect(true)
     },
     resizeConsole () {
       const width = document.body.scrollWidth
