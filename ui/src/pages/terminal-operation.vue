@@ -165,6 +165,7 @@
             <Tabs
               type="card"
               class="terminal-tabs"
+              :class="showCmd ? 'terminal-split-yes-showCmd' : 'terminal-split-no-showCmd'"
               closable
               :animated="false"
               @on-click="clickTab"
@@ -255,6 +256,7 @@
             <Input
               v-model="uniteCmd"
               type="textarea"
+              ref="uniteCmd"
               :autosize="{ minRows: 3, maxRows: 3 }"
               @keyup.enter.exact.native.prevent="sendCmd"
               @keyup.38.exact.native="upCmd"
@@ -445,8 +447,15 @@ export default {
       // let terminalH = (height - 260) / 8.2
       // terminalH = Math.floor(terminalH / 4)
       // console.log(1.8, terminalH)
+
       this.consoleConfig.rows = 22
-      this.consoleConfig.cols = 70
+      // this.consoleConfig.cols = 70
+
+      const width = document.body.scrollWidth
+      let terminalW = ((width - 250) * 18) / 24 / 8.2
+      terminalW = Math.floor(terminalW / 2)
+      this.consoleConfig.cols = terminalW
+
       this.terminalTabs.forEach(item => {
         this.$nextTick(() => {
           this.$refs[item.uniqueCode][0].resizeScreen()
@@ -680,11 +689,15 @@ export default {
     sendForMulti () {
       const height = document.body.scrollHeight
       this.consoleConfig.terminalH = height - 350
-      let terminalH = (height - 256) / 17
+      let terminalH = height / 20
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
       this.showCmd = true
       this.calculateRegion()
+      this.$nextTick(() => {
+        this.$refs.uniteCmd.focus()
+      })
+      this.switchAllSelect(true)
     },
     resizeConsole () {
       const width = document.body.scrollWidth
@@ -954,6 +967,20 @@ export default {
   margin-top: 2px;
   margin-left: 2px;
   margin-right: 2px;
+}
+// .terminal-tabs {
+//   height: 800px;
+//   overflow: auto;
+// }
+.terminal-split-no-showCmd {
+  // height: 800px;
+  height: calc(100vh - 170px);
+  overflow: auto;
+}
+.terminal-split-yes-showCmd {
+  // height: 700px;
+  height: calc(100vh - 260px);
+  overflow: auto;
 }
 .terminal-tabs /deep/ .ivu-tabs-bar {
   margin-bottom: 0 !important;
