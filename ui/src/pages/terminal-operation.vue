@@ -192,7 +192,7 @@
                       @cancelDangerousCmd="cancelDangerousCmd"
                       @handleTabRemove="handleTabRemove"
                     ></Terminal>
-                    <Button v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
+                    <Button style="margin: 2px" v-if="!showCmd && !isSplitScreenMode" @click="sendForMulti">{{
                       $t('t_terminal_interaction')
                     }}</Button>
                   </div>
@@ -213,45 +213,49 @@
               $t('t_terminal_interaction')
             }}</Button>
           </div>
-          <div v-if="showCmd">
-            <div style="margin: 8px">
-              <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
-                $t('t_cancel_terminal_interaction')
-              }}</Button>
-              <Tooltip content="Here is the prompt text">
-                <Icon type="ios-help-circle-outline" />
-                <div slot="content">
-                  <div>{{ $t('t_cmd_tip1') }}</div>
-                  <div>{{ $t('t_cmd_tip2') }}</div>
-                  <div>{{ $t('t_cmd_tip3') }}</div>
-                  <div>{{ $t('t_cmd_tip4') }}</div>
-                  <div>{{ $t('t_cmd_tip5') }}</div>
-                  <div>{{ $t('t_cmd_tip6') }}</div>
-                </div>
-              </Tooltip>
-              <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600"> ALL </Checkbox>
-              <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display: inline-block">
-                <template v-for="tab in terminalTabs">
-                  <Checkbox :label="tab.uniqueCode" :name="tab.uniqueCode" :key="tab.uniqueCode">
-                    <span>{{ tab.showName }}</span>
-                  </Checkbox>
-                </template>
-              </CheckboxGroup>
-              <Button
-                :disabled="!selectedCmd"
-                @click="sendHistoryCmd"
-                type="primary"
-                style="float: right; margin: 0 16px"
-                >{{ $t('t_send') }}</Button
-              >
-              <Select v-model="selectedCmd" style="float: right; width: 200px" placeholder="history cmd">
-                <Option v-for="item in historyCmd" :value="item.label" :key="item.value">{{ item.label }}</Option>
-              </Select>
+          <div v-if="showCmd" class="interaction-region">
+            <div class="show-terminal-region">
+              <div>
+                <Button @click="cancelTerminalInteraction" type="warning" icon="md-exit">{{
+                  $t('t_cancel_terminal_interaction')
+                }}</Button>
+                <Tooltip content="Here is the prompt text">
+                  <Icon type="ios-help-circle-outline" />
+                  <div slot="content">
+                    <div>{{ $t('t_cmd_tip1') }}</div>
+                    <div>{{ $t('t_cmd_tip2') }}</div>
+                    <div>{{ $t('t_cmd_tip3') }}</div>
+                    <div>{{ $t('t_cmd_tip4') }}</div>
+                    <div>{{ $t('t_cmd_tip5') }}</div>
+                    <div>{{ $t('t_cmd_tip6') }}</div>
+                  </div>
+                </Tooltip>
+                <Checkbox :value="sendForAll" @on-change="switchAllSelect" style="font-weight: 600"> ALL </Checkbox>
+                <CheckboxGroup v-model="sendHostSet" @on-change="switchCheck" style="display: inline-block">
+                  <template v-for="tab in terminalTabs">
+                    <Checkbox :label="tab.uniqueCode" :name="tab.uniqueCode" :key="tab.uniqueCode">
+                      <span>{{ tab.showName }}</span>
+                    </Checkbox>
+                  </template>
+                </CheckboxGroup>
+              </div>
+              <div>
+                <Button
+                  :disabled="!selectedCmd"
+                  @click="sendHistoryCmd"
+                  type="primary"
+                  style="float: right; margin: 0 16px"
+                  >{{ $t('t_send') }}</Button
+                >
+                <Select v-model="selectedCmd" style="float: right; width: 200px" placeholder="history cmd">
+                  <Option v-for="item in historyCmd" :value="item.label" :key="item.value">{{ item.label }}</Option>
+                </Select>
+              </div>
             </div>
             <Input
               v-model="uniteCmd"
               type="textarea"
-              :autosize="{ minRows: 5, maxRows: 16 }"
+              :autosize="{ minRows: 3, maxRows: 3 }"
               @keyup.enter.exact.native.prevent="sendCmd"
               @keyup.38.exact.native="upCmd"
               @keyup.40.exact.native="downCmd"
@@ -680,6 +684,7 @@ export default {
       terminalH = Math.floor(terminalH)
       this.consoleConfig.rows = terminalH
       this.showCmd = true
+      this.calculateRegion()
     },
     resizeConsole () {
       const width = document.body.scrollWidth
@@ -706,7 +711,7 @@ export default {
       this.consoleConfig.terminalH = height - 150
       let terminalH = (height - 210) / 17
       terminalH = Math.floor(terminalH)
-      this.consoleConfig.rows = terminalH - 3
+      this.consoleConfig.rows = terminalH - 5
 
       const width = document.body.scrollWidth
       let terminalW = ((width - 250) * 18) / 24 / 8.2
@@ -914,6 +919,19 @@ export default {
       this.$nextTick(() => {
         this.$refs[uniqueCode][0].focus()
       })
+    },
+    calculateRegion () {
+      this.$nextTick(() => {
+        const container = document.querySelector('.container-height')
+        const terminal = document.querySelector('.terminal-tabs')
+        const region = document.querySelector('.interaction-region')
+        if (container && terminal && region) {
+          const containerHeight = container.offsetHeight
+          const terminalHeight = terminal.offsetHeight
+          const cHeight = containerHeight - terminalHeight - 2
+          region.style.height = `${cHeight}px`
+        }
+      })
     }
   },
   components: {
@@ -923,6 +941,20 @@ export default {
 }
 </script>
 <style scoped lang="less">
+.interaction-region {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.show-terminal-region {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  margin-top: 2px;
+  margin-left: 2px;
+  margin-right: 2px;
+}
 .terminal-tabs /deep/ .ivu-tabs-bar {
   margin-bottom: 0 !important;
 }
