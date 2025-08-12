@@ -86,7 +86,7 @@
               <template v-if="hostInfo.length > 0">
                 <Collapse>
                   <template v-for="host in hostInfoToShow">
-                    <Panel :name="host.ip_address" :key="host.ip_address">
+                    <Panel :name="host.ip_address" :key="host.id">
                       <div class="diyTitle">
                         {{ host.ip_address }}<span style="color: #5384ff">[{{ host.username }}]</span>{{ host.name }}
                       </div>
