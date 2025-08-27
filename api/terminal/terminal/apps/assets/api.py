@@ -358,6 +358,41 @@ class AssetPermission(object):
             for permission in permissions:
                 if auth_permission.get('auth_' + permission, False):
                     results.add(permission)
+                    
+                    
+        permission_expr_filters = {
+            "roles.role": {
+                'in': auth_roles or list(GLOBALS.request.auth_permissions)
+            },
+            'enabled': 1
+        }
+        auth_expr_permissions = Permission().list(permission_expr_filters)
+        with_expr_permissions = []
+        for auth_expr_permission in auth_expr_permissions:
+            if auth_expr_permission['expression']:
+                with_expr_permissions.append(auth_expr_permission)
+        if len(with_expr_permissions) > 0:
+            fields = {
+                'id': 'id',
+                CONF.asset.asset_field_name: 'name',
+                'displayName': 'display_name',
+                CONF.asset.asset_field_ip: 'ip_address',
+                CONF.asset.asset_field_port: 'port',
+                CONF.asset.asset_field_user: 'username',
+                CONF.asset.asset_field_password: 'password',
+                CONF.asset.asset_field_desc: 'description'
+            }
+            
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                futures = [executor.submit(self.list_asset_by_expression, perm['expression'], fields)
+                            for perm in with_expr_permissions]
+                asset_results = [f.result() for f in futures]
+                for result_idx, asset_result in enumerate(asset_results):
+                    auth_asset_ids = set([asset['id'] for asset in asset_result])
+                    if rid in auth_asset_ids:
+                        for permission in permissions:
+                            if with_expr_permissions[result_idx].get('auth_' + permission, False):
+                                results.add(permission)
         return list(results)
 
 
