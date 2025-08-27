@@ -253,12 +253,12 @@ INSERT INTO sys_role_menu (role_id,menu_id,created_by,created_time,updated_by,up
 
 #@v0.2.3.5-end@;
 
-#@v1.1.2-begin@;
+#@v1.1.1.1-begin@;
 
 INSERT INTO `permission`
 (name, description, enabled, auth_upload, auth_download, auth_execute, created_by, created_time, updated_by, updated_time, expression)
 VALUES('admin-cmd', 'command execute', 1, 0, 0, 1, 'admin', now(), 'admin', now(), 'wecmdb:host_resource');
 INSERT INTO `permission_role` (permission_id, `role`) VALUES(LAST_INSERT_ID(), 'SUPER_ADMIN');
 
-#@v1.1.2-end@;
+#@v1.1.1.1-end@;
 
