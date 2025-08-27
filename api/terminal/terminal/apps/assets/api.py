@@ -384,7 +384,7 @@ class AssetPermission(object):
             }
             
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                futures = [executor.submit(self.list_asset_by_expression, perm['expression'], fields)
+                futures = [executor.submit(Asset().list_asset_by_expression, perm['expression'], fields)
                             for perm in with_expr_permissions]
                 asset_results = [f.result() for f in futures]
                 for result_idx, asset_result in enumerate(asset_results):
