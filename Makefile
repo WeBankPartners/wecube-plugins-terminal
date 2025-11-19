@@ -11,7 +11,7 @@ clean:
 build: clean
 	cd api/terminal && pip3 install wheel
 	cd api/terminal && python3 setup.py bdist_wheel
-	cd ui && npm install --force && NODE_OPTIONS="--openssl-legacy-provider" npm run plugin
+	docker run --rm  -v $(current_dir):/home/node/app -w /home/node/app node:16.20.2 sh -c "npm set registry https://mirrors.cloud.tencent.com/npm/ && cd /home/node/app/ui && npm install --force && npm run plugin"
 
 image: build
 ifeq ($(arch),arm64)

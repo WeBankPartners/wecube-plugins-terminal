@@ -10,11 +10,11 @@ pyte
 requests
 pymysql
 pyjwt<2.0.0
-pycrypto
+pycrypto==2.6.1
 # for platform login encryption, apt install swig
-M2Crypto
-gevent
-pytz
+M2Crypto==0.40.1
+gevent==21.12.0
+pytz==2023.3.post1
 apscheduler
 zmq
 minio
