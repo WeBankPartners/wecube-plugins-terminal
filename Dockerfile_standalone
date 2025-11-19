@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM ccr.ccs.tencentyun.com/webankpartners/python:3.8.20-slim-bullseye
 LABEL maintainer = "Webank CTB Team"
 # Install logrotate
 RUN sed -i 's/deb.debian.org/mirrors.tencentyun.com/g' /etc/apt/sources.list
