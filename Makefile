@@ -1,5 +1,5 @@
 current_dir=$(shell pwd)
-project_name=$(shell basename "${current_dir}")
+project_name ?= $(shell basename "${current_dir}")
 version=${PLUGIN_VERSION}
 arch ?= amd64          # 默认amd64，可选 ARCH=amd64/arm64
 
