@@ -27,6 +27,38 @@ LOG = logging.getLogger(__name__)
 TOKEN_KEY = 'terminal_subsystem_token'
 
 
+class AssetField(object):
+    def get_field_mapping(self, with_pass=False):
+        if with_pass:
+            return {
+                'id': 'id',
+                CONF.asset.asset_field_name: 'name',
+                'displayName': 'display_name',
+                CONF.asset.asset_field_ip: 'ip_address',
+                CONF.asset.asset_field_port: 'port',
+                CONF.asset.asset_field_user: 'username',
+                CONF.asset.asset_field_password: 'password',
+                CONF.asset.asset_field_desc: 'description'
+            }
+        return {
+                'id': 'id',
+                CONF.asset.asset_field_name: 'name',
+                'displayName': 'display_name',
+                CONF.asset.asset_field_ip: 'ip_address',
+                CONF.asset.asset_field_port: 'port',
+                CONF.asset.asset_field_user: 'username',
+                CONF.asset.asset_field_desc: 'description'
+            }
+
+    def get_k8s_field_mapping(self):
+        return {
+            'id': 'id',
+            CONF.asset.asset_cluster_field_api: 'k8s_api',
+            CONF.asset.asset_cluster_field_token: 'k8s_token',
+            CONF.asset.asset_cluster_field_namespace: 'k8s_namespace'
+        }
+
+
 class Asset(object):
     def __init__(self, token=None):
         self._token = token or utils.get_token()
@@ -38,6 +70,15 @@ class Asset(object):
             for origin_name, name in fields.items():
                 new_item[name] = item.get(origin_name, None)
             results.append(new_item)
+        for item in results:
+            if item.get('ip_address'):
+                item['type'] = 'host'
+            else:
+                item['type'] = 'pod'
+                # fix base info
+                item['ip_address'] = ''
+                item['username'] = 'N/A'
+                item['name'] = item['display_name']
         return results
 
     def get_connection_info(self, rid, auth_roles=None, auth_type='execute'):
@@ -48,12 +89,36 @@ class Asset(object):
                 'action': auth_type
             })
         asset = datas[0]
-        if isinstance(asset['port'], str) and asset['port'].isnumeric():
-            asset['port'] = int(asset['port']) or 22
-        elif isinstance(asset['port'], int):
-            pass
-        else:
-            asset['port'] = 22
+        if asset.get('type') == 'host':
+            if isinstance(asset['port'], str) and asset['port'].isnumeric():
+                asset['port'] = int(asset['port']) or 22
+            elif isinstance(asset['port'], int):
+                pass
+            else:
+                asset['port'] = 22
+        if asset.get('type') == 'pod':
+            # get pod k8s (api, token, namespace) and set to k8s_api, k8s_token, k8s_namespace
+            # user expression like: wecmdb:pod.app_instance>wecmdb:app_instance.k8s_cluster>wecmdb:k8s_cluster
+            expr = CONF.asset.asset_expr_pod_to_cluster
+            expr = expr.strip()
+            if not expr:
+                raise exceptions.PluginError(message=_('Please set asset_expr_pod_to_cluster in config'))
+            expr_parts = expr.split('>')
+            if len(expr_parts) == 0:
+                raise exceptions.PluginError(message=_('Please set asset_expr_pod_to_cluster in config'))
+            package_name, entity_name = expr_parts[0].split(':')
+            entity_name = entity_name.split('.')
+            filters = [{"index": 0, "packageName": package_name, "entityName": entity_name[0], "attributeFilters": [{"name": "id", "operator": "eq", "value": rid}]}]
+            clusters = self.list_asset_by_expression(CONF.asset.asset_expr_pod_to_cluster, 
+                                                     field_mapping=AssetField().get_k8s_field_mapping(), 
+                                                     filters=filters)
+            if len(clusters) == 0:
+                raise exceptions.PluginError(message=_('no k8s cluster info found'))
+            asset['k8s_api'] = clusters[0].get('k8s_api', None)
+            asset['k8s_token'] = clusters[0].get('k8s_token', None)
+            asset['k8s_namespace'] = clusters[0].get('k8s_namespace', None)
+            if asset['k8s_token']:
+                asset['k8s_token'] = utils.platform_decrypt(asset['k8s_token'], asset['id'], CONF.platform_encrypt_seed)
         return asset
 
     def list_query(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
@@ -64,23 +129,19 @@ class Asset(object):
             datas = cache.get(cached_key, 5)
             if cache.validate(datas):
                 return datas
-            fields = {
-                'id': 'id',
-                CONF.asset.asset_field_name: 'name',
-                'displayName': 'display_name',
-                CONF.asset.asset_field_ip: 'ip_address',
-                CONF.asset.asset_field_port: 'port',
-                CONF.asset.asset_field_user: 'username',
-                CONF.asset.asset_field_desc: 'description'
-            }
+            fields = AssetField().get_field_mapping()
             client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
             filters = filters or {}
             # expression search
             filter_expression = filters.pop('expression', None)
             query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-            package, entity = CONF.asset.asset_type.split(':')
-            resp_json = client.retrieve(package, entity, query)
-            datas = resp_json.get('data', [])
+            asset_type_list = ''.split(CONF.asset.asset_type,',')
+            asset_type_list = [x.strip() for x in asset_type_list if x]
+            datas = []
+            for asset_type in asset_type_list:
+                package, entity = asset_type.split(':')
+                resp_json = client.retrieve(package, entity, query)
+                datas.extend(resp_json.get('data', []))
             datas = self._transform_field(datas, fields)
             if filter_expression:
                 # validate expression
@@ -96,9 +157,9 @@ class Asset(object):
                 if not query_expression_groups:
                     raise exceptions.ValidationError(message=_('%(expression)s invalid') %
                                                      {'expression': filter_expression})
-                # if last expr_group is not CONF.asset.asset_type, return empty list
+                # if last expr_group is not asset_type_list, return empty list
                 if '%s:%s' % (query_expression_groups[-1].get('data', {}).get('plugin', ''),
-                              query_expression_groups[-1].get('data', {}).get('ci', '')) == CONF.asset.asset_type:
+                              query_expression_groups[-1].get('data', {}).get('ci', '')) in asset_type_list:
                     wecube_client = wecube.WeCubeClient(CONF.wecube.base_url, None)
                     subsys_token = cache.get_or_create(TOKEN_KEY, wecube_client.login_subsystem, expires=600)
                     wecube_client.token = subsys_token
@@ -138,16 +199,7 @@ class Asset(object):
                 assets = [item for item in assets if item['id'] in auth_asset_ids]
                 return assets
         else:
-            fields = {
-                'id': 'id',
-                CONF.asset.asset_field_name: 'name',
-                'displayName': 'display_name',
-                CONF.asset.asset_field_ip: 'ip_address',
-                CONF.asset.asset_field_port: 'port',
-                CONF.asset.asset_field_user: 'username',
-                CONF.asset.asset_field_password: 'password',
-                CONF.asset.asset_field_desc: 'description'
-            }
+            fields = AssetField().get_field_mapping(with_pass=True)
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 futures = [executor.submit(self.list_asset_by_expression, permission['expression'], fields)
                            for permission in permissions]
@@ -161,7 +213,6 @@ class Asset(object):
             #     auth_asset_ids.extend([auth_asset['asset_id'] for auth_asset in permission['assets']])
             #     auth_asset_ids.extend([asset['id'] for asset in expression_assets])
             auth_asset_ids = set(auth_asset_ids)
-
             datas = []
             filters = filters or {}
             # expression search
@@ -170,9 +221,12 @@ class Asset(object):
                 filters.setdefault('id', {'in': list(auth_asset_ids)})
                 client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
                 query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-                package, entity = CONF.asset.asset_type.split(':')
-                resp_json = client.retrieve(package, entity, query)
-                datas = resp_json.get('data', [])
+                asset_type_list = ''.split(CONF.asset.asset_type,',')
+                asset_type_list = [x.strip() for x in asset_type_list if x]
+                for asset_type in asset_type_list:
+                    package, entity = asset_type.split(':')
+                    resp_json = client.retrieve(package, entity, query)
+                    datas.extend(resp_json.get('data', []))
                 datas = self._transform_field(datas, fields)
                 if filter_expression:
                     # validate expression
@@ -188,9 +242,9 @@ class Asset(object):
                     if not query_expression_groups:
                         raise exceptions.ValidationError(message=_('%(expression)s invalid') %
                                                          {'expression': filter_expression})
-                    # if last expr_group is not CONF.asset.asset_type, return empty list
+                    # if last expr_group is not asset_type_list, return empty list
                     if '%s:%s' % (query_expression_groups[-1].get('data', {}).get('plugin', ''),
-                                  query_expression_groups[-1].get('data', {}).get('ci', '')) == CONF.asset.asset_type:
+                                  query_expression_groups[-1].get('data', {}).get('ci', '')) in asset_type_list:
                         wecube_client = wecube.WeCubeClient(CONF.wecube.base_url, None)
                         subsys_token = cache.get_or_create(TOKEN_KEY, wecube_client.login_subsystem, expires=600)
                         wecube_client.token = subsys_token
@@ -219,13 +273,17 @@ class Asset(object):
             return datas
         return []
 
-    def list_asset_by_expression(self, expression, field_mapping):
+    def list_asset_by_expression(self, expression, field_mapping, filters=None):
+        '''
+        expression: eg. "wecmdb:pod.app_instance>wecmdb:app_instance.k8s_cluster>wecmdb:k8s_cluster"
+        filters: [{"index": 0, "packageName": "wecmdb", "entityName": "pod", "attributeFilters": [{"name": "id", "operator": "eq", "value": ""}]}]
+        '''
         if expression:
             wecube_client = wecube.WeCubeClient(CONF.wecube.base_url, None)
             wecube_client.token = self._token
             resp = wecube_client.post(wecube_client.build_url('/platform/v1/data-model/dme/integrated-query'), {
                 'dataModelExpression': expression,
-                'filters': []
+                'filters': filters or []
             })
             assets = resp['data'] or []
             return self._transform_field(assets, field_mapping)
@@ -372,17 +430,7 @@ class AssetPermission(object):
             if auth_expr_permission['expression']:
                 with_expr_permissions.append(auth_expr_permission)
         if len(with_expr_permissions) > 0:
-            fields = {
-                'id': 'id',
-                CONF.asset.asset_field_name: 'name',
-                'displayName': 'display_name',
-                CONF.asset.asset_field_ip: 'ip_address',
-                CONF.asset.asset_field_port: 'port',
-                CONF.asset.asset_field_user: 'username',
-                CONF.asset.asset_field_password: 'password',
-                CONF.asset.asset_field_desc: 'description'
-            }
-            
+            fields = AssetField().get_field_mapping(with_pass=False)
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 futures = [executor.submit(Asset().list_asset_by_expression, perm['expression'], fields)
                             for perm in with_expr_permissions]

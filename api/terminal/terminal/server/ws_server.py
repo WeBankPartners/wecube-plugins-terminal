@@ -16,7 +16,7 @@ import tornado.web
 import tornado.httpserver
 import tornado.options
 from talos.core import config
-from terminal.common.wshandler import SSHHandler
+from terminal.common.wshandler import SSHHandler,PodHandler
 from terminal.server.wsgi_server import application
 
 if sys.platform == 'win32':
@@ -28,6 +28,7 @@ settings = {}
 
 app = tornado.web.Application([
     (r"/terminal/v1/ssh", SSHHandler),
+    (r"/terminal/v1/pod", PodHandler),
 ], **settings)
 app.zmq_context = zmq.Context()
 

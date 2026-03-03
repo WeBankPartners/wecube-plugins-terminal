@@ -161,7 +161,7 @@ class SSHClient:
                 'port': port
             })
 
-    def create_shell(self, forward_stream, term="xterm", cols=None, rows=None):
+    def create_shell(self, forward_stream, term="xterm", cols=None, rows=None, command=None):
         '''get shell from ssh client
 
         :param forward_stream: object with send(data) method, anything output from shell will send to forward_stream

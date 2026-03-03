@@ -24,6 +24,7 @@ from talos.core.i18n import _
 import zmq
 
 from terminal.common import ssh
+from terminal.common import pod
 from terminal.common import exceptions
 from terminal.common import wecube
 
@@ -227,11 +228,22 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                     client = wecube.WeCubeClient(CONF.wecube.base_url, None)
                     subsys_token = cache.get_or_create(TOKEN_KEY, client.login_subsystem, expires=600)
                     client.token = subsys_token
+                    asset_type_list = ''.split(CONF.asset.asset_type,',')
+                    asset_type_list = [x.strip() for x in asset_type_list if x]
+                    entity_type = ''
+                    for asset_type in asset_type_list:
+                        package, entity = asset_type.split(':')
+                        if self._asset_info['id'].startswith(entity):
+                            entity_type = entity
+                            break
+                    if not entity_type and len(asset_type_list) > 0:
+                        package, entity = asset_type_list.split(':')
+                        entity_type = entity
                     check_data = {
                         "operator": self._auth_user,
                         "serviceName": "N/A",
                         "servicePath": "",
-                        "entityType": CONF.asset.asset_type,
+                        "entityType": entity_type,
                         "entityInstances": [{
                             "id": self._asset_info['id'],
                             'displayName': self._asset_info['display_name']
@@ -312,3 +324,243 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                 root_attr['type'] = ssh.FileType.T_DIR
                 results['filelist'].insert(0, root_attr)
             self.write_message(json.dumps({'type': 'listdir', 'data': results}), binary=False)
+
+
+class PodHandler(tornado.websocket.WebSocketHandler):
+    def __init__(self, application, request, **kwargs):
+        super().__init__(application, request, **kwargs)
+        self._auth_user = None
+        self._asset_info = None
+        self._pod_client = pod.PodClient()
+        self._pod_meta = None
+        self._timer_client_close_check = None
+        self._timer_client_idle_check = None
+        self._last_transfer = time.time()
+        self._ssh_recorder = None
+        self._ssh_recorder_db = None
+        self._audit = ssh.CommandParser()
+        zmq_socket = application.zmq_context.socket(zmq.PUSH)
+        zmq_socket.connect(CONF.ipc.bind)
+        self.event_pusher = zmq_socket
+
+    def check_origin(self, origin):
+        return True
+
+    def open(self):
+        pass
+
+    def _encode(self, data):
+        # if isinstance(data, bytes):
+        #     return base64.b64encode(data).decode('utf-8')
+        # else:
+        #     return base64.b64encode(data.encode('utf-8')).decode('utf-8')
+        if isinstance(data, bytes):
+            return data.decode('utf-8', errors='replace')
+        return data
+
+    def _client_close_check(self):
+        if self._pod_client.is_shell_closed:
+            self.close()
+        else:
+            self._timer_client_close_check = IOLoop.current().call_later(INTERVAL_CLOSE_CHECK, self._client_close_check)
+
+    def _client_idle_check(self):
+        if time.time() - self._last_transfer >= float(CONF.session.idle_timeout):
+            self.write_message(json.dumps({
+                'type':
+                'console',
+                'data':
+                self._encode('\r\ndisconnect for idle session(%s secs)' % CONF.session.idle_timeout)
+            }),
+                               binary=False)
+            self.close()
+        else:
+            self._timer_client_idle_check = IOLoop.current().call_later(INTERVAL_IDLE_CHECK, self._client_idle_check)
+
+    def send(self, data):
+        self._last_transfer = time.time()
+        self._audit.feed('output', data)
+        self.write_message(json.dumps({'type': 'console', 'data': self._encode(data)}), binary=False)
+        self._ssh_recorder.write_command(None, data)
+
+    def on_close(self):
+        self._pod_client.close()
+        if self._ssh_recorder:
+            # close record file
+            self._ssh_recorder.close()
+            if self._ssh_recorder_db:
+                asset_api.SessionRecord().update(self._ssh_recorder_db['id'], {
+                    'ended_time': datetime.datetime.now(),
+                    'filesize': os.path.getsize(self._ssh_recorder.filepath)
+                })
+            # push task to uploader
+            object_path = self._ssh_recorder_db['started_time'].strftime('%Y-%m-%d')
+            
+            self.event_pusher.send_json({
+                'session_id':
+                self._ssh_recorder_db['id'],
+                'filepath':
+                self._ssh_recorder.filepath,
+                'object_key':
+                object_path + '/' + os.path.basename(self._ssh_recorder.filepath)
+            })
+            self.event_pusher.close()
+            # reset pointer
+            self._ssh_recorder = None
+            self._ssh_recorder_db = None
+        # if any exception happened, we should cancel all timers
+        if self._timer_client_close_check:
+            IOLoop.current().remove_timeout(self._timer_client_close_check)
+        if self._timer_client_idle_check:
+            IOLoop.current().remove_timeout(self._timer_client_idle_check)
+        self._asset_info = None
+        self._auth_user = None
+
+    def on_message(self, message):
+        '''call when received a message from client
+
+        :param message: message format: {"type": "init/resize/console/listdir", "data": ""}
+        :type message: dict
+        '''
+        def _generate_random(length=8):
+            chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+            nonce = ''
+            for idx in range(length):
+                nonce += random.choice(chars)
+            return nonce
+
+        msg = json.loads(message)
+        if msg['type'] == 'init':
+            self._pod_meta = msg['data']
+            user_cols = self._pod_meta.get('cols', None)
+            user_rows = self._pod_meta.get('rows', None)
+            asset_id = self._pod_meta.get('asset_id', None)
+            token = self._pod_meta.get('token', None)
+            token_info = jwt.decode(token, verify=False)
+            token_user = token_info['sub']
+            _authority = token_info.get('authority', None) or '[]'
+            token_permissions = set(_authority.strip('[]').split(','))
+            if not asset_id:
+                self.write_message(json.dumps({'type': 'error', 'data': _('missing param: asset_id')}), binary=False)
+                raise exceptions.FieldRequired(attribute='asset_id')
+            try:
+                # pod asset info 
+                asset = asset_api.Asset(token=token).get_connection_info(asset_id, auth_roles=token_permissions)
+            except exceptions.core_ex.AuthError as e:
+                self.write_message(json.dumps({'type': 'error', 'data': _('invalid token')}), binary=False)
+                raise e
+            except exceptions.NotFoundError as e:
+                self.write_message(json.dumps({
+                    'type': 'error',
+                    'data': _('the resource(%(resource)s) you request not found') % {
+                        'resource': 'Asset#' + asset_id
+                    }
+                }), binary=False)
+                raise e
+            try:
+                # pod connect 
+                self._pod_client.connect(asset['k8s_api'],
+                                         asset['k8s_token'],
+                                         asset['k8s_namespace'],
+                                         asset['name'])
+                self._asset_info = asset
+                self._auth_user = token_user
+            except exceptions.PluginError as e:
+                self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
+                raise e
+            except socket.timeout as e:
+                self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
+                raise e
+            self._pod_client.create_shell(self, cols=user_cols, rows=user_rows)
+            self._audit.resize(user_cols, user_rows)
+            # generate record after meta information
+            session_starttime = datetime.datetime.now()
+            session_filename = "%s_%s_%s.cast" % (asset['name'], session_starttime.strftime('%Y%m%d%H%M%S'),
+                                                  _generate_random())
+            self._ssh_recorder = ssh.SSHRecorder(os.path.join(CONF.session.record_path, session_filename))
+            self._ssh_recorder_db = asset_api.SessionRecord().create({
+                'asset_id': asset_id,
+                'filepath': session_filename,
+                'user': token_user,
+                'started_time': session_starttime,
+                'ended_time': None
+            })
+            self._ssh_recorder.start(cols=user_cols, rows=user_rows)
+            self._timer_client_close_check = IOLoop.current().call_later(INTERVAL_CLOSE_CHECK, self._client_close_check)
+            self._timer_client_idle_check = IOLoop.current().call_later(INTERVAL_IDLE_CHECK, self._client_idle_check)
+        elif msg['type'] == 'resize':
+            user_cols = msg['data']['cols']
+            user_rows = msg['data']['rows']
+            self._pod_client.resize_shell(user_cols, user_rows)
+            self._audit.resize(user_cols, user_rows)
+        elif msg['type'] == 'console':
+            # NOTE: send will write back all command, but how can we seperate user inputs from outputs?
+            # self._ssh_recorder.write_command(msg['data'], None)
+            command = self._audit.feed('input', msg['data'])
+            user_confirm = msg.get('confirm', False)
+            is_dangerous = False
+            if command and not user_confirm and utils.bool_from_string(CONF.check_itsdangerous, default=True):
+                try:
+                    client = wecube.WeCubeClient(CONF.wecube.base_url, None)
+                    subsys_token = cache.get_or_create(TOKEN_KEY, client.login_subsystem, expires=600)
+                    client.token = subsys_token
+                    asset_type_list = ''.split(CONF.asset.asset_type,',')
+                    asset_type_list = [x.strip() for x in asset_type_list if x]
+                    entity_type = ''
+                    for asset_type in asset_type_list:
+                        package, entity = asset_type.split(':')
+                        if self._asset_info['id'].startswith(entity):
+                            entity_type = entity
+                            break
+                    if not entity_type and len(asset_type_list) > 0:
+                        package, entity = asset_type_list.split(':')
+                        entity_type = entity
+                    check_data = {
+                        "operator": self._auth_user,
+                        "serviceName": "N/A",
+                        "servicePath": "",
+                        "entityType": entity_type,
+                        "entityInstances": [{
+                            "id": self._asset_info['id'],
+                            'displayName': self._asset_info['display_name']
+                        }],
+                        "inputParams": {},
+                        "scripts": [{
+                            "type": None,
+                            "content": command,
+                            "name": "console input"
+                        }]
+                    }
+                    box_ids = re.split(r',|\||;', CONF.boxes_check)
+                    if len(box_ids) == 1 and not box_ids[0].isnumeric():
+                        box_ids = None
+                    resp_json = client.post(client.server + '/itsdangerous/v1/detection',
+                                            check_data,
+                                            param={'boxes': box_ids})
+                    if resp_json['data']['text']:
+                        is_dangerous = True
+                        self.write_message(json.dumps({
+                            'type': 'warn',
+                            'data': resp_json['data']['text']
+                        }),
+                                           binary=False)
+                except base_ex.Error as e:
+                    # error if package itsdangerout not running, or timeout
+                    # all command consider dangerous
+                    is_dangerous = True
+                    self.write_message(json.dumps({
+                        'type': 'error',
+                        'data': _('error calling itsdangerous: %(reason)s') % {
+                            'reason': str(e)
+                        }
+                    }),
+                                       binary=False)
+            # reset audit
+            if command and not is_dangerous:
+                self._audit.reset()
+            if not self._pod_client.is_shell_closed:
+                self._last_transfer = time.time()
+                if not is_dangerous:
+                    self._pod_client.send_shell(msg['data'])
+            else:
+                self.close()
