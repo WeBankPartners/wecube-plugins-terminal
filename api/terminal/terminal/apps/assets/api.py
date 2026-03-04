@@ -53,6 +53,7 @@ class AssetField(object):
     def get_k8s_field_mapping(self):
         return {
             'id': 'id',
+            'displayName': 'display_name',
             CONF.asset.asset_cluster_field_api: 'k8s_api',
             CONF.asset.asset_cluster_field_token: 'k8s_token',
             CONF.asset.asset_cluster_field_namespace: 'k8s_namespace'
@@ -118,7 +119,7 @@ class Asset(object):
             asset['k8s_token'] = clusters[0].get('k8s_token', None)
             asset['k8s_namespace'] = clusters[0].get('k8s_namespace', None)
             if asset['k8s_token']:
-                asset['k8s_token'] = utils.platform_decrypt(asset['k8s_token'], asset['id'], CONF.platform_encrypt_seed)
+                asset['k8s_token'] = utils.platform_decrypt(asset['k8s_token'], clusters[0].get('id'), CONF.platform_encrypt_seed)
         return asset
 
     def list_query(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
@@ -135,7 +136,7 @@ class Asset(object):
             # expression search
             filter_expression = filters.pop('expression', None)
             query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-            asset_type_list = ''.split(CONF.asset.asset_type,',')
+            asset_type_list = CONF.asset.asset_type.split(',')
             asset_type_list = [x.strip() for x in asset_type_list if x]
             datas = []
             for asset_type in asset_type_list:
@@ -221,7 +222,7 @@ class Asset(object):
                 filters.setdefault('id', {'in': list(auth_asset_ids)})
                 client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
                 query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-                asset_type_list = ''.split(CONF.asset.asset_type,',')
+                asset_type_list = CONF.asset.asset_type.split(',')
                 asset_type_list = [x.strip() for x in asset_type_list if x]
                 for asset_type in asset_type_list:
                     package, entity = asset_type.split(':')
@@ -264,7 +265,7 @@ class Asset(object):
                 item['connnection_url'] = CONF.websocket_url
                 # decrypt password if encrypted
                 encrypted_prefix = '{cipher_a}'
-                if item['password'].startswith(encrypted_prefix):
+                if item['password'] and item['password'].startswith(encrypted_prefix):
                     origin_password = item['password'][len(encrypted_prefix):]
                     origin_password = bytes.fromhex(origin_password)
                     key = utils.md5(item['id'] + CONF.platform_encrypt_seed)[:16]

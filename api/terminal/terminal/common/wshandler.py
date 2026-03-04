@@ -228,7 +228,7 @@ class SSHHandler(tornado.websocket.WebSocketHandler):
                     client = wecube.WeCubeClient(CONF.wecube.base_url, None)
                     subsys_token = cache.get_or_create(TOKEN_KEY, client.login_subsystem, expires=600)
                     client.token = subsys_token
-                    asset_type_list = ''.split(CONF.asset.asset_type,',')
+                    asset_type_list = CONF.asset.asset_type.split(',')
                     asset_type_list = [x.strip() for x in asset_type_list if x]
                     entity_type = ''
                     for asset_type in asset_type_list:
@@ -505,7 +505,7 @@ class PodHandler(tornado.websocket.WebSocketHandler):
                     client = wecube.WeCubeClient(CONF.wecube.base_url, None)
                     subsys_token = cache.get_or_create(TOKEN_KEY, client.login_subsystem, expires=600)
                     client.token = subsys_token
-                    asset_type_list = ''.split(CONF.asset.asset_type,',')
+                    asset_type_list = CONF.asset.asset_type.split(',')
                     asset_type_list = [x.strip() for x in asset_type_list if x]
                     entity_type = ''
                     for asset_type in asset_type_list:

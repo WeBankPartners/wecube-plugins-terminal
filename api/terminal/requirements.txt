@@ -19,3 +19,4 @@ apscheduler
 zmq
 minio
 certifi
+kubernetes==28.1.0

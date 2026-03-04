@@ -57,6 +57,9 @@ class PodClient:
                 pod_name: str,
                 container: Optional[str] = None):
         self.api_server = api_server.rstrip("/")
+        # Ensure api_server has a protocol scheme (default to https)
+        if not self.api_server.startswith(('http://', 'https://')):
+            self.api_server = f'https://{self.api_server}'
         self.token = token
         configuration = Configuration()
         configuration.host = self.api_server
@@ -92,7 +95,7 @@ class PodClient:
             raise RuntimeError("Call connect() first")
 
         if command is None:
-            command = ["/bin/sh"]
+            command = ["/bin/bash"]
 
         self.forward_stream = forward_stream
 
