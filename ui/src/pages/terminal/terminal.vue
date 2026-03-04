@@ -147,7 +147,13 @@ export default {
         // 如果已经连接了，就关闭，重新连接
         this.ssh_session.close()
       }
-      var s = new WebSocket(this.host.connnection_url + '/terminal/v1/ssh')
+      let subUrl = ''
+      if (this.host.type === 'host') {
+        subUrl = '/terminal/v1/ssh'
+      } else if (this.host.type === 'pod') {
+        subUrl = '/terminal/v1/pod'
+      }
+      var s = new WebSocket(this.host.connnection_url + subUrl)
       s.onopen = () => {
         s.send(
           JSON.stringify({

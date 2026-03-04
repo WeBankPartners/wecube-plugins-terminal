@@ -88,7 +88,12 @@
                   <template v-for="host in hostInfoToShow">
                     <Panel :name="host.ip_address" :key="host.id">
                       <div class="diyTitle">
-                        {{ host.ip_address }}<span style="color: #5384ff">[{{ host.username }}]</span>{{ host.name }}
+                        <template v-if="host.type === 'host'">
+                          {{ host.ip_address }}<span style="color: #5384ff">[{{ host.username }}]</span>{{ host.name }}
+                        </template>
+                        <template v-else-if="host.type === 'pod'">
+                          {{ host.name }}
+                        </template>
                       </div>
                       <template>
                         <Tooltip content="Console" :delay="500" style="float: right">
@@ -855,7 +860,8 @@ export default {
           showName: host.showName,
           label: host.ip_address,
           key: host.id,
-          uniqueCode: `${host.id}0`
+          uniqueCode: `${host.id}0`,
+          type: host.type
         })
         showName = host.showName
       } else {
@@ -866,7 +872,8 @@ export default {
           showName: `${host.showName}(${index})`,
           label: host.ip_address,
           key: host.id,
-          uniqueCode: `${host.id}${index}`
+          uniqueCode: `${host.id}${index}`,
+          type: host.type
         })
         showName = `${host.showName}(${index})`
       }
