@@ -458,6 +458,9 @@ class PodHandler(tornado.websocket.WebSocketHandler):
                     }
                 }), binary=False)
                 raise e
+            except Exception as e:
+                self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
+                raise e
             try:
                 # pod connect 
                 self._pod_client.connect(asset['k8s_api'],
@@ -466,14 +469,14 @@ class PodHandler(tornado.websocket.WebSocketHandler):
                                          asset['name'])
                 self._asset_info = asset
                 self._auth_user = token_user
+                self._pod_client.create_shell(self, cols=user_cols, rows=user_rows, command=pod_command)
+                self._audit.resize(user_cols, user_rows)
             except exceptions.PluginError as e:
                 self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
                 raise e
-            except socket.timeout as e:
+            except Exception as e:
                 self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
                 raise e
-            self._pod_client.create_shell(self, cols=user_cols, rows=user_rows, command=pod_command)
-            self._audit.resize(user_cols, user_rows)
             # generate record after meta information
             session_starttime = datetime.datetime.now()
             session_filename = "%s_%s_%s.cast" % (asset['name'], session_starttime.strftime('%Y%m%d%H%M%S'),
