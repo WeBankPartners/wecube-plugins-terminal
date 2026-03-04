@@ -140,6 +140,28 @@ class PodClient:
 
             self.ws_client.write_stdin(data)
 
+    def send_keepalive(self):
+        """Send keepalive to prevent K8s WebSocket timeout (2min default)
+
+        Writes to channel 4 (resize channel) which is designed for control messages
+        and won't produce any visible output in the terminal or interfere with
+        idle timeout detection.
+        """
+        with self._lock:
+            if not self.ws_client or not self.ws_client.is_open():
+                return
+
+            try:
+                # Write empty string to channel 4 (resize/control channel)
+                # This keeps the connection alive without:
+                # 1. Displaying anything in terminal (not stdin)
+                # 2. Producing stdout/stderr output (won't trigger _dispatch)
+                # 3. Interfering with idle timeout (no data sent to user)
+                self.ws_client.write_channel(4, '')
+            except Exception:
+                # If write fails, connection might be dead anyway
+                pass
+
     # ==========================================================
     # Resize
     # ==========================================================

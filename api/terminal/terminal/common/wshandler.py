@@ -34,6 +34,7 @@ LOG = logging.getLogger(__name__)
 CONF = config.CONF
 INTERVAL_CLOSE_CHECK = 0.5
 INTERVAL_IDLE_CHECK = 1.0
+INTERVAL_K8S_KEEPALIVE = 60.0  # K8s WebSocket keepalive interval (seconds)
 TOKEN_KEY = 'terminal_subsystem_token'
 
 
@@ -335,6 +336,7 @@ class PodHandler(tornado.websocket.WebSocketHandler):
         self._pod_meta = None
         self._timer_client_close_check = None
         self._timer_client_idle_check = None
+        self._timer_k8s_keepalive = None
         self._last_transfer = time.time()
         self._ssh_recorder = None
         self._ssh_recorder_db = None
@@ -377,6 +379,17 @@ class PodHandler(tornado.websocket.WebSocketHandler):
         else:
             self._timer_client_idle_check = IOLoop.current().call_later(INTERVAL_IDLE_CHECK, self._client_idle_check)
 
+    def _k8s_keepalive(self):
+        """Send keepalive to K8s WebSocket to prevent no data transfer timeout"""
+        try:
+            if not self._pod_client.is_shell_closed:
+                # Send null byte as keepalive - won't be displayed in terminal
+                self._pod_client.send_keepalive()
+                # Schedule next keepalive
+                self._timer_k8s_keepalive = IOLoop.current().call_later(INTERVAL_K8S_KEEPALIVE, self._k8s_keepalive)
+        except Exception as e:
+            LOG.warning('K8s keepalive failed: %s', str(e))
+
     def send(self, data):
         self._last_transfer = time.time()
         self._audit.feed('output', data)
@@ -395,7 +408,7 @@ class PodHandler(tornado.websocket.WebSocketHandler):
                 })
             # push task to uploader
             object_path = self._ssh_recorder_db['started_time'].strftime('%Y-%m-%d')
-            
+
             self.event_pusher.send_json({
                 'session_id':
                 self._ssh_recorder_db['id'],
@@ -413,6 +426,8 @@ class PodHandler(tornado.websocket.WebSocketHandler):
             IOLoop.current().remove_timeout(self._timer_client_close_check)
         if self._timer_client_idle_check:
             IOLoop.current().remove_timeout(self._timer_client_idle_check)
+        if self._timer_k8s_keepalive:
+            IOLoop.current().remove_timeout(self._timer_k8s_keepalive)
         self._asset_info = None
         self._auth_user = None
 
@@ -492,6 +507,7 @@ class PodHandler(tornado.websocket.WebSocketHandler):
             self._ssh_recorder.start(cols=user_cols, rows=user_rows)
             self._timer_client_close_check = IOLoop.current().call_later(INTERVAL_CLOSE_CHECK, self._client_close_check)
             self._timer_client_idle_check = IOLoop.current().call_later(INTERVAL_IDLE_CHECK, self._client_idle_check)
+            self._timer_k8s_keepalive = IOLoop.current().call_later(INTERVAL_K8S_KEEPALIVE, self._k8s_keepalive)
         elif msg['type'] == 'resize':
             user_cols = msg['data']['cols']
             user_rows = msg['data']['rows']
