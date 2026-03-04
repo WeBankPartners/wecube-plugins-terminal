@@ -100,7 +100,7 @@
                           <i
                             disabled
                             class="fa fa-terminal operation-icon-terminal"
-                            @click.stop="openTerminal(host)"
+                            @click.stop="host.type === 'host' ? openTerminal(host) : showCommandModal(host)"
                             aria-hidden="true"
                           >
                           </i>
@@ -115,7 +115,7 @@
                           <span class="host-content-title">name:</span>
                           <span>{{ host.name }}</span>
                         </div>
-                        <div class="host-content">
+                        <div v-if="host.type === 'host'" class="host-content">
                           <span class="host-content-title">display_name:</span>
                           <span style="word-break: break-all">{{ host.display_name }}</span>
                         </div>
@@ -319,6 +319,32 @@
         <Button type="primary" @click="confirmCollection">{{ $t('bc_confirm') }}</Button>
       </div>
     </Modal>
+
+    <Modal v-model="isCommandModalShow" :title="$t('t_select_pod_command')" @on-cancel="handleCommandModalCancel">
+      <RadioGroup v-model="confirmCommand" style="margin-left: 40px">
+        <Radio label="/bin/bash"></Radio>
+        <Radio label="/bin/sh"></Radio>
+        <Radio label="custom">
+          <span>{{ $t('t_custom_command') }}</span>
+        </Radio>
+      </RadioGroup>
+      <Input
+        v-model="customCommandDetail"
+        v-if="confirmCommand === 'custom'"
+        :placeholder="$t('t_custom_command_placeholder')"
+        class="search-input"
+        style="margin-left: 40px"
+      />
+      <template #footer>
+        <Button
+          type="primary"
+          :disabled="confirmCommand === 'custom' && !customCommandDetail"
+          @click="handleCommandModalOk"
+        >
+          {{ $t('t_confirm') }}
+        </Button>
+      </template>
+    </Modal>
   </div>
 </template>
 <script>
@@ -400,7 +426,11 @@ export default {
       // 结果分页
       current: 1,
       pageSize: 20,
-      isSplitScreenMode: false // 是否开启分屏模式
+      isSplitScreenMode: false, // 是否开启分屏模式
+      isCommandModalShow: false,
+      confirmCommand: '/bin/bash',
+      selectedHost: {},
+      customCommandDetail: ''
     }
   },
   mounted () {
@@ -529,7 +559,8 @@ export default {
       const { status, data } = await getAssetsByExpression(item.expression)
       if (status === 'OK') {
         data.data.forEach(item => {
-          item.showName = item.ip_address
+          item.showName = item.type === 'pod' ? item.name : item.ip_address
+          item.command = item.type === 'pod' ? '/bin/bash' : ''
           return item
         })
         this.hostInfo = data.data
@@ -605,7 +636,8 @@ export default {
       const { status, data } = await getAssetsByExpression(this.expressionPath)
       if (status === 'OK') {
         data.data.forEach(item => {
-          item.showName = item.ip_address
+          item.showName = item.type === 'pod' ? item.name : item.ip_address
+          item.command = item.type === 'pod' ? '/bin/bash' : ''
           return item
         })
         this.hostInfo = data.data
@@ -791,7 +823,8 @@ export default {
       const { status, data } = await getHost()
       if (status === 'OK') {
         data.data.forEach(item => {
-          item.showName = item.ip_address
+          item.showName = item.type === 'pod' ? item.name : item.ip_address
+          item.command = item.type === 'pod' ? '/bin/bash' : ''
           return item
         })
         this.hostInfo = data.data
@@ -826,7 +859,7 @@ export default {
         content: '',
         render: h => {
           const ipList = this.hostInfoToShow.map(item => {
-            return h('Tag', item.ip_address)
+            return h('Tag', item.type === 'pod' ? item.name : item.ip_address)
           })
           return ipList
         },
@@ -861,7 +894,8 @@ export default {
           label: host.ip_address,
           key: host.id,
           uniqueCode: `${host.id}0`,
-          type: host.type
+          type: host.type,
+          command: host.type === 'pod' ? host.command : ''
         })
         showName = host.showName
       } else {
@@ -873,7 +907,8 @@ export default {
           label: host.ip_address,
           key: host.id,
           uniqueCode: `${host.id}${index}`,
-          type: host.type
+          type: host.type,
+          command: host.type === 'pod' ? host.command : ''
         })
         showName = `${host.showName}(${index})`
       }
@@ -952,6 +987,25 @@ export default {
           region.style.height = `${cHeight}px`
         }
       })
+    },
+    showCommandModal (host) {
+      this.resetCommandModal()
+      this.selectedHost = host
+      this.isCommandModalShow = true
+    },
+    handleCommandModalOk () {
+      this.selectedHost.command = this.confirmCommand === 'custom' ? this.customCommandDetail : this.confirmCommand
+      this.isCommandModalShow = false
+      this.openTerminal(this.selectedHost)
+    },
+    handleCommandModalCancel () {
+      this.isCommandModalShow = false
+      this.resetCommandModal()
+    },
+    resetCommandModal () {
+      this.confirmCommand = '/bin/bash'
+      this.customCommandDetail = ''
+      this.selectedHost = {}
     }
   },
   components: {

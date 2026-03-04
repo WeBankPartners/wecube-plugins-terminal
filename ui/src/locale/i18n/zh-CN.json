@@ -236,5 +236,9 @@
   "t_maximum_reached": "已到最大连接数",
   "t_split_screen": "分屏展示",
   "t_close_terminal": "关闭终端",
-  "t_close_terminal_tip": "确定关闭终端："
+  "t_close_terminal_tip": "确定关闭终端：",
+  "t_custom_command": "自定义命令",
+  "t_select_pod_command": "请选择pod command",
+  "t_custom_command_placeholder": "请输入自定义command",
+  "t_confirm": "确认"
 }
