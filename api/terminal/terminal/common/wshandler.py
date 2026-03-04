@@ -440,6 +440,7 @@ class PodHandler(tornado.websocket.WebSocketHandler):
             token_user = token_info['sub']
             _authority = token_info.get('authority', None) or '[]'
             token_permissions = set(_authority.strip('[]').split(','))
+            pod_command = self._pod_meta.get('command', None)
             if not asset_id:
                 self.write_message(json.dumps({'type': 'error', 'data': _('missing param: asset_id')}), binary=False)
                 raise exceptions.FieldRequired(attribute='asset_id')
@@ -471,7 +472,7 @@ class PodHandler(tornado.websocket.WebSocketHandler):
             except socket.timeout as e:
                 self.write_message(json.dumps({'type': 'error', 'data': str(e)}), binary=False)
                 raise e
-            self._pod_client.create_shell(self, cols=user_cols, rows=user_rows)
+            self._pod_client.create_shell(self, cols=user_cols, rows=user_rows, command=pod_command)
             self._audit.resize(user_cols, user_rows)
             # generate record after meta information
             session_starttime = datetime.datetime.now()
