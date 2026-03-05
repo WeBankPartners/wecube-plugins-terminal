@@ -89,6 +89,7 @@ import {
   savePermission
 } from '@/api/server'
 import FilterRules from '@/pages/components/filter-rules.vue'
+import { isEmpty } from 'lodash'
 let tableEle = [
   {
     title: 't_name',
@@ -344,6 +345,12 @@ export default {
       this.$root.JQ('#add_object_Modal').modal('show')
     },
     async addPost () {
+      if (isEmpty(this.modelConfig.addRow.assets)) {
+        this.modelConfig.addRow.assets = []
+      }
+      if (isEmpty(this.modelConfig.addRow.roles)) {
+        this.modelConfig.addRow.roles = []
+      }
       const { status } = await savePermission([this.modelConfig.addRow])
       if (status === 'OK') {
         this.$Notice.success({
