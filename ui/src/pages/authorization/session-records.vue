@@ -36,7 +36,9 @@ let tableEle = [
     style: { width: '200px' },
     display: true,
     render: item => {
-      return (item.asset && item.asset.ip_address) || item.asset_id
+      return item.asset && item.asset.type === 'pod'
+        ? item.asset.name
+        : (item.asset && item.asset.ip_address) || item.asset_id
     }
   },
   {

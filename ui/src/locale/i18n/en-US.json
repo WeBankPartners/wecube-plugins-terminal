@@ -234,5 +234,9 @@
   "t_maximum_reached": "Maximum connections reached",
   "t_split_screen": "Split Screen",
   "t_close_terminal": "Close Terminal",
-  "t_close_terminal_tip": "Confirm closing the terminal:"
+  "t_close_terminal_tip": "Confirm closing the terminal:",
+  "t_custom_command": "Custom Command",
+  "t_select_pod_command": "Please Select Pod Command",
+  "t_custom_command_placeholder": "Please Enter Custom Command Placeholder",
+  "t_confirm": "Confirm"
 }

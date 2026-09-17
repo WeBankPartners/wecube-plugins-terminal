@@ -1,14 +1,15 @@
 <template>
   <div class="">
     <Button
+      v-if="host.type === 'host'"
       @click="openTerminalFileMgmt"
       class="file-operate"
       :style="{
         'margin-top': isSplitScreenMode ? '33px' : '6px'
       }"
       type="primary"
-      >{{ $t('t_file_management') }}</Button
-    >
+      >{{ $t('t_file_management') }}
+    </Button>
     <Tag v-if="isSplitScreenMode" closable @on-close="closeTerminal">{{ host.showName }}</Tag>
     <div id="terminal" ref="terminal"></div>
     <Modal v-model="confirmModal.isShowConfirmModal" width="900">
@@ -147,19 +148,24 @@ export default {
         // 如果已经连接了，就关闭，重新连接
         this.ssh_session.close()
       }
-      var s = new WebSocket(this.host.connnection_url + '/terminal/v1/ssh')
+      let subUrl = ''
+      if (this.host.type === 'host') {
+        subUrl = '/terminal/v1/ssh'
+      } else if (this.host.type === 'pod') {
+        subUrl = '/terminal/v1/pod'
+      }
+      var s = new WebSocket(this.host.connnection_url + subUrl)
       s.onopen = () => {
-        s.send(
-          JSON.stringify({
-            type: 'init',
-            data: {
-              asset_id: this.host.key,
-              token: getCookie('accessToken'),
-              cols: this.consoleConfig.cols,
-              rows: this.consoleConfig.rows
-            }
-          })
-        )
+        const initData = {
+          asset_id: this.host.key,
+          token: getCookie('accessToken'),
+          cols: this.consoleConfig.cols,
+          rows: this.consoleConfig.rows
+        }
+        if (this.host.type === 'pod') {
+          initData.command = this.host.command
+        }
+        s.send(JSON.stringify({ type: 'init', data: initData }))
       }
       s.onmessage = e => {
         let data = JSON.parse(e.data)
