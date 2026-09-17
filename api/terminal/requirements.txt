@@ -10,7 +10,7 @@ pyte
 requests
 pymysql
 pyjwt<2.0.0
-pycryptodome==3.20.1
+pycryptodome==3.20.0
 # for platform login encryption, apt install swig
 M2Crypto==0.40.1
 gevent==21.12.0
