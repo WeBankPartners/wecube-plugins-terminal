@@ -97,7 +97,9 @@ class Asset(object):
                 # fix base info
                 item['ip_address'] = ''
                 item['username'] = 'N/A'
-                item['name'] = item.get('display_name')
+                # keep CMDB name field for k8s exec; display_name is for UI
+                item['k8s_pod_name'] = item.get('name')
+                item['name'] = item.get('display_name') or item.get('name')
         return results
 
     @staticmethod

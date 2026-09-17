@@ -100,7 +100,7 @@ class PodClient:
         self.forward_stream = forward_stream
 
         self.ws_client = stream(
-            self.api.connect_get_namespaced_pod_exec,
+            self.api.connect_post_namespaced_pod_exec,
             self.pod_name,
             self.namespace,
             container=self.container,

@@ -481,7 +481,7 @@ class PodHandler(tornado.websocket.WebSocketHandler):
                 self._pod_client.connect(asset['k8s_api'],
                                          asset['k8s_token'],
                                          asset['k8s_namespace'],
-                                         asset['name'])
+                                         asset.get('k8s_pod_name') or asset['name'])
                 self._asset_info = asset
                 self._auth_user = token_user
                 self._pod_client.create_shell(self, cols=user_cols, rows=user_rows, command=pod_command)
