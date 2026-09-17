@@ -51,13 +51,29 @@ class AssetField(object):
             }
 
     def get_k8s_field_mapping(self):
-        return {
+        mapping = {
             'id': 'id',
             'displayName': 'display_name',
             CONF.asset.asset_cluster_field_api: 'k8s_api',
             CONF.asset.asset_cluster_field_token: 'k8s_token',
-            CONF.asset.asset_cluster_field_namespace: 'k8s_namespace'
         }
+        ns_field = (CONF.asset.asset_cluster_field_namespace or '').strip()
+        if ns_field:
+            mapping[ns_field] = 'k8s_namespace'
+        return mapping
+
+    def get_k8s_namespace_field_mapping(self):
+        mapping = {
+            'id': 'id',
+            'displayName': 'display_name',
+        }
+        ns_name_field = (CONF.asset.asset_namespace_field_name or '').strip()
+        ns_cluster_field = (CONF.asset.asset_namespace_field_cluster or '').strip()
+        if ns_name_field:
+            mapping[ns_name_field] = 'k8s_namespace'
+        if ns_cluster_field:
+            mapping[ns_cluster_field] = 'k8s_cluster'
+        return mapping
 
 
 class Asset(object):
@@ -69,6 +85,8 @@ class Asset(object):
         for item in datas:
             new_item = {}
             for origin_name, name in fields.items():
+                if not origin_name:
+                    continue
                 new_item[name] = item.get(origin_name, None)
             results.append(new_item)
         for item in results:
@@ -79,8 +97,22 @@ class Asset(object):
                 # fix base info
                 item['ip_address'] = ''
                 item['username'] = 'N/A'
-                item['name'] = item['display_name']
+                item['name'] = item.get('display_name')
         return results
+
+    @staticmethod
+    def _extract_ref_guid(value):
+        if value is None or value == '':
+            return None
+        if isinstance(value, dict):
+            return value.get('guid') or value.get('id') or Asset._extract_ref_guid(value.get('data'))
+        if isinstance(value, (list, tuple)):
+            for item in value:
+                guid = Asset._extract_ref_guid(item)
+                if guid:
+                    return guid
+            return None
+        return str(value)
 
     def get_connection_info(self, rid, auth_roles=None, auth_type='execute'):
         datas = self.list({'id': rid}, auth_roles=auth_roles, auth_type=auth_type)
@@ -100,8 +132,7 @@ class Asset(object):
         if asset.get('type') == 'pod':
             # get pod k8s (api, token, namespace) and set to k8s_api, k8s_token, k8s_namespace
             # user expression like: wecmdb:pod.app_instance>wecmdb:app_instance.k8s_cluster>wecmdb:k8s_cluster
-            expr = CONF.asset.asset_expr_pod_to_cluster
-            expr = expr.strip()
+            expr = (CONF.asset.asset_expr_pod_to_cluster or '').strip()
             if not expr:
                 raise exceptions.PluginError(message=_('Please set asset_expr_pod_to_cluster in config'))
             expr_parts = expr.split('>')
@@ -110,17 +141,48 @@ class Asset(object):
             package_name, entity_name = expr_parts[0].split(':')
             entity_name = entity_name.split('.')
             filters = [{"index": 0, "packageName": package_name, "entityName": entity_name[0], "attributeFilters": [{"name": "id", "operator": "eq", "value": rid}]}]
-            clusters = self.list_asset_by_expression(CONF.asset.asset_expr_pod_to_cluster, 
-                                                     field_mapping=AssetField().get_k8s_field_mapping(), 
+            clusters = self.list_asset_by_expression(expr,
+                                                     field_mapping=AssetField().get_k8s_field_mapping(),
                                                      filters=filters)
             if len(clusters) == 0:
                 raise exceptions.PluginError(message=_('no k8s cluster info found'))
-            asset['k8s_api'] = clusters[0].get('k8s_api', None)
-            asset['k8s_token'] = clusters[0].get('k8s_token', None)
-            asset['k8s_namespace'] = clusters[0].get('k8s_namespace', None)
+            matched_cluster = clusters[0]
+            ns_expr = (CONF.asset.asset_expr_pod_to_namespace or '').strip()
+            if ns_expr:
+                matched_cluster, ns_name = self._match_pod_namespace(clusters, ns_expr, rid)
+                asset['k8s_namespace'] = ns_name
+            else:
+                asset['k8s_namespace'] = matched_cluster.get('k8s_namespace', None)
+            asset['k8s_api'] = matched_cluster.get('k8s_api', None)
+            asset['k8s_token'] = matched_cluster.get('k8s_token', None)
             if asset['k8s_token']:
-                asset['k8s_token'] = utils.platform_decrypt(asset['k8s_token'], clusters[0].get('id'), CONF.platform_encrypt_seed)
+                asset['k8s_token'] = utils.platform_decrypt(asset['k8s_token'], matched_cluster.get('id'), CONF.platform_encrypt_seed)
         return asset
+
+    def _match_pod_namespace(self, clusters, ns_expr, rid):
+        ns_name_field = (CONF.asset.asset_namespace_field_name or '').strip()
+        ns_cluster_field = (CONF.asset.asset_namespace_field_cluster or '').strip()
+        if not ns_name_field:
+            raise exceptions.PluginError(message=_('Please set TERMINAL_NAMESPACE_FIELD_NAME in config'))
+        if not ns_cluster_field:
+            raise exceptions.PluginError(message=_('Please set TERMINAL_NAMESPACE_FIELD_CLUSTER in config'))
+        ns_parts = ns_expr.split('>')
+        package_name, entity_name = ns_parts[0].split(':')
+        entity_name = entity_name.split('.')
+        filters = [{"index": 0, "packageName": package_name, "entityName": entity_name[0], "attributeFilters": [{"name": "id", "operator": "eq", "value": rid}]}]
+        namespaces = self.list_asset_by_expression(ns_expr,
+                                                   field_mapping=AssetField().get_k8s_namespace_field_mapping(),
+                                                   filters=filters)
+        if not namespaces:
+            raise exceptions.PluginError(message=_('no k8s namespace info found'))
+        cluster_by_id = {item.get('id'): item for item in clusters if item.get('id')}
+        for ns in namespaces:
+            cluster_guid = self._extract_ref_guid(ns.get('k8s_cluster'))
+            cluster = cluster_by_id.get(cluster_guid)
+            ns_name = ns.get('k8s_namespace')
+            if cluster and ns_name:
+                return cluster, ns_name
+        raise exceptions.PluginError(message=_('no matched k8s namespace for cluster'))
 
     def list_query(self, filters=None, orders=None, offset=None, limit=None, hooks=None):
         if CONF.server.mode == 'standalone':
