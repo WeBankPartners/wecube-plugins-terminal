@@ -31,7 +31,8 @@ def decrypt_rsa(secret_key, encrypt_text):
 
 
 @config.intercept('db_username', 'db_hostip', 'db_hostport', 'db_schema', 'gateway_url', 'asset_type',
-                  'asset_field_name', 'asset_field_ip', 'asset_field_user', 'asset_field_password', 'asset_field_port',
+                  'asset_field_name', 'asset_field_ip', 'asset_field_pod_ip', 'asset_field_user', 'asset_field_password',
+                  'asset_field_port',
                   'asset_field_desc', 'jwt_signing_key', 'boxes_check', 'sub_system_code', 'sub_system_key',
                   'websocket_url', 'session_timeout', 'platform_timezone', 'check_itsdangerous', 'download_max_size',
                   'platform_encrypt_seed', 's3_server_url', 's3_access_key', 's3_secret_key', 's3_bucket', 'mode',

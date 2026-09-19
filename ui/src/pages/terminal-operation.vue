@@ -83,16 +83,22 @@
                 />
                 <Button type="primary" @click="filterHost" style="width: 70px">{{ $t('button.search') }}</Button>
               </div>
+              <div v-if="showAssetTypeTabs" style="margin-bottom: 8px">
+                <RadioGroup v-model="currentAssetType" type="button" size="small" @on-change="onAssetTypeChange">
+                  <Radio label="host">{{ $t('t_asset_host') }}</Radio>
+                  <Radio label="pod">{{ $t('t_asset_pod') }}</Radio>
+                </RadioGroup>
+              </div>
               <template v-if="hostInfo.length > 0">
-                <Collapse>
+                <Collapse :key="currentHostTab + '-' + currentAssetType">
                   <template v-for="host in hostInfoToShow">
-                    <Panel :name="host.ip_address" :key="host.id">
+                    <Panel :name="host.id" :key="host.id">
                       <div class="diyTitle">
                         <template v-if="host.type === 'host'">
                           {{ host.ip_address }}<span style="color: #5384ff">[{{ host.username }}]</span>{{ host.name }}
                         </template>
                         <template v-else-if="host.type === 'pod'">
-                          {{ host.name }}
+                          <span v-if="host.ip_address">{{ host.ip_address }} </span>{{ host.name }}
                         </template>
                       </div>
                       <template>
@@ -118,6 +124,10 @@
                         <div v-if="host.type === 'host'" class="host-content">
                           <span class="host-content-title">display_name:</span>
                           <span style="word-break: break-all">{{ host.display_name }}</span>
+                        </div>
+                        <div v-if="host.type === 'pod' && host.ip_address" class="host-content">
+                          <span class="host-content-title">ip:</span>
+                          <span>{{ host.ip_address }}</span>
                         </div>
                       </div>
                     </Panel>
@@ -367,6 +377,7 @@ export default {
   data () {
     return {
       currentHostTab: 'default',
+      currentAssetType: 'host',
       selectedCollectionId: '',
       favoritesLists: [],
       expressionPath: '',
@@ -431,6 +442,16 @@ export default {
       confirmCommand: '/bin/bash',
       selectedHost: {},
       customCommandDetail: ''
+    }
+  },
+  computed: {
+    showAssetTypeTabs () {
+      if (this.currentHostTab !== 'default') {
+        return false
+      }
+      const hasHost = this.oriHostInfo.some(item => (item.type || 'host') === 'host')
+      const hasPod = this.oriHostInfo.some(item => item.type === 'pod')
+      return hasHost && hasPod
     }
   },
   mounted () {
@@ -558,12 +579,7 @@ export default {
       const item = this.favoritesLists.find(i => i.id === Number(val))
       const { status, data } = await getAssetsByExpression(item.expression)
       if (status === 'OK') {
-        data.data.forEach(item => {
-          item.showName = item.type === 'pod' ? item.name : item.ip_address
-          item.command = item.type === 'pod' ? '/bin/bash' : ''
-          return item
-        })
-        this.hostInfo = data.data
+        this.hostInfo = this.normalizeAssets(data.data)
         this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
         this.current = 1
         this.finalData()
@@ -635,12 +651,7 @@ export default {
     async getAssetsByExpression () {
       const { status, data } = await getAssetsByExpression(this.expressionPath)
       if (status === 'OK') {
-        data.data.forEach(item => {
-          item.showName = item.type === 'pod' ? item.name : item.ip_address
-          item.command = item.type === 'pod' ? '/bin/bash' : ''
-          return item
-        })
-        this.hostInfo = data.data
+        this.hostInfo = this.normalizeAssets(data.data)
         this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
         this.current = 1
         this.finalData()
@@ -819,16 +830,25 @@ export default {
       this.current = 1
       this.finalData()
     },
+    onAssetTypeChange () {
+      this.current = 1
+      this.finalData()
+    },
+    normalizeAssets (list) {
+      return (list || []).map(item => {
+        item.showName = item.type === 'pod' ? item.name : item.ip_address
+        item.command = item.type === 'pod' ? '/bin/bash' : ''
+        return item
+      })
+    },
     async getHostList () {
       const { status, data } = await getHost()
       if (status === 'OK') {
-        data.data.forEach(item => {
-          item.showName = item.type === 'pod' ? item.name : item.ip_address
-          item.command = item.type === 'pod' ? '/bin/bash' : ''
-          return item
-        })
-        this.hostInfo = data.data
+        const assets = this.normalizeAssets(data.data)
+        this.hostInfo = assets
         this.oriHostInfo = JSON.parse(JSON.stringify(this.hostInfo))
+        const hasHost = this.oriHostInfo.some(item => (item.type || 'host') === 'host')
+        this.currentAssetType = hasHost ? 'host' : 'pod'
         this.current = 1
         this.finalData()
       }
@@ -839,15 +859,20 @@ export default {
     },
     finalData () {
       const startNumber = (this.current - 1) * this.pageSize
-      if (this.searchHost === '') {
-        this.hostInfo = this.oriHostInfo
-        this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
-      } else {
-        this.hostInfo = this.oriHostInfo.filter(
-          item => item.ip_address.includes(this.searchHost) || item.name.includes(this.searchHost)
-        )
-        this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
+      let source = this.oriHostInfo
+      if (this.currentHostTab === 'default') {
+        source = this.oriHostInfo.filter(item => (item.type || 'host') === this.currentAssetType)
       }
+      if (this.searchHost === '') {
+        this.hostInfo = source
+      } else {
+        this.hostInfo = source.filter(item => {
+          const ip = item.ip_address || ''
+          const name = item.name || ''
+          return ip.includes(this.searchHost) || name.includes(this.searchHost)
+        })
+      }
+      this.hostInfoToShow = this.hostInfo.slice(startNumber, startNumber + this.pageSize)
     },
     startAll () {
       if (this.hostInfoToShow.length + this.terminalTabs.length >= maxConnectionLimit) {
@@ -859,7 +884,13 @@ export default {
         content: '',
         render: h => {
           const ipList = this.hostInfoToShow.map(item => {
-            return h('Tag', item.type === 'pod' ? item.name : item.ip_address)
+            const label =
+              item.type === 'pod'
+                ? item.ip_address
+                  ? `${item.ip_address} ${item.name}`
+                  : item.name
+                : item.ip_address
+            return h('Tag', label)
           })
           return ipList
         },

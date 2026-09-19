@@ -11,7 +11,7 @@
           style="width: 340px"
         >
           <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{
-            item.ip_address + '(' + item.name + ')'
+            item.ip_address ? item.ip_address + '(' + item.name + ')' : item.name
           }}</Option>
         </Select>
         <Select
@@ -32,7 +32,7 @@
           <label class="col-md-2 label-name">{{ $t('t_asset_id') }}:</label>
           <Select v-model="modelConfig.addRow.assets" multiple filterable style="width: 340px">
             <Option v-for="item in modelConfig.slotConfig.assertsOption" :value="item.id" :key="item.id">
-              {{ item.ip_address + '(' + item.name + ')' }}
+              {{ item.ip_address ? item.ip_address + '(' + item.name + ')' : item.name }}
             </Option>
           </Select>
         </div>
@@ -103,7 +103,7 @@ let tableEle = [
     display: true,
     render: item => {
       const res = item.assets.map(asset => {
-        return asset.ip_address
+        return asset.ip_address || asset.name
       })
       return res.join('/')
     }

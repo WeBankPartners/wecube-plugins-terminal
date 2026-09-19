@@ -11,7 +11,7 @@
           style="width: 340px"
         >
           <Option v-for="item in assertsOption" :value="item.id" :key="item.id">{{
-            item.ip_address + '(' + item.name + ')'
+            item.ip_address ? item.ip_address + '(' + item.name + ')' : item.name
           }}</Option>
         </Select>
         <DatePicker
@@ -34,7 +34,15 @@ let tableEle = [
     value: 'asset_id',
     display: true,
     render: item => {
-      return (item.asset && item.asset.ip_address) || item.asset_id
+      if (!item.asset) {
+        return item.asset_id
+      }
+      if (item.asset.type === 'pod') {
+        return item.asset.ip_address
+          ? item.asset.ip_address + '(' + item.asset.name + ')'
+          : item.asset.name
+      }
+      return item.asset.ip_address || item.asset_id
     }
   },
   {

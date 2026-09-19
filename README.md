@@ -32,7 +32,8 @@ Terminal插件提供了远程终端接入能力，在用户既有权限内更加
 | -------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | TERMINAL_ASSET_TYPE              | wecmdb:host_resource | 终端资产类型，比如cmdb插件中的主机资源，格式为package:entity                                                                                               |
 | TERMINAL_FIELD_NAME              | name                 | 从TERMINAL_ASSET_TYPE数据中提取的名称字段                                                                                                                  |
-| TERMINAL_FIELD_IP                | ip_address           | 从TERMINAL_ASSET_TYPE数据中提取的登陆IP字段                                                                                                                |
+| TERMINAL_FIELD_IP                | ip_address           | 从TERMINAL_ASSET_TYPE中主机类实体提取的登陆IP字段                                                                                                          |
+| TERMINAL_FIELD_POD_IP            | ip_address           | 从TERMINAL_ASSET_TYPE中Pod类实体（实体名包含pod）提取的IP字段，用于前端展示                                                                                |
 | TERMINAL_FIELD_PORT              | login_port           | 从TERMINAL_ASSET_TYPE数据中提取的登陆端口字段                                                                                                              |
 | TERMINAL_FIELD_USER              | root_user_name       | 从TERMINAL_ASSET_TYPE数据中提取的登陆用户名字段                                                                                                            |
 | TERMINAL_FIELD_PASSWORD          | root_user_password   | 从TERMINAL_ASSET_TYPE数据中提取的登陆密码字段，支持qcloud/saltstack的{cipher_a}加密数据                                                                    |

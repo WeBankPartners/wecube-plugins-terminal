@@ -131,6 +131,8 @@
   "t_transfer_records": "Transfer Records",
   "t_permissions": "Permissions",
   "t_asset_id": "Server",
+  "t_asset_host": "Host",
+  "t_asset_pod": "Pod",
   "t_select_datetime": "Select date and time",
   "t_search_host": "Enter IP or name, press Enter or click Search button to filter.",
   "t_started_time": "Started Time",

@@ -28,27 +28,24 @@ TOKEN_KEY = 'terminal_subsystem_token'
 
 
 class AssetField(object):
-    def get_field_mapping(self, with_pass=False):
+    def get_field_mapping(self, with_pass=False, asset_kind='host'):
+        mapping = {
+            'id': 'id',
+            CONF.asset.asset_field_name: 'name',
+            'displayName': 'display_name',
+            CONF.asset.asset_field_port: 'port',
+            CONF.asset.asset_field_user: 'username',
+            CONF.asset.asset_field_desc: 'description'
+        }
         if with_pass:
-            return {
-                'id': 'id',
-                CONF.asset.asset_field_name: 'name',
-                'displayName': 'display_name',
-                CONF.asset.asset_field_ip: 'ip_address',
-                CONF.asset.asset_field_port: 'port',
-                CONF.asset.asset_field_user: 'username',
-                CONF.asset.asset_field_password: 'password',
-                CONF.asset.asset_field_desc: 'description'
-            }
-        return {
-                'id': 'id',
-                CONF.asset.asset_field_name: 'name',
-                'displayName': 'display_name',
-                CONF.asset.asset_field_ip: 'ip_address',
-                CONF.asset.asset_field_port: 'port',
-                CONF.asset.asset_field_user: 'username',
-                CONF.asset.asset_field_desc: 'description'
-            }
+            mapping[CONF.asset.asset_field_password] = 'password'
+        if asset_kind == 'pod':
+            pod_ip_field = (getattr(CONF.asset, 'asset_field_pod_ip', None) or CONF.asset.asset_field_ip or '').strip()
+            if pod_ip_field:
+                mapping[pod_ip_field] = 'ip_address'
+        else:
+            mapping[CONF.asset.asset_field_ip] = 'ip_address'
+        return mapping
 
     def get_k8s_field_mapping(self):
         mapping = {
@@ -80,7 +77,21 @@ class Asset(object):
     def __init__(self, token=None):
         self._token = token or utils.get_token()
 
-    def _transform_field(self, datas, fields):
+    @staticmethod
+    def parse_asset_type_list():
+        asset_type_list = CONF.asset.asset_type.split(',')
+        return [x.strip() for x in asset_type_list if x]
+
+    @staticmethod
+    def is_pod_entity(entity):
+        return 'pod' in (entity or '').lower()
+
+    @staticmethod
+    def asset_kind_from_type(asset_type):
+        entity = asset_type.split(':')[-1] if asset_type else ''
+        return 'pod' if Asset.is_pod_entity(entity) else 'host'
+
+    def _transform_field(self, datas, fields, asset_kind=None, asset_type=None):
         results = []
         for item in datas:
             new_item = {}
@@ -89,18 +100,33 @@ class Asset(object):
                     continue
                 new_item[name] = item.get(origin_name, None)
             results.append(new_item)
+        if not asset_kind:
+            return results
         for item in results:
-            if item.get('ip_address'):
-                item['type'] = 'host'
-            else:
-                item['type'] = 'pod'
-                # fix base info
-                item['ip_address'] = ''
-                item['username'] = 'N/A'
+            item['type'] = asset_kind
+            if asset_type:
+                item['asset_type'] = asset_type
+            if asset_kind == 'pod':
+                if not item.get('ip_address'):
+                    item['ip_address'] = ''
+                item['username'] = item.get('username') or 'N/A'
                 # keep CMDB name field for k8s exec; display_name is for UI
                 item['k8s_pod_name'] = item.get('name')
                 item['name'] = item.get('display_name') or item.get('name')
         return results
+
+    def _retrieve_assets_by_type(self, filters, with_pass=False):
+        client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
+        asset_type_list = self.parse_asset_type_list()
+        datas = []
+        for asset_type in asset_type_list:
+            package, entity = asset_type.split(':')
+            kind = self.asset_kind_from_type(asset_type)
+            fields = AssetField().get_field_mapping(with_pass=with_pass, asset_kind=kind)
+            query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
+            resp_json = client.retrieve(package, entity, query)
+            datas.extend(self._transform_field(resp_json.get('data', []), fields, asset_kind=kind, asset_type=asset_type))
+        return datas, asset_type_list
 
     @staticmethod
     def _extract_ref_guid(value):
@@ -194,20 +220,10 @@ class Asset(object):
             datas = cache.get(cached_key, 5)
             if cache.validate(datas):
                 return datas
-            fields = AssetField().get_field_mapping()
-            client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
             filters = filters or {}
             # expression search
             filter_expression = filters.pop('expression', None)
-            query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-            asset_type_list = CONF.asset.asset_type.split(',')
-            asset_type_list = [x.strip() for x in asset_type_list if x]
-            datas = []
-            for asset_type in asset_type_list:
-                package, entity = asset_type.split(':')
-                resp_json = client.retrieve(package, entity, query)
-                datas.extend(resp_json.get('data', []))
-            datas = self._transform_field(datas, fields)
+            datas, asset_type_list = self._retrieve_assets_by_type(filters, with_pass=False)
             if filter_expression:
                 # validate expression
                 if not isinstance(filter_expression, str):
@@ -284,15 +300,7 @@ class Asset(object):
             filter_expression = filters.pop('expression', None)
             if auth_asset_ids:
                 filters.setdefault('id', {'in': list(auth_asset_ids)})
-                client = wecmdb.EntityClient(CONF.wecube.base_url, self._token)
-                query = utils.transform_filter_to_entity_query(filters, fields_mapping=fields)
-                asset_type_list = CONF.asset.asset_type.split(',')
-                asset_type_list = [x.strip() for x in asset_type_list if x]
-                for asset_type in asset_type_list:
-                    package, entity = asset_type.split(':')
-                    resp_json = client.retrieve(package, entity, query)
-                    datas.extend(resp_json.get('data', []))
-                datas = self._transform_field(datas, fields)
+                datas, asset_type_list = self._retrieve_assets_by_type(filters, with_pass=True)
                 if filter_expression:
                     # validate expression
                     if not isinstance(filter_expression, str):
@@ -329,7 +337,7 @@ class Asset(object):
                 item['connnection_url'] = CONF.websocket_url
                 # decrypt password if encrypted
                 encrypted_prefix = '{cipher_a}'
-                if item['password'] and item['password'].startswith(encrypted_prefix):
+                if item.get('password') and item['password'].startswith(encrypted_prefix):
                     origin_password = item['password'][len(encrypted_prefix):]
                     origin_password = bytes.fromhex(origin_password)
                     key = utils.md5(item['id'] + CONF.platform_encrypt_seed)[:16]
